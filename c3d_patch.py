@@ -25,5 +25,16 @@ def add_frames(self, frames, index=None):
         self._frames.extend(frames)
 
 
-# Patch `add_frames` method.
+def parameter_blocks(self):
+    """
+    This method patches a bug present in v0.5.2 which is causing the number of bytes in the
+    parameter section to be incorrectly calculated.
+    """
+    byte_count = 4. + sum(g.binary_size() for g in self.group_values())
+    return int(np.ceil(byte_count / 512))
+
+
+# Patch methods.
 c3d.Writer.add_frames = add_frames
+c3d.Reader.parameter_blocks = parameter_blocks
+c3d.Writer.parameter_blocks = parameter_blocks
