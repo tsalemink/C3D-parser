@@ -34,7 +34,17 @@ def parameter_blocks(self):
     return int(np.ceil(byte_count / 512))
 
 
+def set_point_labels(self, labels, name='LABELS'):
+    """
+    This method adds an additional `name` parameter to the `set_point_labels` method - to support
+    alternative label group names.
+    """
+    label_str, label_max_size = c3d.Writer.pack_labels(labels)
+    self.point_group.add_str(name, 'Point labels.', label_str, label_max_size, len(labels))
+
+
 # Patch methods.
 c3d.Writer.add_frames = add_frames
 c3d.Reader.parameter_blocks = parameter_blocks
 c3d.Writer.parameter_blocks = parameter_blocks
+c3d.Writer.set_point_labels = set_point_labels
