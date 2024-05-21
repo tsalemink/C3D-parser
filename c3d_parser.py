@@ -1,5 +1,6 @@
 
 import os
+import math
 import json
 
 from trc import TRCData
@@ -24,6 +25,7 @@ def parse_c3d(c3d_file, output_directory):
     with open(map_file, 'r') as file:
         marker_map = json.load(file)
     markers, frames = harmonise_markers(trc_data, marker_map)
+    validate_frames(frames)
 
     # Write harmonised TRC data.
     set_marker_data(trc_data, markers, frames)
@@ -89,6 +91,40 @@ def harmonise_markers(trc_data, marker_mapping):
 
 
 def set_marker_data(trc_data, markers, frames):
-    trc_data['Markers'] = markers
+    # Clear existing frame data.
     for frame_number in trc_data['Frame#']:
+        del trc_data[frame_number]
+
+    trc_data['Markers'] = markers
+    trc_data['Frame#'] = []
+    for frame_number in frames.keys():
+        trc_data['Frame#'].append(frame_number)
         trc_data[frame_number] = frames[frame_number]
+
+
+def validate_frames(frames):
+    # Check for incomplete frames.
+    incomplete_frames = {}
+    for frame_number in frames.keys():
+        frame = frames[frame_number][1]
+        missing_markers = []
+        for marker_index in range(len(frame)):
+            coordinates = frame[marker_index]
+            if math.isnan(coordinates[0]):
+                missing_markers.append(marker_index)
+        if missing_markers:
+            incomplete_frames[frame_number] = missing_markers
+
+    # Trim incomplete frames from beginning or end of trial.
+    first_frame = list(frames.keys())[0]
+    while first_frame in incomplete_frames:
+        del frames[first_frame]
+        del incomplete_frames[first_frame]
+        first_frame += 1
+    last_frame = list(frames.keys())[-1]
+    while last_frame in incomplete_frames:
+        del frames[last_frame]
+        del incomplete_frames[last_frame]
+        last_frame -= 1
+
+    # TODO: Fit a spline to fill any remaining gaps.
