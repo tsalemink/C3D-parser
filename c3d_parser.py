@@ -25,7 +25,7 @@ def parse_c3d(c3d_file, output_directory):
     with open(map_file, 'r') as file:
         marker_map = json.load(file)
     markers, frames = harmonise_markers(trc_data, marker_map)
-    validate_frames(frames)
+    trim_frames(frames)
 
     # Write harmonised TRC data.
     set_marker_data(trc_data, markers, frames)
@@ -102,7 +102,7 @@ def set_marker_data(trc_data, markers, frames):
         trc_data[frame_number] = frames[frame_number]
 
 
-def validate_frames(frames):
+def trim_frames(frames, max_trim=50):
     # Check for incomplete frames.
     incomplete_frames = {}
     for frame_number in frames.keys():
@@ -115,16 +115,20 @@ def validate_frames(frames):
         if missing_markers:
             incomplete_frames[frame_number] = missing_markers
 
-    # Trim incomplete frames from beginning or end of trial.
+    # Trim incomplete frames near the beginning or end of the trial.
     first_frame = list(frames.keys())[0]
-    while first_frame in incomplete_frames:
+    start_frames = [frame_number for frame_number in incomplete_frames if frame_number < first_frame + max_trim]
+    trim_start = max(start_frames, default=first_frame - 1)
+    while first_frame <= trim_start:
         del frames[first_frame]
-        del incomplete_frames[first_frame]
         first_frame += 1
     last_frame = list(frames.keys())[-1]
-    while last_frame in incomplete_frames:
+    end_frames = [frame_number for frame_number in incomplete_frames if last_frame - max_trim < frame_number]
+    trim_end = min(end_frames, default=last_frame + 1)
+    while last_frame >= trim_end:
         del frames[last_frame]
-        del incomplete_frames[last_frame]
         last_frame -= 1
 
-    # TODO: Fit a spline to fill any remaining gaps.
+    remaining_frames = list(set(incomplete_frames.keys()) - set(start_frames) - set(end_frames))
+    if remaining_frames:
+        print(f"WARNING: Frames {remaining_frames} are incomplete.")
