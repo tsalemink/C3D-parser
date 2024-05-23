@@ -3,6 +3,7 @@ import os
 import math
 import json
 import numpy as np
+import pandas as pd
 
 from scipy import signal
 
@@ -19,31 +20,32 @@ def parse_c3d(c3d_file, output_directory):
     gait_lab = os.path.basename(input_directory)
     file_name = os.path.splitext(c3d_file_name)[0]
 
-    # Extract TRC data from C3D file.
-    trc_data = TRCData()
-    trc_data.import_from(c3d_file)
-
-    # Harmonise TRC data.
-    map_file = os.path.join(marker_maps_dir, f"{gait_lab}.json")
-    with open(map_file, 'r') as file:
-        marker_map = json.load(file)
-    markers, frames = harmonise_markers(trc_data, marker_map)
-    trim_frames(frames)
-    filter_markers(frames, trc_data['DataRate'])
-
-    # Write harmonised TRC data.
-    set_marker_data(trc_data, markers, frames)
-    trc_directory = os.path.join(output_directory, 'trc')
-    if not os.path.exists(trc_directory):
-        os.makedirs(trc_directory)
-    trc_file_path = os.path.join(trc_directory, f"{file_name}.trc")
-    trc_data.save(trc_file_path)
-
     # De-identify the C3D data.
     de_identified_directory = os.path.join(output_directory, 'de_identified')
     if not os.path.exists(de_identified_directory):
         os.makedirs(de_identified_directory)
     de_identify_c3d(c3d_file, de_identified_directory)
+
+    # Extract TRC data from C3D file.
+    trc_data = TRCData()
+    trc_data.import_from(c3d_file)
+    frame_data = extract_marker_data(trc_data)
+
+    # Harmonise TRC data.
+    map_file = os.path.join(marker_maps_dir, f"{gait_lab}.json")
+    with open(map_file, 'r') as file:
+        marker_map = json.load(file)
+    harmonise_markers(frame_data, marker_map)
+    trim_frames(frame_data)
+    filter_markers(frame_data, trc_data['DataRate'])
+
+    # Write harmonised TRC data.
+    set_marker_data(trc_data, frame_data)
+    trc_directory = os.path.join(output_directory, 'trc')
+    if not os.path.exists(trc_directory):
+        os.makedirs(trc_directory)
+    trc_file_path = os.path.join(trc_directory, f"{file_name}.trc")
+    trc_data.save(trc_file_path)
 
 
 def de_identify_c3d(file_path, output_directory):
@@ -66,93 +68,79 @@ def de_identify_c3d(file_path, output_directory):
         writer.write(handle)
 
 
-def harmonise_markers(trc_data, marker_mapping):
-    """
-    Harmonises the marker set of a `TRCData` object according to a mapping of markers. Returns the
-    harmonised marker-set and frame data.
-
-    param c3d_writer: The `TRCData` object to be updated.
-    param marker_mapping: A dictionary mapping the trial marker set to the harmonised marker set.
-    """
-    # Harmonise marker labels.
-    reversed_mapping = {value: key for key, value in marker_mapping.items() if value is not None}
-    harmonised_markers = [reversed_mapping[marker] if marker in reversed_mapping else None
-                          for marker in trc_data['Markers']]
-
-    # Filter out non-harmonised data points.
-    harmonised_frames = {}
+def extract_marker_data(trc_data):
+    frames = {}
     for frame_number in trc_data['Frame#']:
         time, frame = trc_data[frame_number]
-        harmonised_points = []
-        for i in range(len(frame)):
-            if harmonised_markers[i]:
-                coordinates = frame[i]
-                harmonised_points.append(coordinates)
-        harmonised_frames[frame_number] = [time, harmonised_points]
-    harmonised_markers = list(filter(None, harmonised_markers))
+        frames[frame_number] = [time, *map(np.array, frame)]
+    frame_data = pd.DataFrame.from_dict(frames, orient='index')
+    frame_data.columns = ['Time', *trc_data['Markers']]
 
-    return harmonised_markers, harmonised_frames
+    return frame_data
 
 
-def set_marker_data(trc_data, markers, frames):
+def set_marker_data(trc_data, frame_data):
     # Clear existing frame data.
     for frame_number in trc_data['Frame#']:
         del trc_data[frame_number]
 
-    trc_data['Markers'] = markers
+    trc_data['Markers'] = frame_data.columns[1:]
     trc_data['Frame#'] = []
-    for frame_number in frames.keys():
+    for frame_number, frame in frame_data.iterrows():
+        frame_time, *data = frame
         trc_data['Frame#'].append(frame_number)
-        trc_data[frame_number] = frames[frame_number]
+        trc_data[frame_number] = [frame_time, data]
 
 
-def trim_frames(frames, max_trim=50):
+def harmonise_markers(frame_data, marker_mapping):
+    # Harmonise marker labels.
+    reversed_mapping = {value: key for key, value in marker_mapping.items() if value is not None}
+    header_mapping = {header: reversed_mapping.get(header, None) for header in frame_data.columns[1:]}
+    frame_data.rename(columns=header_mapping, inplace=True)
+
+    # Filter out non-harmonised data points.
+    if None in frame_data.columns:
+        frame_data.drop(columns=[None], axis=1, inplace=True)
+
+
+def trim_frames(frame_data, max_trim=50):
     # Check for incomplete frames.
     incomplete_frames = {}
-    for frame_number in frames.keys():
-        frame = frames[frame_number][1]
+    for frame_number, frame in frame_data.iterrows():
         missing_markers = []
-        for marker_index in range(len(frame)):
+        for marker_index in range(1, len(frame)):
             coordinates = frame[marker_index]
             if math.isnan(coordinates[0]):
-                missing_markers.append(marker_index)
+                missing_markers.append(frame_data.columns[marker_index])
         if missing_markers:
             incomplete_frames[frame_number] = missing_markers
 
     # Trim incomplete frames near the beginning or end of the trial.
-    first_frame = list(frames.keys())[0]
+    first_frame = frame_data.index.min()
     start_frames = [frame_number for frame_number in incomplete_frames if frame_number < first_frame + max_trim]
-    trim_start = max(start_frames, default=first_frame - 1)
-    while first_frame <= trim_start:
-        del frames[first_frame]
-        first_frame += 1
-    last_frame = list(frames.keys())[-1]
+    trim_start = max(start_frames) + 1 if start_frames else first_frame
+    last_frame = frame_data.index.max()
     end_frames = [frame_number for frame_number in incomplete_frames if last_frame - max_trim < frame_number]
-    trim_end = min(end_frames, default=last_frame + 1)
-    while last_frame >= trim_end:
-        del frames[last_frame]
-        last_frame -= 1
+    trim_end = min(end_frames) - 1 if end_frames else last_frame
+
+    frame_list = frame_data.index.to_list()
+    complete_frames = frame_list[frame_list.index(trim_start):frame_list.index(trim_end) + 1]
+    drop_frames = frame_data.index.difference(complete_frames)
+    if not drop_frames.empty:
+        frame_data.drop(drop_frames, inplace=True)
 
     remaining_frames = list(set(incomplete_frames.keys()) - set(start_frames) - set(end_frames))
     if remaining_frames:
         print(f"WARNING: Frames {remaining_frames} are incomplete.")
 
 
-def filter_markers(frames, data_rate, cut_off_frequency=6):
-    # TODO: Do this part externally.
-    # Convert frames to numpy array.
-    frames_list = []
-    for row in frames.values():
-        data = row[1]
-        frames_list.append(data)
-    frames_array = np.array(frames_list)
-
+def filter_markers(frame_data, data_rate, cut_off_frequency=6):
     # Determine filter coefficients
     Wn = cut_off_frequency / (data_rate / 2)
     b, a = signal.butter(2, Wn)
 
     # Filter the marker trajectory.
-    for i in range(frames_array.shape[1]):
-        marker_trajectory = frames_array[:, i]
+    for marker in frame_data.columns[1:]:
+        marker_trajectory = frame_data.loc[:, marker].values
         filtered_trajectory = signal.filtfilt(b, a, marker_trajectory, axis=0)
-        frames_array[:, i] = filtered_trajectory
+        frame_data.loc[:, marker] = filtered_trajectory
