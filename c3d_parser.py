@@ -2,6 +2,9 @@
 import os
 import math
 import json
+import numpy as np
+
+from scipy import signal
 
 from trc import TRCData
 
@@ -26,6 +29,7 @@ def parse_c3d(c3d_file, output_directory):
         marker_map = json.load(file)
     markers, frames = harmonise_markers(trc_data, marker_map)
     trim_frames(frames)
+    filter_markers(frames, trc_data['DataRate'])
 
     # Write harmonised TRC data.
     set_marker_data(trc_data, markers, frames)
@@ -132,3 +136,23 @@ def trim_frames(frames, max_trim=50):
     remaining_frames = list(set(incomplete_frames.keys()) - set(start_frames) - set(end_frames))
     if remaining_frames:
         print(f"WARNING: Frames {remaining_frames} are incomplete.")
+
+
+def filter_markers(frames, data_rate, cut_off_frequency=6):
+    # TODO: Do this part externally.
+    # Convert frames to numpy array.
+    frames_list = []
+    for row in frames.values():
+        data = row[1]
+        frames_list.append(data)
+    frames_array = np.array(frames_list)
+
+    # Determine filter coefficients
+    Wn = cut_off_frequency / (data_rate / 2)
+    b, a = signal.butter(2, Wn)
+
+    # Filter the marker trajectory.
+    for i in range(frames_array.shape[1]):
+        marker_trajectory = frames_array[:, i]
+        filtered_trajectory = signal.filtfilt(b, a, marker_trajectory, axis=0)
+        frames_array[:, i] = filtered_trajectory
