@@ -62,7 +62,8 @@ def de_identify_c3d(file_path, output_directory):
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
         writer = reader.to_writer('copy')
-        writer.get('SUBJECTS').set_str('NAMES', '', 'Subject', 7)
+        if 'SUBJECTS' in reader:
+            writer.get('SUBJECTS').set_str('NAMES', '', 'Subject', 7)
 
     with open(os.path.join(output_directory, file_name), 'wb') as handle:
         writer.write(handle)
