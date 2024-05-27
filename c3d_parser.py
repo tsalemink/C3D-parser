@@ -5,7 +5,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from scipy import signal
+from scipy import signal, interpolate
 
 from trc import TRCData
 
@@ -38,6 +38,7 @@ def parse_c3d(c3d_file, output_directory):
     harmonise_markers(frame_data, marker_map)
     trim_frames(frame_data)
     filter_markers(frame_data, trc_data['DataRate'])
+    frame_data = resample_markers(frame_data, trc_data['DataRate'])
 
     # Write harmonised TRC data.
     set_marker_data(trc_data, frame_data)
@@ -80,7 +81,7 @@ def extract_marker_data(trc_data):
     return frame_data
 
 
-def set_marker_data(trc_data, frame_data):
+def set_marker_data(trc_data, frame_data, rate=100):
     # Clear existing frame data.
     for frame_number in trc_data['Frame#']:
         del trc_data[frame_number]
@@ -91,6 +92,11 @@ def set_marker_data(trc_data, frame_data):
         frame_time, *data = frame
         trc_data['Frame#'].append(frame_number)
         trc_data[frame_number] = [frame_time, data]
+
+    # Set additional information.
+    trc_data['DataRate'] = rate
+    trc_data['CameraRate'] = rate
+    trc_data['NumFrames'] = frame_data.shape[0]
 
 
 def harmonise_markers(frame_data, marker_mapping):
@@ -140,8 +146,39 @@ def filter_markers(frame_data, data_rate, cut_off_frequency=6):
     Wn = cut_off_frequency / (data_rate / 2)
     b, a = signal.butter(2, Wn)
 
-    # Filter the marker trajectory.
+    # Filter each marker trajectory.
     for marker in frame_data.columns[1:]:
         marker_trajectory = frame_data.loc[:, marker].values
         filtered_trajectory = signal.filtfilt(b, a, marker_trajectory, axis=0)
         frame_data.loc[:, marker] = filtered_trajectory
+
+
+def resample_markers(frame_data, data_rate, frequency=100):
+    if data_rate == 100:
+        return frame_data
+
+    start_time = frame_data['Time'].iat[0]
+    end_time = frame_data['Time'].iat[-1]
+    number_of_frames = int((end_time - start_time) * frequency)
+    time_array = np.linspace(start_time, end_time, number_of_frames)
+
+    resampled_frame_data = pd.DataFrame(columns=frame_data.columns)
+    resampled_frame_data['Time'] = time_array
+
+    # Resample each marker trajectory.
+    for marker in frame_data.columns[1:]:
+        marker_trajectory = np.stack(frame_data.loc[:, marker].values)
+
+        resampled_trajectory = []
+        for axis in marker_trajectory.transpose():
+            tck = interpolate.splrep(frame_data['Time'].values, axis, s=0)
+            resampled_trajectory.append(interpolate.splev(time_array, tck, der=0))
+        resampled_trajectory = np.stack(resampled_trajectory).transpose()
+
+        # Adjust frame format to support row iteration.
+        flattened_array = np.empty(resampled_trajectory.shape[0], dtype=object)
+        for i in range(resampled_trajectory.shape[0]):
+            flattened_array[i] = resampled_trajectory[i]
+        resampled_frame_data.loc[:, marker] = flattened_array
+
+    return resampled_frame_data
