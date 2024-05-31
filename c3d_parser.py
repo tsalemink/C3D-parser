@@ -48,6 +48,9 @@ def parse_c3d(c3d_file, output_directory):
     trc_file_path = os.path.join(trc_directory, f"{file_name}.trc")
     trc_data.save(trc_file_path)
 
+    # Extract GRF data from C3D file.
+    analog_data = extract_grf(c3d_file)
+
 
 def de_identify_c3d(file_path, output_directory):
     input_directory, file_name = os.path.split(os.path.abspath(file_path))
@@ -182,3 +185,24 @@ def resample_markers(frame_data, data_rate, frequency=100):
         resampled_frame_data.loc[:, marker] = flattened_array
 
     return resampled_frame_data
+
+
+def extract_grf(file_path):
+    with open(file_path, 'rb') as handle:
+        reader = c3d.Reader(handle)
+        labels = reader.get('ANALOG:LABELS').string_array
+
+        time_increment = 1 / reader.analog_rate
+        start = reader.first_frame / reader.point_rate
+        stop = reader.last_frame / reader.point_rate + ((reader.analog_per_frame - 1) * time_increment)
+        times = np.linspace(start, stop, reader.analog_sample_count).tolist()
+
+        analog_data = {'time': times}
+        analog_data.update({label: [] for label in labels})
+        for i, points, analog in reader.read_frames():
+            for j, label in enumerate(analog_data):
+                if j == 0:
+                    continue
+                analog_data[label].extend(analog[j - 1])
+
+    return pd.DataFrame(analog_data)
