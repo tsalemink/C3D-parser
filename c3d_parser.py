@@ -51,6 +51,14 @@ def parse_c3d(c3d_file, output_directory):
     # Extract GRF data from C3D file.
     analog_data = extract_grf(c3d_file)
 
+    if analog_data is not None:
+        # Write GRF data.
+        grf_directory = os.path.join(output_directory, 'grf')
+        if not os.path.exists(grf_directory):
+            os.makedirs(grf_directory)
+        grf_file_path = os.path.join(grf_directory, f"{file_name}_grf.mot")
+        write_grf(analog_data, grf_file_path)
+
 
 def de_identify_c3d(file_path, output_directory):
     input_directory, file_name = os.path.split(os.path.abspath(file_path))
@@ -190,14 +198,16 @@ def resample_markers(frame_data, data_rate, frequency=100):
 def extract_grf(file_path):
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
-        labels = reader.get('ANALOG:LABELS').string_array
+        if reader.analog_used == 0:
+            return None
 
         time_increment = 1 / reader.analog_rate
         start = reader.first_frame / reader.point_rate
         stop = reader.last_frame / reader.point_rate + ((reader.analog_per_frame - 1) * time_increment)
         times = np.linspace(start, stop, reader.analog_sample_count).tolist()
-
         analog_data = {'time': times}
+
+        labels = reader.get('ANALOG:LABELS').string_array
         analog_data.update({label: [] for label in labels})
         for i, points, analog in reader.read_frames():
             for j, label in enumerate(analog_data):
@@ -206,3 +216,25 @@ def extract_grf(file_path):
                 analog_data[label].extend(analog[j - 1])
 
     return pd.DataFrame(analog_data)
+
+
+def write_grf(analog_data, file_path):
+    with open(file_path, 'w') as file:
+        row_count, column_count = analog_data.shape
+
+        # Write header.
+        file.write(f"{os.path.basename(file_path)}\n")
+        file.write("version=1\n")
+        file.write(f"nRows={row_count}\n")
+        file.write(f"nColumns={column_count}\n")
+        file.write("inDegrees=yes\n")
+        file.write("endheader\n\n")
+
+        # Write labels.
+        for label in analog_data.columns:
+            file.write(f"{label.strip()}\t")
+        file.write("\n")
+
+    # Write GRF data.
+    with open(file_path, 'a') as file:
+        np.savetxt(file, analog_data.values, fmt='%0.6f', delimiter='\t')
