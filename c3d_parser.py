@@ -36,7 +36,7 @@ def parse_c3d(c3d_file, output_directory):
     with open(map_file, 'r') as file:
         marker_map = json.load(file)
     harmonise_markers(frame_data, marker_map)
-    trim_frames(frame_data)
+    start_frame, end_frame = trim_frames(frame_data)
     filter_markers(frame_data, trc_data['DataRate'])
     frame_data = resample_markers(frame_data, trc_data['DataRate'])
 
@@ -49,7 +49,7 @@ def parse_c3d(c3d_file, output_directory):
     trc_data.save(trc_file_path)
 
     # Extract GRF data from C3D file.
-    analog_data = extract_grf(c3d_file)
+    analog_data = extract_grf(c3d_file, start_frame, end_frame)
 
     if analog_data is not None:
         # Write GRF data.
@@ -151,6 +151,8 @@ def trim_frames(frame_data, max_trim=50):
     if remaining_frames:
         print(f"WARNING: Frames {remaining_frames} are incomplete.")
 
+    return first_frame, last_frame
+
 
 def filter_markers(frame_data, data_rate, cut_off_frequency=6):
     # Determine filter coefficients
@@ -195,21 +197,24 @@ def resample_markers(frame_data, data_rate, frequency=100):
     return resampled_frame_data
 
 
-def extract_grf(file_path):
+def extract_grf(file_path, start_frame, end_frame):
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
         if reader.analog_used == 0:
             return None
 
         time_increment = 1 / reader.analog_rate
-        start = reader.first_frame / reader.point_rate
-        stop = reader.last_frame / reader.point_rate + ((reader.analog_per_frame - 1) * time_increment)
+        start = start_frame / reader.point_rate
+        stop = end_frame / reader.point_rate + ((reader.analog_per_frame - 1) * time_increment)
         times = np.linspace(start, stop, reader.analog_sample_count).tolist()
         analog_data = {'time': times}
 
         labels = reader.get('ANALOG:LABELS').string_array
         analog_data.update({label: [] for label in labels})
         for i, points, analog in reader.read_frames():
+            if i < start_frame or end_frame < i:
+                continue
+
             for j, label in enumerate(analog_data):
                 if j == 0:
                     continue
