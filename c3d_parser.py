@@ -37,7 +37,7 @@ def parse_c3d(c3d_file, output_directory):
         marker_map = json.load(file)
     harmonise_markers(frame_data, marker_map)
     start_frame, end_frame = trim_frames(frame_data)
-    filter_markers(frame_data, trc_data['DataRate'])
+    filter_data(frame_data, trc_data['DataRate'])
     frame_data = resample_markers(frame_data, trc_data['DataRate'])
 
     # Write harmonised TRC data.
@@ -49,9 +49,12 @@ def parse_c3d(c3d_file, output_directory):
     trc_data.save(trc_file_path)
 
     # Extract GRF data from C3D file.
-    analog_data = extract_grf(c3d_file, start_frame, end_frame)
+    analog_data, data_rate = extract_grf(c3d_file, start_frame, end_frame)
 
     if analog_data is not None:
+        # Harmonise GRF data.
+        filter_data(analog_data, data_rate)
+
         # Write GRF data.
         grf_directory = os.path.join(output_directory, 'grf')
         if not os.path.exists(grf_directory):
@@ -154,7 +157,7 @@ def trim_frames(frame_data, max_trim=50):
     return first_frame, last_frame
 
 
-def filter_markers(frame_data, data_rate, cut_off_frequency=6):
+def filter_data(frame_data, data_rate, cut_off_frequency=6):
     # Determine filter coefficients
     Wn = cut_off_frequency / (data_rate / 2)
     b, a = signal.butter(2, Wn)
@@ -201,7 +204,7 @@ def extract_grf(file_path, start_frame, end_frame):
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
         if reader.analog_used == 0:
-            return None
+            return None, None
 
         time_increment = 1 / reader.analog_rate
         start = start_frame / reader.point_rate
@@ -220,7 +223,7 @@ def extract_grf(file_path, start_frame, end_frame):
                     continue
                 analog_data[label].extend(analog[j - 1])
 
-    return pd.DataFrame(analog_data)
+    return pd.DataFrame(analog_data), reader.analog_rate
 
 
 def write_grf(analog_data, file_path):
