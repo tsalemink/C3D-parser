@@ -38,7 +38,7 @@ def parse_c3d(c3d_file, output_directory):
     harmonise_markers(frame_data, marker_map)
     start_frame, end_frame = trim_frames(frame_data)
     filter_data(frame_data, trc_data['DataRate'])
-    frame_data = resample_markers(frame_data, trc_data['DataRate'])
+    frame_data = resample_data(frame_data, trc_data['DataRate'])
 
     # Write harmonised TRC data.
     set_marker_data(trc_data, frame_data)
@@ -54,6 +54,7 @@ def parse_c3d(c3d_file, output_directory):
     if analog_data is not None:
         # Harmonise GRF data.
         filter_data(analog_data, data_rate)
+        analog_data = resample_data(analog_data, data_rate, frequency=1000)
 
         # Write GRF data.
         grf_directory = os.path.join(output_directory, 'grf')
@@ -169,33 +170,39 @@ def filter_data(frame_data, data_rate, cut_off_frequency=6):
         frame_data.loc[:, marker] = filtered_trajectory
 
 
-def resample_markers(frame_data, data_rate, frequency=100):
-    if data_rate == 100:
+def resample_data(frame_data, data_rate, frequency=100):
+    if data_rate == frequency:
         return frame_data
 
-    start_time = frame_data['Time'].iat[0]
-    end_time = frame_data['Time'].iat[-1]
+    start_time = frame_data.iloc[:, 0].iat[0]
+    end_time = frame_data.iloc[:, 0].iat[-1]
     number_of_frames = int((end_time - start_time) * frequency)
     time_array = np.linspace(start_time, end_time, number_of_frames)
 
     resampled_frame_data = pd.DataFrame(columns=frame_data.columns)
-    resampled_frame_data['Time'] = time_array
+    resampled_frame_data.iloc[:, 0] = time_array
 
-    # Resample each marker trajectory.
-    for marker in frame_data.columns[1:]:
-        marker_trajectory = np.stack(frame_data.loc[:, marker].values)
+    for column in frame_data.columns[1:]:
+        trajectory = np.stack(frame_data.loc[:, column].values)
 
-        resampled_trajectory = []
-        for axis in marker_trajectory.transpose():
-            tck = interpolate.splrep(frame_data['Time'].values, axis, s=0)
-            resampled_trajectory.append(interpolate.splev(time_array, tck, der=0))
-        resampled_trajectory = np.stack(resampled_trajectory).transpose()
+        # Resample analog data.
+        if trajectory.ndim == 1:
+            tck = interpolate.splrep(frame_data.iloc[:, 0].values, trajectory, s=0)
+            resampled_trajectory = interpolate.splev(time_array, tck, der=0)
+
+        # Resample marker data.
+        else:
+            resampled_trajectory = []
+            for axis in trajectory.transpose():
+                tck = interpolate.splrep(frame_data.iloc[:, 0].values, axis, s=0)
+                resampled_trajectory.append(interpolate.splev(time_array, tck, der=0))
+            resampled_trajectory = np.stack(resampled_trajectory).transpose()
 
         # Adjust frame format to support row iteration.
         flattened_array = np.empty(resampled_trajectory.shape[0], dtype=object)
         for i in range(resampled_trajectory.shape[0]):
             flattened_array[i] = resampled_trajectory[i]
-        resampled_frame_data.loc[:, marker] = flattened_array
+        resampled_frame_data.loc[:, column] = flattened_array
 
     return resampled_frame_data
 
