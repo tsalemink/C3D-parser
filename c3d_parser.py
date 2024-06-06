@@ -203,6 +203,7 @@ def resample_data(frame_data, data_rate, frequency=100):
         for i in range(resampled_trajectory.shape[0]):
             flattened_array[i] = resampled_trajectory[i]
         resampled_frame_data.loc[:, column] = flattened_array
+        resampled_frame_data.index = pd.RangeIndex(start=1, stop=len(resampled_frame_data) + 1, step=1)
 
     return resampled_frame_data
 
@@ -214,8 +215,8 @@ def extract_grf(file_path, start_frame, end_frame):
             return None, None
 
         time_increment = 1 / reader.analog_rate
-        start = start_frame / reader.point_rate
-        stop = end_frame / reader.point_rate + ((reader.analog_per_frame - 1) * time_increment)
+        start = (start_frame - 1) / reader.point_rate
+        stop = (end_frame - 1) / reader.point_rate + ((reader.analog_per_frame - 1) * time_increment)
         times = np.linspace(start, stop, reader.analog_sample_count).tolist()
         analog_data = {'time': times}
 
