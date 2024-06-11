@@ -17,7 +17,9 @@ marker_maps_dir = os.path.abspath(os.path.join('..', 'marker_maps'))
 
 def parse_c3d(c3d_file, output_directory):
     input_directory, c3d_file_name = os.path.split(os.path.abspath(c3d_file))
-    gait_lab = os.path.basename(input_directory)
+    gait_lab = os.path.basename(os.path.dirname(input_directory))
+    trial_type = os.path.basename(input_directory)
+    dynamic_trial = (trial_type == 'dynamic')
     file_name = os.path.splitext(c3d_file_name)[0]
 
     # De-identify the C3D data.
@@ -48,10 +50,10 @@ def parse_c3d(c3d_file, output_directory):
     trc_file_path = os.path.join(trc_directory, f"{file_name}.trc")
     trc_data.save(trc_file_path)
 
-    # Extract GRF data from C3D file.
-    analog_data, data_rate = extract_grf(c3d_file, start_frame, end_frame)
+    if dynamic_trial:
+        # Extract GRF data from C3D file.
+        analog_data, data_rate = extract_grf(c3d_file, start_frame, end_frame)
 
-    if analog_data is not None:
         # Harmonise GRF data.
         filter_data(analog_data, data_rate)
         analog_data = resample_data(analog_data, data_rate, frequency=1000)
