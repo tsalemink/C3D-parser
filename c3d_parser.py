@@ -52,7 +52,9 @@ def parse_c3d(c3d_file, output_directory):
 
     if dynamic_trial:
         # Extract GRF data from C3D file.
-        analog_data, data_rate = extract_grf(c3d_file, start_frame, end_frame)
+        analog_data, data_rate, events, plate_count = extract_grf(c3d_file, start_frame, end_frame)
+        if analog_data is None:
+            return
 
         # Harmonise GRF data.
         filter_data(analog_data, data_rate)
@@ -213,8 +215,8 @@ def resample_data(frame_data, data_rate, frequency=100):
 def extract_grf(file_path, start_frame, end_frame):
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
-        if reader.analog_used == 0:
-            return None, None
+        if (reader.analog_used == 0) or ('EVENT' not in reader):
+            return None, None, None, None
 
         time_increment = 1 / reader.analog_rate
         start = (start_frame - 1) / reader.point_rate
@@ -233,7 +235,25 @@ def extract_grf(file_path, start_frame, end_frame):
                     continue
                 analog_data[label].extend(analog[j - 1])
 
-    return pd.DataFrame(analog_data), reader.analog_rate
+        # Extract event information.
+        event_group = reader.get('EVENT')
+        event_count = event_group.get('USED').int8_value
+        contexts = event_group.get('CONTEXTS').string_array
+        labels = event_group.get('LABELS').string_array
+        times = event_group.get('TIMES').float_array
+        events = {'Left': {}, 'Right': {}}
+
+        for i in range(event_count):
+            foot = contexts[i].strip()
+            label = labels[i].strip()
+            time = times[i][1]
+            events[foot][label] = time
+        for foot in events.keys():
+            events[foot] = dict(sorted(events[foot].items(), key=lambda item: item[1]))
+
+        plate_count = reader.get('FORCE_PLATFORM:USED').int8_value
+
+    return pd.DataFrame(analog_data), reader.analog_rate, events, plate_count
 
 
 def write_grf(analog_data, file_path):
