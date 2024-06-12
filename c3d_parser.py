@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from scipy import signal, interpolate
+from scipy.spatial.transform import Rotation
 
 from trc import TRCData
 
@@ -218,6 +219,7 @@ def extract_grf(file_path, start_frame, end_frame):
         if (reader.analog_used == 0) or ('EVENT' not in reader):
             return None, None, None, None
 
+        # Extract analog data
         time_increment = 1 / reader.analog_rate
         start = (start_frame - 1) / reader.point_rate
         stop = (end_frame - 1) / reader.point_rate + ((reader.analog_per_frame - 1) * time_increment)
@@ -234,6 +236,7 @@ def extract_grf(file_path, start_frame, end_frame):
                 if j == 0:
                     continue
                 analog_data[label].extend(analog[j - 1])
+        analog_data = pd.DataFrame(analog_data)
 
         # Extract event information.
         event_group = reader.get('EVENT')
@@ -251,9 +254,14 @@ def extract_grf(file_path, start_frame, end_frame):
         for foot in events.keys():
             events[foot] = dict(sorted(events[foot].items(), key=lambda item: item[1]))
 
+        # Get number of force plates.
         plate_count = reader.get('FORCE_PLATFORM:USED').int8_value
 
-    return pd.DataFrame(analog_data), reader.analog_rate, events, plate_count
+        # Rotate GRF data to align with global CS.
+        corners = reader.get('FORCE_PLATFORM:CORNERS').float_array
+        transform_grf_coordinates(analog_data, plate_count, corners)
+
+    return analog_data, reader.analog_rate, events, plate_count
 
 
 def write_grf(analog_data, file_path):
@@ -276,3 +284,24 @@ def write_grf(analog_data, file_path):
     # Write GRF data.
     with open(file_path, 'a') as file:
         np.savetxt(file, analog_data.values, fmt='%0.6f', delimiter='\t')
+
+
+def transform_grf_coordinates(analog_data, plate_count, corners):
+    for i in range(plate_count):
+        plate = corners[i]
+        x_vector = plate[0] - plate[1]
+        y_vector = plate[0] - plate[3]
+        x_unit_vector = x_vector / np.linalg.norm(x_vector)
+        y_unit_vector = y_vector / np.linalg.norm(y_vector)
+        force_plate_axes = [x_unit_vector, y_unit_vector]
+        global_axes = [[1, 0, 0], [0, 1, 0]]
+        rotation, _ = Rotation.align_vectors(force_plate_axes, global_axes)
+        rotation_matrix = rotation.as_matrix()
+
+        start = 1 + (6 * i)
+        for j in [start, start + 3]:
+            columns = list(range(j, j + 3))
+            values = analog_data.iloc[:, columns]
+            transformed_values = values.apply(lambda row: np.dot(rotation_matrix, row), axis=1)
+            analog_data.iloc[:, columns] = transformed_values.tolist()
+
