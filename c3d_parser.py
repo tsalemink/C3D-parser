@@ -60,6 +60,7 @@ def parse_c3d(c3d_file, output_directory):
         # Harmonise GRF data.
         filter_data(analog_data, data_rate)
         analog_data = resample_data(analog_data, data_rate, frequency=1000)
+        zero_grf_data(analog_data, plate_count)
 
         # Write GRF data.
         grf_directory = os.path.join(output_directory, 'grf')
@@ -304,4 +305,13 @@ def transform_grf_coordinates(analog_data, plate_count, corners):
             values = analog_data.iloc[:, columns]
             transformed_values = values.apply(lambda row: np.dot(rotation_matrix, row), axis=1)
             analog_data.iloc[:, columns] = transformed_values.tolist()
+
+
+def zero_grf_data(analog_data, plate_count):
+    for i in range(plate_count):
+        start = 1 + (6 * i)
+        columns = list(range(start, start + 6))
+        values = analog_data.iloc[:, columns]
+        values.loc[values.iloc[:, 2] < 0] = 0
+        analog_data.iloc[:, columns] = values
 
