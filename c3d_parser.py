@@ -53,9 +53,12 @@ def parse_c3d(c3d_file, output_directory):
 
     if dynamic_trial:
         # Extract GRF data from C3D file.
-        analog_data, data_rate, events, plate_count = extract_grf(c3d_file, start_frame, end_frame)
+        analog_data, data_rate, events, plate_count, corners = extract_grf(c3d_file, start_frame, end_frame)
         if analog_data is None:
             return
+
+        # Match events to force plates.
+        identify_event_plates(frame_data, events, corners)
 
         # Harmonise GRF data.
         filter_data(analog_data, data_rate)
@@ -218,7 +221,7 @@ def extract_grf(file_path, start_frame, end_frame):
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
         if (reader.analog_used == 0) or ('EVENT' not in reader):
-            return None, None, None, None
+            return None, None, None, None, None
 
         # Extract analog data
         time_increment = 1 / reader.analog_rate
@@ -251,9 +254,9 @@ def extract_grf(file_path, start_frame, end_frame):
             foot = contexts[i].strip()
             label = labels[i].strip()
             time = times[i][1]
-            events[foot][label] = time
+            events[foot][time] = label
         for foot in events.keys():
-            events[foot] = dict(sorted(events[foot].items(), key=lambda item: item[1]))
+            events[foot] = dict(sorted(events[foot].items()))
 
         # Get number of force plates.
         plate_count = reader.get('FORCE_PLATFORM:USED').int8_value
@@ -262,7 +265,7 @@ def extract_grf(file_path, start_frame, end_frame):
         corners = reader.get('FORCE_PLATFORM:CORNERS').float_array
         transform_grf_coordinates(analog_data, plate_count, corners)
 
-    return analog_data, reader.analog_rate, events, plate_count
+    return analog_data, reader.analog_rate, events, plate_count, corners
 
 
 def write_grf(analog_data, file_path):
@@ -314,4 +317,30 @@ def zero_grf_data(analog_data, plate_count):
         values = analog_data.iloc[:, columns]
         values.loc[values.iloc[:, 2] < 0] = 0
         analog_data.iloc[:, columns] = values
+
+
+def identify_event_plates(frame_data, events, corners):
+    for foot in events:
+        drop_events = []
+        for event_time, event in events[foot].items():
+            event_index = frame_data[frame_data['Time'] <= event_time].index[-1]
+            heel_coordinates = frame_data.at[event_index, foot[0] + 'HEE']
+            for plate in range(len(corners)):
+                if point_on_plate(heel_coordinates, corners[plate]):
+                    events[foot][event_time] = [event, plate]
+                    break
+            else:
+                drop_events.append(event_time)
+
+        for event_time in drop_events:
+            del events[foot][event_time]
+
+
+def point_on_plate(point, corners):
+    x_coordinates = [corner[0] for corner in corners]
+    y_coordinates = [corner[1] for corner in corners]
+    min_x, max_x = min(x_coordinates), max(x_coordinates)
+    min_y, max_y = min(y_coordinates), max(y_coordinates)
+
+    return min_x <= point[0] <= max_x and min_y <= point[1] <= max_y
 
