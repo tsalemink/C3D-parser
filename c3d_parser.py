@@ -314,9 +314,8 @@ def zero_grf_data(analog_data, plate_count):
     for i in range(plate_count):
         start = 1 + (6 * i)
         columns = list(range(start, start + 6))
-        values = analog_data.iloc[:, columns]
-        values.loc[values.iloc[:, 2] < 0] = 0
-        analog_data.iloc[:, columns] = values
+        mask = analog_data.iloc[:, columns[2]] < 0
+        analog_data.iloc[mask, columns] = 0
 
 
 def identify_event_plates(frame_data, events, corners):
