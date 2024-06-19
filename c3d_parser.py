@@ -290,6 +290,32 @@ def write_grf(analog_data, file_path):
         np.savetxt(file, analog_data.values, fmt='%0.6f', delimiter='\t')
 
 
+def calculate_force_and_couple(analog_data, plate_count):
+    new_data = pd.DataFrame(analog_data['time'])
+
+    for i in range(plate_count):
+        start = 1 + (6 * i)
+        columns = list(range(start, start + 6))
+        Fx, Fy, Fz, Mx, My, Mz = analog_data.iloc[:, columns].values.T
+
+        with np.errstate(divide='ignore', invalid='ignore'):
+            CoPx = np.where(Fz != 0, -(My + Fx) / Fz, 0)
+            CoPy = np.where(Fz != 0, (Mx - Fy) / Fz, 0)
+        Tz = Mz - CoPx * Fy + CoPy * Fx
+
+        new_data[f'Fx{i + 1}'] = Fx
+        new_data[f'Fy{i + 1}'] = Fy
+        new_data[f'Fz{i + 1}'] = Fz
+        new_data[f'CoPx{i + 1}'] = CoPx
+        new_data[f'CoPy{i + 1}'] = CoPy
+        new_data[f'CoPz{i + 1}'] = np.zeros(len(analog_data))
+        new_data[f'Tx{i + 1}'] = np.zeros(len(analog_data))
+        new_data[f'Ty{i + 1}'] = np.zeros(len(analog_data))
+        new_data[f'Tz{i + 1}'] = Tz
+
+    return new_data
+
+
 def transform_grf_coordinates(analog_data, plate_count, corners):
     for i in range(plate_count):
         plate = corners[i]
