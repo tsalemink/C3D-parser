@@ -64,6 +64,8 @@ def parse_c3d(c3d_file, output_directory):
         filter_data(analog_data, data_rate)
         analog_data = resample_data(analog_data, data_rate, frequency=1000)
         zero_grf_data(analog_data, plate_count)
+        analog_data = calculate_force_and_couple(analog_data, plate_count)
+        transform_grf_coordinates(analog_data, plate_count, corners)
 
         # Write GRF data.
         grf_directory = os.path.join(output_directory, 'grf')
@@ -263,7 +265,6 @@ def extract_grf(file_path, start_frame, end_frame):
 
         # Rotate GRF data to align with global CS.
         corners = reader.get('FORCE_PLATFORM:CORNERS').float_array
-        transform_grf_coordinates(analog_data, plate_count, corners)
 
     return analog_data, reader.analog_rate, events, plate_count, corners
 
@@ -317,6 +318,7 @@ def calculate_force_and_couple(analog_data, plate_count):
 
 
 def transform_grf_coordinates(analog_data, plate_count, corners):
+    # Rotate GRF data to align with global CS.
     for i in range(plate_count):
         plate = corners[i]
         x_vector = plate[0] - plate[1]
@@ -328,8 +330,8 @@ def transform_grf_coordinates(analog_data, plate_count, corners):
         rotation, _ = Rotation.align_vectors(force_plate_axes, global_axes)
         rotation_matrix = rotation.as_matrix()
 
-        start = 1 + (6 * i)
-        for j in [start, start + 3]:
+        start = 1 + (9 * i)
+        for j in [start, start + 3, start + 6]:
             columns = list(range(j, j + 3))
             values = analog_data.iloc[:, columns]
             transformed_values = values.apply(lambda row: np.dot(rotation_matrix, row), axis=1)
@@ -340,7 +342,7 @@ def zero_grf_data(analog_data, plate_count):
     for i in range(plate_count):
         start = 1 + (6 * i)
         columns = list(range(start, start + 6))
-        mask = analog_data.iloc[:, columns[2]] < 0
+        mask = analog_data.iloc[:, columns[2]] > 0
         analog_data.iloc[mask, columns] = 0
 
 
