@@ -66,6 +66,7 @@ def parse_c3d(c3d_file, output_directory):
         zero_grf_data(analog_data, plate_count)
         analog_data = calculate_force_and_couple(analog_data, plate_count)
         transform_grf_coordinates(analog_data, plate_count, corners)
+        analog_data = concatenate_grf_data(analog_data, events)
 
         # Write GRF data.
         grf_directory = os.path.join(output_directory, 'grf')
@@ -371,3 +372,47 @@ def point_on_plate(point, corners):
 
     return min_x <= point[0] <= max_x and min_y <= point[1] <= max_y
 
+
+def concatenate_grf_data(analog_data, events):
+    columns = ["ground_force_vx", "ground_force_vy", "ground_force_vz",
+               "ground_force_px", "ground_force_py", "ground_force_pz",
+               "ground_torque_x", "ground_torque_y", "ground_torque_z",
+               "ground_force_2_vx", "ground_force_2_vy", "ground_force_2_vz",
+               "ground_force_2_px", "ground_force_2_py", "ground_force_2_pz",
+               "ground_torque_2_x", "ground_torque_2_y", "ground_torque_2_z"]
+    concatenated_data = pd.DataFrame(columns=['time'] + columns)
+    concatenated_data['time'] = analog_data['time']
+    for column in columns:
+        concatenated_data[column] = 0.0
+
+    def copy_data():
+        frames = range(start, end + 1)
+        data = analog_data.iloc[frames, source_columns].values
+        concatenated_data.iloc[frames, target_columns] = data
+
+    for i in range(len(events)):
+        foot = list(events)[i]
+        target_columns = range(i * 9 + 1, i * 9 + 10)
+
+        start, end = None, None
+        for event in events[foot]:
+            event_type = events[foot][event][0]
+            event_plate = events[foot][event][1]
+            frame = analog_data[analog_data['time'] <= event].index[-1]
+            source_columns = range(event_plate * 9 + 1, event_plate * 9 + 10)
+
+            if event_type == "Foot Strike":
+                start = frame
+            elif event_type == "Foot Off":
+                end = frame
+
+                if start is None:
+                    start = analog_data.index[0]
+                copy_data()
+                start, end = None, None
+
+        if start:
+            end = analog_data.index[-1]
+            copy_data()
+
+    return concatenated_data
