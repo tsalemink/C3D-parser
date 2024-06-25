@@ -402,8 +402,12 @@ def concatenate_grf_data(analog_data, events):
             source_columns = range(event_plate * 9 + 1, event_plate * 9 + 10)
 
             if event_type == "Foot Strike":
+                while analog_data.iloc[frame, source_columns[2]] > 0:
+                    frame -= 1
                 start = frame
             elif event_type == "Foot Off":
+                while analog_data.iloc[frame, source_columns[2]] > 0:
+                    frame += 1
                 end = frame
 
                 if start is None:
