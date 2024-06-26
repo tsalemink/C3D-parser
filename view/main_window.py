@@ -1,6 +1,7 @@
 
 import os
 
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow, QFileDialog, QListWidgetItem
 
 from view.ui.ui_main_window import Ui_MainWindow
@@ -50,4 +51,7 @@ class MainWindow(QMainWindow):
             for file in files:
                 if file.lower().endswith('.c3d'):
                     path = os.path.relpath(os.path.join(root, file), directory)
-                    self._ui.listWidget_files.addItem(QListWidgetItem(path))
+                    item = QListWidgetItem(path)
+                    item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                    item.setCheckState(Qt.CheckState.Checked)
+                    self._ui.listWidget_files.addItem(item)
