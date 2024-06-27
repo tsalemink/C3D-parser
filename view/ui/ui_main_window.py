@@ -15,9 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLineEdit,
-    QListWidget, QListWidgetItem, QMainWindow, QPushButton,
-    QSizePolicy, QSplitter, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
+    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
+    QPushButton, QSizePolicy, QSplitter, QVBoxLayout,
+    QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -46,6 +47,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.label = QLabel(self.frame_trial)
+        self.label.setObjectName(u"label")
+
+        self.horizontalLayout.addWidget(self.label)
+
         self.lineEditDirectory = QLineEdit(self.frame_trial)
         self.lineEditDirectory.setObjectName(u"lineEditDirectory")
 
@@ -57,14 +63,14 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.pushButtonDirectoryChooser)
 
-        self.horizontalLayout.setStretch(0, 1)
+        self.horizontalLayout.setStretch(1, 1)
 
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
-        self.listWidget_files = QListWidget(self.frame_trial)
-        self.listWidget_files.setObjectName(u"listWidget_files")
+        self.listWidgetFiles = QListWidget(self.frame_trial)
+        self.listWidgetFiles.setObjectName(u"listWidgetFiles")
 
-        self.verticalLayout_2.addWidget(self.listWidget_files)
+        self.verticalLayout_2.addWidget(self.listWidgetFiles)
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
@@ -79,6 +85,12 @@ class Ui_MainWindow(object):
         self.pushButtonParseData.setEnabled(False)
 
         self.horizontalLayout_2.addWidget(self.pushButtonParseData)
+
+        self.pushButtonUpload = QPushButton(self.frame_trial)
+        self.pushButtonUpload.setObjectName(u"pushButtonUpload")
+        self.pushButtonUpload.setEnabled(False)
+
+        self.horizontalLayout_2.addWidget(self.pushButtonUpload)
 
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
@@ -101,8 +113,10 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
+        self.label.setText(QCoreApplication.translate("MainWindow", u"Input:", None))
         self.pushButtonDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.pushButtonScanDirectory.setText(QCoreApplication.translate("MainWindow", u"Scan", None))
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Parse C3D Data", None))
+        self.pushButtonUpload.setText(QCoreApplication.translate("MainWindow", u"Upload", None))
     # retranslateUi
 

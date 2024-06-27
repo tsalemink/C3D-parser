@@ -13,7 +13,8 @@ from trc import TRCData
 from c3d_patch import c3d
 
 
-marker_maps_dir = os.path.abspath(os.path.join('..', 'marker_maps'))
+script_directory = os.path.dirname(os.path.abspath(__file__))
+marker_maps_dir = os.path.join(script_directory, 'marker_maps')
 
 
 def parse_c3d(c3d_file, output_directory):
