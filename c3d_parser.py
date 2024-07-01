@@ -271,6 +271,19 @@ def extract_grf(file_path, start_frame, end_frame):
     return analog_data, reader.analog_rate, events, plate_count, corners
 
 
+def read_grf(file_path):
+    with open(file_path, 'r') as file:
+        # Skip header.
+        for _ in range(7):
+            next(file)
+
+        # Read GRF data.
+        column_labels = file.readline().strip().split('\t')
+        analog_data = pd.read_csv(file, sep='\t', header=None, names=column_labels)
+
+    return analog_data
+
+
 def write_grf(analog_data, file_path):
     with open(file_path, 'w') as file:
         row_count, column_count = analog_data.shape
