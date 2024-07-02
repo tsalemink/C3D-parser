@@ -29,19 +29,22 @@ class MainWindow(QMainWindow):
         self._make_connections()
 
     def _setup_figures(self):
-        figure_left = Figure(figsize=(5, 3))
-        figure_left.suptitle('Left Foot')
-        self._canvas_left = FigureCanvasQTAgg(figure_left)
-        self._ui.verticalLayoutPlot.addWidget(self._canvas_left)
-        self._plot_left = figure_left.add_subplot(111)
-        figure_left.tight_layout(pad=0.0)
+        self._canvas = FigureCanvasQTAgg(Figure())
+        self._canvas.figure.suptitle('GRF Data')
+        self._plot_x = self._canvas.figure.add_subplot(311)
+        self._plot_y = self._canvas.figure.add_subplot(312)
+        self._plot_z = self._canvas.figure.add_subplot(313)
+        self._plot_x.tick_params(axis='x', which='both', labelbottom=False)
+        self._plot_y.tick_params(axis='x', which='both', labelbottom=False)
+        self._canvas.figure.tight_layout(pad=0.0, rect=[0.05, 0, 0.95, 1])
+        self._label_axes()
 
-        figure_right = Figure(figsize=(5, 3))
-        figure_right.suptitle('Right Foot')
-        self._canvas_right = FigureCanvasQTAgg(figure_right)
-        self._ui.verticalLayoutPlot.addWidget(self._canvas_right)
-        self._plot_right = figure_right.add_subplot(111)
-        figure_right.tight_layout(pad=0.0)
+        self._ui.verticalLayoutPlot.addWidget(self._canvas)
+
+    def _label_axes(self):
+        self._plot_x.set_ylabel('X', rotation='horizontal', labelpad=10, horizontalalignment='right')
+        self._plot_y.set_ylabel('Y', rotation='horizontal', labelpad=10, horizontalalignment='right')
+        self._plot_z.set_ylabel('Z', rotation='horizontal', labelpad=10, horizontalalignment='right')
 
     def _make_connections(self):
         self._ui.lineEditDirectory.textChanged.connect(self._validate_directory)
@@ -50,7 +53,7 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonParseData.clicked.connect(self._parse_c3d_data)
         self._ui.pushButtonUpload.clicked.connect(self._upload_data)
         self._ui.listWidgetFiles.itemSelectionChanged.connect(self._update_selected_trial)
-        self._ui.comboBoxChannels.currentIndexChanged.connect(self._update_plot)
+        self._ui.comboBoxChannels.currentIndexChanged.connect(self._update_visualisation)
 
     def _validate_directory(self):
         directory = self._ui.lineEditDirectory.text()
@@ -111,7 +114,7 @@ class MainWindow(QMainWindow):
             else:
                 self._analog_data = None
             self._update_combo_box()
-            self._update_plot()
+            self._update_visualisation()
 
     def _update_combo_box(self):
         self._ui.comboBoxChannels.clear()
@@ -120,27 +123,21 @@ class MainWindow(QMainWindow):
                 ["Force", "Position", "Torque"]
             )
 
-    def _update_plot(self):
+    def _update_visualisation(self):
         channels_index = self._ui.comboBoxChannels.currentIndex()
         start = channels_index * 3 + 1
-        columns_left = range(start, start + 3)
-        columns_right = range(start + 9, start + 12)
         t = self._analog_data.iloc[:, 0].values
 
-        self._plot_left.clear()
-        x, y, z = self._analog_data.iloc[:, columns_left].values.T
-        self._plot_left.plot(t, x, color='red', label='x')
-        self._plot_left.plot(t, y, color='green', label='y')
-        self._plot_left.plot(t, z, color='blue', label='z')
-        self._plot_left.set_xlim([t[0], t[-1]])
-        self._plot_left.legend()
-        self._canvas_left.draw()
+        def update_plot(plot, column):
+            left, right = self._analog_data.iloc[:, [column, column + 9]].values.T
+            plot.clear()
+            plot.plot(t, left, color='red', label='Left Foot')
+            plot.plot(t, right, color='blue', label='Right Foot')
+            plot.legend()
 
-        self._plot_right.clear()
-        x, y, z = self._analog_data.iloc[:, columns_right].values.T
-        self._plot_right.plot(t, x, color='red', label='x')
-        self._plot_right.plot(t, y, color='green', label='y')
-        self._plot_right.plot(t, z, color='blue', label='z')
-        self._plot_right.set_xlim([t[0], t[-1]])
-        self._plot_right.legend()
-        self._canvas_right.draw()
+        update_plot(self._plot_x, start)
+        update_plot(self._plot_y, start + 1)
+        update_plot(self._plot_z, start + 2)
+
+        self._label_axes()
+        self._canvas.draw()
