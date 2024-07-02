@@ -3,8 +3,10 @@ import os
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow, QFileDialog, QListWidgetItem
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
 
-from c3d_parser import parse_c3d
+from c3d_parser import parse_c3d, read_grf
 from view.ui.ui_main_window import Ui_MainWindow
 
 
@@ -21,8 +23,25 @@ class MainWindow(QMainWindow):
         self._ui.setupUi(self)
 
         self._previous_directory = ''
+        self._analog_data = None
 
+        self._setup_figures()
         self._make_connections()
+
+    def _setup_figures(self):
+        figure_left = Figure(figsize=(5, 3))
+        figure_left.suptitle('Left Foot')
+        self._canvas_left = FigureCanvasQTAgg(figure_left)
+        self._ui.verticalLayoutPlot.addWidget(self._canvas_left)
+        self._plot_left = figure_left.add_subplot(111)
+        figure_left.tight_layout(pad=0.0)
+
+        figure_right = Figure(figsize=(5, 3))
+        figure_right.suptitle('Right Foot')
+        self._canvas_right = FigureCanvasQTAgg(figure_right)
+        self._ui.verticalLayoutPlot.addWidget(self._canvas_right)
+        self._plot_right = figure_right.add_subplot(111)
+        figure_right.tight_layout(pad=0.0)
 
     def _make_connections(self):
         self._ui.lineEditDirectory.textChanged.connect(self._validate_directory)
@@ -30,6 +49,8 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonScanDirectory.clicked.connect(self._scan_directory)
         self._ui.pushButtonParseData.clicked.connect(self._parse_c3d_data)
         self._ui.pushButtonUpload.clicked.connect(self._upload_data)
+        self._ui.listWidgetFiles.itemSelectionChanged.connect(self._update_selected_trial)
+        self._ui.comboBoxChannels.currentIndexChanged.connect(self._update_plot)
 
     def _validate_directory(self):
         directory = self._ui.lineEditDirectory.text()
@@ -71,8 +92,55 @@ class MainWindow(QMainWindow):
 
             directory = self._ui.lineEditDirectory.text()
             file_path = os.path.join(directory, item.text())
-            output_directory = os.path.join(directory, 'output')
+            output_directory = os.path.join(directory, '_output')
             parse_c3d(file_path, output_directory)
 
     def _upload_data(self):
         pass
+
+    def _update_selected_trial(self):
+        selected_item = self._ui.listWidgetFiles.currentItem()
+        if selected_item is not None:
+            directory = self._ui.lineEditDirectory.text()
+            grf_directory = os.path.join(directory, '_output', 'grf')
+            name = os.path.splitext(os.path.basename(selected_item.text()))[0]
+            file_path = os.path.join(grf_directory, name + '_grf.mot')
+
+            if os.path.isfile(file_path):
+                self._analog_data = read_grf(file_path)
+            else:
+                self._analog_data = None
+            self._update_combo_box()
+            self._update_plot()
+
+    def _update_combo_box(self):
+        self._ui.comboBoxChannels.clear()
+        if self._analog_data is not None:
+            self._ui.comboBoxChannels.addItems(
+                ["Force", "Position", "Torque"]
+            )
+
+    def _update_plot(self):
+        channels_index = self._ui.comboBoxChannels.currentIndex()
+        start = channels_index * 3 + 1
+        columns_left = range(start, start + 3)
+        columns_right = range(start + 9, start + 12)
+        t = self._analog_data.iloc[:, 0].values
+
+        self._plot_left.clear()
+        x, y, z = self._analog_data.iloc[:, columns_left].values.T
+        self._plot_left.plot(t, x, color='red', label='x')
+        self._plot_left.plot(t, y, color='green', label='y')
+        self._plot_left.plot(t, z, color='blue', label='z')
+        self._plot_left.set_xlim([t[0], t[-1]])
+        self._plot_left.legend()
+        self._canvas_left.draw()
+
+        self._plot_right.clear()
+        x, y, z = self._analog_data.iloc[:, columns_right].values.T
+        self._plot_right.plot(t, x, color='red', label='x')
+        self._plot_right.plot(t, y, color='green', label='y')
+        self._plot_right.plot(t, z, color='blue', label='z')
+        self._plot_right.set_xlim([t[0], t[-1]])
+        self._plot_right.legend()
+        self._canvas_right.draw()
