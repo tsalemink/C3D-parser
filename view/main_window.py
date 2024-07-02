@@ -77,6 +77,8 @@ class MainWindow(QMainWindow):
         directory = self._ui.lineEditDirectory.text()
         self._ui.listWidgetFiles.clear()
         for root, dirs, files in os.walk(directory):
+            if '_output' in dirs:
+                dirs.remove('_output')
             for file in files:
                 if file.lower().endswith('.c3d'):
                     path = os.path.relpath(os.path.join(root, file), directory)
