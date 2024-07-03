@@ -67,7 +67,8 @@ def parse_c3d(c3d_file, output_directory):
         zero_grf_data(analog_data, plate_count)
         analog_data = calculate_force_and_couple(analog_data, plate_count)
         transform_grf_coordinates(analog_data, plate_count, corners)
-        analog_data = concatenate_grf_data(analog_data, events)
+        mean_centre = transform_cop(analog_data, corners)
+        analog_data = concatenate_grf_data(analog_data, events, mean_centre)
 
         # Write GRF data.
         grf_directory = os.path.join(output_directory, 'grf')
@@ -387,7 +388,22 @@ def point_on_plate(point, corners):
     return min_x <= point[0] <= max_x and min_y <= point[1] <= max_y
 
 
-def concatenate_grf_data(analog_data, events):
+def transform_cop(analog_data, corners):
+    centres = np.zeros((len(corners), 3))
+    for i, plate_corners in enumerate(corners):
+        centre = np.mean(plate_corners, axis=0)
+        centres[i] = centre
+
+        CoPx = analog_data.iloc[:, i * 9 + 4]
+        CoPy = analog_data.iloc[:, i * 9 + 5]
+
+        analog_data.iloc[:, i * 9 + 4] = CoPx + centre[0]
+        analog_data.iloc[:, i * 9 + 5] = CoPy + centre[1]
+
+    return np.mean(centres, axis=0)
+
+
+def concatenate_grf_data(analog_data, events, mean_centre):
     columns = ["ground_force_vx", "ground_force_vy", "ground_force_vz",
                "ground_force_px", "ground_force_py", "ground_force_pz",
                "ground_torque_x", "ground_torque_y", "ground_torque_z",
@@ -397,7 +413,12 @@ def concatenate_grf_data(analog_data, events):
     concatenated_data = pd.DataFrame(columns=['time'] + columns)
     concatenated_data['time'] = analog_data['time']
     for column in columns:
-        concatenated_data[column] = 0.0
+        if "px" in column:
+            concatenated_data[column] = mean_centre[0]
+        elif "py" in column:
+            concatenated_data[column] = mean_centre[1]
+        else:
+            concatenated_data[column] = 0.0
 
     def copy_data():
         frames = range(start, end + 1)
