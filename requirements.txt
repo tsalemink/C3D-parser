@@ -1,0 +1,7 @@
+scipy
+numpy
+pandas
+c3d
+trc-data-reader
+PySide6
+matplotlib

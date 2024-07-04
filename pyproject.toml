@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[options]
+package_dir = {'' = 'src'}
+
+[project]
+name = "c3d-parser"
+description = "C3D parser for gait data harmonisation."
+authors = [{ name = "Timothy Salemink", email = "tim.nicolas@outlook.com" }]
+version = "0.1.0"
+readme = "README.md"
+license = { file = "LICENSE" }
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[project.urls]
+Repository = "https://github.com/tsalemink/C3D-parser"
+
+[project.gui-scripts]
+c3d_parser = "c3d_parser.application:main"
