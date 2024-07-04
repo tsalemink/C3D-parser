@@ -10,7 +10,7 @@ from scipy.spatial.transform import Rotation
 
 from trc import TRCData
 
-from c3d_patch import c3d
+from src.c3d_parser.core.c3d_patch import c3d
 
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
