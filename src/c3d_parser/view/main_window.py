@@ -6,8 +6,8 @@ from PySide6.QtWidgets import QMainWindow, QFileDialog, QListWidgetItem
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
-from src.c3d_parser.core.c3d_parser import parse_c3d, read_grf
-from src.c3d_parser.view.ui.ui_main_window import Ui_MainWindow
+from c3d_parser.core.c3d_parser import parse_c3d, read_grf
+from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 
 
 DEFAULT_STYLE_SHEET = ''

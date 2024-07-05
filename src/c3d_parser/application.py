@@ -3,7 +3,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
-from src.c3d_parser.view.main_window import MainWindow
+from c3d_parser.view.main_window import MainWindow
 
 
 def main():

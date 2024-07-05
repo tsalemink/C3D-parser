@@ -1,7 +1,7 @@
 
 import os
 
-from src.c3d_parser.core.c3d_parser import parse_c3d
+from c3d_parser.core.c3d_parser import parse_c3d
 
 
 if __name__ == "__main__":
