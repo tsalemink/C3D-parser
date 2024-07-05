@@ -145,7 +145,7 @@ def trim_frames(frame_data, max_trim=50):
     for frame_number, frame in frame_data.iterrows():
         missing_markers = []
         for marker_index in range(1, len(frame)):
-            coordinates = frame[marker_index]
+            coordinates = frame.iloc[marker_index]
             if math.isnan(coordinates[0]):
                 missing_markers.append(frame_data.columns[marker_index])
         if missing_markers:
