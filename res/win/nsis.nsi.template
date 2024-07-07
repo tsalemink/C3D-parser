@@ -1,0 +1,243 @@
+;-------------------------------------------------------------------------------
+; Includes
+    !include MUI2.nsh
+    !include LogicLib.nsh
+    !include nsDialogs.nsh
+
+; Plugin directories
+    !addplugindir "{win_res_dir}\Plugins\x86-unicode"
+
+;------------------------------------------------------------------------------
+; Constants
+    !define APP_NAME "C3D-Parser"
+    !define APP_VERSION "{application_version}"
+    !define APP_ORGANISATION "Auckland Bioengineering Institute"
+    !define INSTALLER_VERSION "0.1.0"
+    !define SOURCE_DIR "{dist_dir}"
+    !define SOURCE_URL "https://github.com/tsalemink/C3D-parser"
+
+;-------------------------------------------------------------------------------
+; Attributes
+    Name "${APP_NAME} ${APP_VERSION}"
+    OutFile "{package_dir}\${APP_NAME}-${APP_VERSION}.exe"
+    InstallDir "$PROGRAMFILES64\${APP_ORGANISATION}\${APP_NAME}-v${APP_VERSION}"
+    RequestExecutionLevel admin
+    Unicode True
+
+;-------------------------------------------------------------------------------
+; Variables
+    Var Start_Menu_Folder
+    Var Dialog
+    Var Path_Checkbox
+    Var Desktop_Checkbox
+
+;-------------------------------------------------------------------------------
+; Interface Settings
+    !define MUI_ABORTWARNING
+    !define MUI_WELCOMEFINISHPAGE_BITMAP "{win_res_dir}\welcome.bmp"
+    !define MUI_HEADERIMAGE
+    !define MUI_HEADERIMAGE_BITMAP "{win_res_dir}\header.bmp"
+    !define MUI_ICON "{win_res_dir}\ABI.ico"
+
+;-------------------------------------------------------------------------------
+; Installer Pages
+    !define MUI_WELCOMEPAGE_TITLE_3LINES
+    !insertmacro MUI_PAGE_WELCOME
+
+    ; Directory Page Configuration
+    !define MUI_PAGE_CUSTOMFUNCTION_SHOW RestrictDirPage
+    !insertmacro MUI_PAGE_DIRECTORY
+
+    Page custom installOptions installOptionsLeave
+
+    ; Start Menu Folder Page Configuration
+    !define MUI_STARTMENUPAGE_REGISTRY_ROOT "SHCTX"
+    !define MUI_STARTMENUPAGE_REGISTRY_KEY "Software\${APP_ORGANISATION}\${APP_NAME} ${APP_VERSION}"
+    !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
+    !insertmacro MUI_PAGE_STARTMENU Application $Start_Menu_Folder
+
+    !insertmacro MUI_PAGE_INSTFILES
+
+;-------------------------------------------------------------------------------
+; Uninstaller Pages
+    !insertmacro MUI_UNPAGE_CONFIRM
+    !insertmacro MUI_UNPAGE_INSTFILES
+
+;-------------------------------------------------------------------------------
+; Languages
+    !insertmacro MUI_LANGUAGE "English"
+
+;-------------------------------------------------------------------------------
+; Macros
+
+!macro WriteUninstallInfo Key Value
+    WriteRegStr SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME} ${APP_VERSION}" "${Key}" "${Value}"
+!macroend
+
+!macro ReadUninstallInfo Output Key
+    ReadRegStr ${Output} SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME} ${APP_VERSION}" "${Key}"
+!macroend
+
+!macro WriteSectionSelection RegKey Section
+    ${If} ${SectionIsSelected} ${Section}
+        !insertmacro WriteUninstallInfo "${RegKey}" ${BST_CHECKED}
+    ${Else}
+        !insertmacro WriteUninstallInfo "${RegKey}" ${BST_UNCHECKED}
+    ${EndIf}
+!macroend
+
+!macro ReadSectionSelection RegKey Section
+    !insertmacro ReadUninstallInfo $0 "${RegKey}"
+    !insertmacro UpdateSectionSelection ${Section} $0
+!macroend
+
+!macro UpdateSectionSelection Section State
+    ${If} ${State} == ${BST_CHECKED}
+        !insertmacro SelectSection ${Section}
+    ${Else}
+        !insertmacro UnselectSection ${Section}
+    ${EndIf}
+!macroend
+
+;-------------------------------------------------------------------------------
+; Installer Sections
+
+Section
+
+    SetOutPath "$INSTDIR"
+
+    ; Extract the C3D-Parser program files.
+    File /r "${SOURCE_DIR}\*.*"
+
+    ; Write install information to the registry.
+    WriteRegStr SHCTX "Software\${APP_ORGANISATION}\${APP_NAME} ${APP_VERSION}" "" $INSTDIR
+    WriteRegStr SHCTX "Software\${APP_ORGANISATION}\${APP_NAME} ${APP_VERSION}" "SourceURL" "${SOURCE_URL}"
+
+    ; Create uninstaller.
+    WriteUninstaller "$INSTDIR\Uninstall.exe"
+
+    ; Write uninstall information to registry.
+    !insertmacro WriteUninstallInfo "DisplayName" "${APP_NAME} ${APP_VERSION}"
+    !insertmacro WriteUninstallInfo "DisplayVersion" "${INSTALLER_VERSION}"
+    !insertmacro WriteUninstallInfo "Publisher" "${APP_ORGANISATION}"
+    !insertmacro WriteUninstallInfo "UninstallString" "$INSTDIR\Uninstall.exe"
+    !insertmacro WriteUninstallInfo "NoRepair" "1"
+    !insertmacro WriteUninstallInfo "StartMenu" "$Start_Menu_Folder"
+    Call WriteOptionalUninstallInfo
+
+    ; Create Start Menu shortcuts
+    !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+        CreateDirectory "$SMPROGRAMS\$Start_Menu_Folder"
+        CreateShortCut "$SMPROGRAMS\$Start_Menu_Folder\${APP_NAME}.lnk"  "$INSTDIR\${APP_NAME}.exe"
+        CreateShortCut "$SMPROGRAMS\$Start_Menu_Folder\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
+    !insertmacro MUI_STARTMENU_WRITE_END
+
+SectionEnd
+
+Section "Add to PATH" section_add_to_path
+    EnVar::Check "NULL" "NULL"
+    EnVar::Check "Path" "NULL"
+    EnVar::AddValue "Path" $INSTDIR
+SectionEnd
+
+Section "Create Desktop Shortcut" section_create_desktop_shortcut
+    IfFileExists "$DESKTOP\${APP_NAME}.lnk" 0 +2
+    Delete "$DESKTOP\${APP_NAME}.lnk"
+    CreateShortcut "$DESKTOP\${APP_NAME}.lnk" "$INSTDIR\${APP_NAME}.exe"
+SectionEnd
+
+;-------------------------------------------------------------------------------
+; Uninstaller Sections
+
+Section "Uninstall"
+
+    ; Remove all C3D-Parser program files.
+    RMDir /r "$INSTDIR"
+
+    ; Read uninstall info from registry.
+    Call un.ReadOptionalUninstallInfo
+
+    ; Remove Start Menu shortcuts.
+    !insertmacro MUI_STARTMENU_GETFOLDER Application $Start_Menu_Folder
+    Delete "$SMPROGRAMS\$Start_Menu_Folder\${APP_NAME}.lnk"
+    Delete "$SMPROGRAMS\$Start_Menu_Folder\Uninstall.lnk"
+    RMDir "$SMPROGRAMS\$Start_Menu_Folder"
+
+    ; Remove the registry entries.
+    DeleteRegKey SHCTX "Software\${APP_ORGANISATION}\${APP_NAME} ${APP_VERSION}"
+    DeleteRegKey /ifempty SHCTX "Software\${APP_ORGANISATION}"
+    DeleteRegKey SHCTX "Software\Microsoft\Windows\CurrentVersion\Uninstall\${APP_NAME} ${APP_VERSION}"
+
+SectionEnd
+
+Section "un.Remove from PATH" section_remove_from_path
+    EnVar::Check "NULL" "NULL"
+    EnVar::Check "Path" "NULL"
+    EnVar::DeleteValue "Path" $INSTDIR
+SectionEnd
+
+Section "un.Remove Desktop Shortcut" section_remove_desktop_shortcut
+    Delete "$DESKTOP\${APP_NAME}.lnk"
+SectionEnd
+
+;-------------------------------------------------------------------------------
+; Functions
+
+; Sets optional sections as selected by default.
+Function .onInit
+    !insertmacro SelectSection ${section_add_to_path}
+    !insertmacro SelectSection ${section_create_desktop_shortcut}
+FunctionEnd
+
+; This ensures that the user cannot install to an existing directory.
+; Doing so would mean that the entire directory is removed during uninstallation.
+Function RestrictDirPage
+    SendMessage $mui.DirectoryPage.Directory ${EM_SETREADONLY} 1 0
+FunctionEnd
+
+; This adds an additional "Install Options" page.
+Function installOptions
+
+    !insertmacro MUI_HEADER_TEXT "Install Options" "Customize how C3D-Parser integrates with Windows."
+
+	nsDialogs::Create 1018
+	Pop $Dialog
+	${If} $Dialog == error
+		Abort
+	${EndIf}
+
+    ${NSD_CreateGroupBox} 0% 0u 100% 62u "Install Options"
+    Pop $0
+
+    ${NSD_CreateCheckbox} 5% 20u 90% 10u "&Add C3D-Parser to my PATH environment variable."
+    Pop $Path_Checkbox
+    ${If} ${SectionIsSelected} ${section_add_to_path}
+        ${NSD_Check} $Path_Checkbox
+    ${EndIf}
+
+    ${NSD_CreateCheckbox} 5% 40u 90% 10u "&Create a C3D-Parser Desktop Icon."
+    Pop $Desktop_Checkbox
+    ${If} ${SectionIsSelected} ${section_create_desktop_shortcut}
+        ${NSD_Check} $Desktop_Checkbox
+    ${EndIf}
+
+	nsDialogs::Show
+FunctionEnd
+
+Function installOptionsLeave
+	${NSD_GetState} $Path_Checkbox $0
+    !insertmacro UpdateSectionSelection ${section_add_to_path} $0
+
+	${NSD_GetState} $Desktop_Checkbox $0
+	!insertmacro UpdateSectionSelection ${section_create_desktop_shortcut} $0
+FunctionEnd
+
+Function WriteOptionalUninstallInfo
+    !insertmacro WriteSectionSelection "AddToPath" ${section_add_to_path}
+    !insertmacro WriteSectionSelection "InstallToDesktop" ${section_create_desktop_shortcut}
+FunctionEnd
+
+Function un.ReadOptionalUninstallInfo
+    !insertmacro ReadSectionSelection "AddToPath" ${section_remove_from_path}
+    !insertmacro ReadSectionSelection "InstallToDesktop" ${section_remove_desktop_shortcut}
+FunctionEnd
