@@ -34,9 +34,6 @@
 ;-------------------------------------------------------------------------------
 ; Interface Settings
     !define MUI_ABORTWARNING
-    !define MUI_WELCOMEFINISHPAGE_BITMAP "{win_res_dir}\welcome.bmp"
-    !define MUI_HEADERIMAGE
-    !define MUI_HEADERIMAGE_BITMAP "{win_res_dir}\header.bmp"
     !define MUI_ICON "{win_res_dir}\ABI.ico"
 
 ;-------------------------------------------------------------------------------
