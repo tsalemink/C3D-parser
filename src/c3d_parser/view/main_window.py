@@ -29,17 +29,55 @@ class MainWindow(QMainWindow):
         self._make_connections()
 
     def _setup_figures(self):
-        self._canvas = FigureCanvasQTAgg(Figure())
-        self._canvas.figure.suptitle('GRF Data')
-        self._plot_x = self._canvas.figure.add_subplot(311)
-        self._plot_y = self._canvas.figure.add_subplot(312)
-        self._plot_z = self._canvas.figure.add_subplot(313)
+        self._setup_grf_figures()
+        self._setup_kinematic_figures()
+        self._setup_kinetic_figures()
+
+    def _setup_grf_figures(self):
+        self._grf_canvas = FigureCanvasQTAgg(Figure())
+        self._grf_canvas.figure.suptitle('GRF Data')
+        self._plot_x = self._grf_canvas.figure.add_subplot(311)
+        self._plot_y = self._grf_canvas.figure.add_subplot(312)
+        self._plot_z = self._grf_canvas.figure.add_subplot(313)
         self._plot_x.tick_params(axis='x', which='both', labelbottom=False)
         self._plot_y.tick_params(axis='x', which='both', labelbottom=False)
-        self._canvas.figure.tight_layout(pad=0.0, rect=[0.05, 0, 0.95, 1])
+        self._grf_canvas.figure.tight_layout(pad=0.0)
         self._label_axes()
 
-        self._ui.verticalLayoutPlot.addWidget(self._canvas)
+        self._ui.layoutGRFPlot.addWidget(self._grf_canvas)
+
+    def _setup_kinematic_figures(self):
+        self._kinematic_canvas = FigureCanvasQTAgg(Figure())
+        self._kinematic_plots = []
+        for i in range(3):
+            for j in range(5):
+                plot = self._kinematic_canvas.figure.add_subplot(3, 5, i * 5 + j + 1)
+                plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
+                plot.tick_params(axis='y', which='both', labelleft=False, left=False)
+                plot.text(-0.07, 0.5, 'deg', ha='center', va='center', transform=plot.transAxes)
+                plot.set_title(f'Plot Title', fontsize=10, pad=-10)
+                self._kinematic_plots.append(plot)
+        self._kinematic_canvas.figure.tight_layout(pad=0.0, rect=[0, 0.03, 0.98, 0.98], h_pad=0.4, w_pad=0.2)
+
+        self._ui.layoutKinematicPlot.addWidget(self._kinematic_canvas)
+
+    def _setup_kinetic_figures(self):
+        self._kinetic_canvas = FigureCanvasQTAgg(Figure())
+        self._kinetic_plots = []
+        for i in range(3):
+            for j in range(4):
+                plot = self._kinetic_canvas.figure.add_subplot(3, 4, i * 4 + j + 1)
+                plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
+                plot.tick_params(axis='y', which='both', labelleft=False, left=False)
+                if j == 3:
+                    plot.text(-0.04, 0.5, 'W', ha='center', va='center', transform=plot.transAxes)
+                else:
+                    plot.text(-0.05, 0.5, 'Nm', ha='center', va='center', transform=plot.transAxes)
+                plot.set_title(f'Plot Title', fontsize=10, pad=-10)
+                self._kinetic_plots.append(plot)
+        self._kinetic_canvas.figure.tight_layout(pad=0.0, rect=[0, 0.03, 0.98, 0.98], h_pad=0.4, w_pad=0.2)
+
+        self._ui.layoutKineticPlot.addWidget(self._kinetic_canvas)
 
     def _label_axes(self):
         self._plot_x.set_ylabel('X', rotation='horizontal', labelpad=10, horizontalalignment='right')
@@ -142,4 +180,4 @@ class MainWindow(QMainWindow):
         update_plot(self._plot_z, start + 2)
 
         self._label_axes()
-        self._canvas.draw()
+        self._grf_canvas.draw()

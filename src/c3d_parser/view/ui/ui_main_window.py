@@ -18,13 +18,13 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QHBoxLayout,
     QLabel, QLineEdit, QListWidget, QListWidgetItem,
     QMainWindow, QPushButton, QSizePolicy, QSplitter,
-    QVBoxLayout, QWidget)
+    QTabWidget, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1200, 800)
+        MainWindow.resize(1500, 800)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -103,10 +103,16 @@ class Ui_MainWindow(object):
         self.verticalLayout_3 = QVBoxLayout(self.frameVisualisation)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.tabWidget = QTabWidget(self.frameVisualisation)
+        self.tabWidget.setObjectName(u"tabWidget")
+        self.tabGRF = QWidget()
+        self.tabGRF.setObjectName(u"tabGRF")
+        self.verticalLayout_4 = QVBoxLayout(self.tabGRF)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalLayout_3.setContentsMargins(1, 1, 1, 1)
-        self.label_2 = QLabel(self.frameVisualisation)
+        self.label_2 = QLabel(self.tabGRF)
         self.label_2.setObjectName(u"label_2")
         sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
         self.label_2.setSizePolicy(sizePolicy)
@@ -114,18 +120,42 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_3.addWidget(self.label_2)
 
-        self.comboBoxChannels = QComboBox(self.frameVisualisation)
+        self.comboBoxChannels = QComboBox(self.tabGRF)
         self.comboBoxChannels.setObjectName(u"comboBoxChannels")
 
         self.horizontalLayout_3.addWidget(self.comboBoxChannels)
 
 
-        self.verticalLayout_3.addLayout(self.horizontalLayout_3)
+        self.verticalLayout_4.addLayout(self.horizontalLayout_3)
 
-        self.verticalLayoutPlot = QVBoxLayout()
-        self.verticalLayoutPlot.setObjectName(u"verticalLayoutPlot")
+        self.layoutGRFPlot = QVBoxLayout()
+        self.layoutGRFPlot.setObjectName(u"layoutGRFPlot")
 
-        self.verticalLayout_3.addLayout(self.verticalLayoutPlot)
+        self.verticalLayout_4.addLayout(self.layoutGRFPlot)
+
+        self.tabWidget.addTab(self.tabGRF, "")
+        self.tabKinematic = QWidget()
+        self.tabKinematic.setObjectName(u"tabKinematic")
+        self.verticalLayout_6 = QVBoxLayout(self.tabKinematic)
+        self.verticalLayout_6.setObjectName(u"verticalLayout_6")
+        self.layoutKinematicPlot = QVBoxLayout()
+        self.layoutKinematicPlot.setObjectName(u"layoutKinematicPlot")
+
+        self.verticalLayout_6.addLayout(self.layoutKinematicPlot)
+
+        self.tabWidget.addTab(self.tabKinematic, "")
+        self.tabKinetic = QWidget()
+        self.tabKinetic.setObjectName(u"tabKinetic")
+        self.verticalLayout_7 = QVBoxLayout(self.tabKinetic)
+        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
+        self.layoutKineticPlot = QVBoxLayout()
+        self.layoutKineticPlot.setObjectName(u"layoutKineticPlot")
+
+        self.verticalLayout_7.addLayout(self.layoutKineticPlot)
+
+        self.tabWidget.addTab(self.tabKinetic, "")
+
+        self.verticalLayout_3.addWidget(self.tabWidget)
 
         self.splitter.addWidget(self.frameVisualisation)
 
@@ -134,6 +164,9 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
+
+        self.tabWidget.setCurrentIndex(0)
+
 
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
@@ -146,5 +179,8 @@ class Ui_MainWindow(object):
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Parse C3D Data", None))
         self.pushButtonUpload.setText(QCoreApplication.translate("MainWindow", u"Upload", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Channels:", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinematic), QCoreApplication.translate("MainWindow", u"Kinematic", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinetic), QCoreApplication.translate("MainWindow", u"Kinetic", None))
     # retranslateUi
 
