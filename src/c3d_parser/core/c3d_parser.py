@@ -116,6 +116,7 @@ def set_marker_data(trc_data, frame_data, rate=100):
         del trc_data[frame_number]
 
     trc_data['Markers'] = frame_data.columns[1:]
+    trc_data['NumMarkers'] = len(trc_data['Markers'])
     trc_data['Frame#'] = []
     for frame_number, frame in frame_data.iterrows():
         frame_time, *data = frame
