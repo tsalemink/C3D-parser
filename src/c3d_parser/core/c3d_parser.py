@@ -77,6 +77,8 @@ def parse_c3d(c3d_file, output_directory):
         grf_file_path = os.path.join(grf_directory, f"{file_name}_grf.mot")
         write_grf(analog_data, grf_file_path)
 
+    return analog_data, events
+
 
 def de_identify_c3d(file_path, output_directory):
     input_directory, file_name = os.path.split(os.path.abspath(file_path))

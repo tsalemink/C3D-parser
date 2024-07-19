@@ -1,5 +1,6 @@
 
 import os
+import numpy as np
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow, QFileDialog, QListWidgetItem
@@ -24,6 +25,8 @@ class MainWindow(QMainWindow):
 
         self._previous_directory = ''
         self._analog_data = None
+        self._grf_data = {}
+        self._events = {}
 
         self._setup_figures()
         self._make_connections()
@@ -90,8 +93,6 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonScanDirectory.clicked.connect(self._scan_directory)
         self._ui.pushButtonParseData.clicked.connect(self._parse_c3d_data)
         self._ui.pushButtonUpload.clicked.connect(self._upload_data)
-        self._ui.listWidgetFiles.itemSelectionChanged.connect(self._update_selected_trial)
-        self._ui.comboBoxChannels.currentIndexChanged.connect(self._update_visualisation)
 
     def _validate_directory(self):
         directory = self._ui.lineEditDirectory.text()
@@ -128,6 +129,7 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonParseData.setEnabled(True)
 
     def _parse_c3d_data(self):
+        self._grf_data = {}
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
             if item.checkState() == Qt.CheckState.Unchecked:
@@ -136,48 +138,72 @@ class MainWindow(QMainWindow):
             directory = self._ui.lineEditDirectory.text()
             file_path = os.path.join(directory, item.text())
             output_directory = os.path.join(directory, '_output')
-            parse_c3d(file_path, output_directory)
+            analog_data, events = parse_c3d(file_path, output_directory)
+            self._grf_data[item.text()] = analog_data
+            self._events[item.text()] = events
+
+        self._update_combo_box()
+        self._visualise_grf_data()
 
     def _upload_data(self):
         pass
 
-    def _update_selected_trial(self):
-        selected_item = self._ui.listWidgetFiles.currentItem()
-        if selected_item is not None:
-            directory = self._ui.lineEditDirectory.text()
-            grf_directory = os.path.join(directory, '_output', 'grf')
-            name = os.path.splitext(os.path.basename(selected_item.text()))[0]
-            file_path = os.path.join(grf_directory, name + '_grf.mot')
-
-            if os.path.isfile(file_path):
-                self._analog_data = read_grf(file_path)
-            else:
-                self._analog_data = None
-            self._update_combo_box()
-            self._update_visualisation()
-
     def _update_combo_box(self):
         self._ui.comboBoxChannels.clear()
-        if self._analog_data is not None:
+        if self._grf_data:
             self._ui.comboBoxChannels.addItems(
                 ["Force", "Position", "Torque"]
             )
+        self._ui.comboBoxChannels.currentIndexChanged.connect(self._visualise_grf_data)
 
-    def _update_visualisation(self):
+    def _visualise_grf_data(self):
         channels_index = self._ui.comboBoxChannels.currentIndex()
-        start = channels_index * 3 + 1
-        t = self._analog_data.iloc[:, 0].values
+        start_column = channels_index * 3 + 1
 
-        def update_plot(plot, column):
-            left, right = self._analog_data.iloc[:, [column, column + 9]].values.T
-            plot.clear()
-            plot.plot(t, left, color='red', label='Left Foot')
-            plot.plot(t, right, color='blue', label='Right Foot')
-            plot.legend()
+        normalised_data = {"Left": [], "Right": []}
+        for i in range(len(self._grf_data)):
+            grf_data = list(self._grf_data.values())[i]
+            grf_events = list(self._events.values())[i]
 
-        update_plot(self._plot_x, start)
-        update_plot(self._plot_y, start + 1)
-        update_plot(self._plot_z, start + 2)
+            for foot, events in grf_events.items():
+                column = start_column if foot == "Left" else start_column + 9
+                force_data = grf_data.iloc[:, [0, *range(column, column + 3)]]
+
+                start = None
+                for event_time, event in events.items():
+                    frame = force_data[force_data['time'] <= event_time].index[-1]
+                    if event[0] == "Foot Strike":
+                        while force_data.iloc[frame, 3] > 0:
+                            frame -= 1
+                        start = frame
+                    elif event[0] == "Foot Off" and start:
+                        while force_data.iloc[frame, 3] > 0:
+                            frame += 1
+                        normalised_data[foot].append(force_data.iloc[start:frame, 1:].values.T)
+                        start = None
+
+        max_length = max(array.shape[1] for arrays in normalised_data.values() for array in arrays)
+        t = np.linspace(0, 100, max_length)
+
+        self._plot_grf_data(t, normalised_data)
+
+    def _plot_grf_data(self, time_array, grf_data):
+        self._plot_x.clear()
+        self._plot_y.clear()
+        self._plot_z.clear()
+
+        for foot, data_segments in grf_data.items():
+            colour = 'r' if foot == "Left" else 'b'
+            for i, segment in enumerate(data_segments):
+                t_segment = time_array[:segment.shape[1]]
+                if i in [0, 2, 4]:
+                    segment[:2] = -segment[:2]
+                if foot == "Left":
+                    segment[1] = -segment[1]
+
+                self._plot_x.plot(t_segment, segment[0], color=colour, linewidth=1.0)
+                self._plot_y.plot(t_segment, segment[1], color=colour, linewidth=1.0)
+                self._plot_z.plot(t_segment, segment[2], color=colour, linewidth=1.0)
 
         self._label_axes()
         self._grf_canvas.draw()
