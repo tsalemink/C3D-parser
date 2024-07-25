@@ -458,3 +458,12 @@ def concatenate_grf_data(analog_data, events, mean_centre):
             copy_data()
 
     return concatenated_data
+
+
+def is_dynamic(file_path):
+    with open(file_path, 'rb') as handle:
+        reader = c3d.Reader(handle)
+        if reader.analog_used > 0:
+            return True
+        else:
+            return False
