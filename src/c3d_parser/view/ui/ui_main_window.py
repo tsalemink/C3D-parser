@@ -15,10 +15,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QHBoxLayout,
-    QLabel, QLineEdit, QListWidget, QListWidgetItem,
-    QMainWindow, QPushButton, QSizePolicy, QSplitter,
-    QTabWidget, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
+    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
+    QPushButton, QSizePolicy, QSplitter, QTabWidget,
+    QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -109,31 +109,22 @@ class Ui_MainWindow(object):
         self.tabGRF.setObjectName(u"tabGRF")
         self.verticalLayout_4 = QVBoxLayout(self.tabGRF)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.horizontalLayout_3.setContentsMargins(1, 1, 1, 1)
-        self.label_2 = QLabel(self.tabGRF)
-        self.label_2.setObjectName(u"label_2")
-        sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
-        self.label_2.setSizePolicy(sizePolicy)
-        self.label_2.setStyleSheet(u"")
-
-        self.horizontalLayout_3.addWidget(self.label_2)
-
-        self.comboBoxChannels = QComboBox(self.tabGRF)
-        self.comboBoxChannels.setObjectName(u"comboBoxChannels")
-
-        self.horizontalLayout_3.addWidget(self.comboBoxChannels)
-
-
-        self.verticalLayout_4.addLayout(self.horizontalLayout_3)
-
         self.layoutGRFPlot = QVBoxLayout()
         self.layoutGRFPlot.setObjectName(u"layoutGRFPlot")
 
         self.verticalLayout_4.addLayout(self.layoutGRFPlot)
 
         self.tabWidget.addTab(self.tabGRF, "")
+        self.tabTorque = QWidget()
+        self.tabTorque.setObjectName(u"tabTorque")
+        self.verticalLayout_8 = QVBoxLayout(self.tabTorque)
+        self.verticalLayout_8.setObjectName(u"verticalLayout_8")
+        self.layoutTorquePlot = QVBoxLayout()
+        self.layoutTorquePlot.setObjectName(u"layoutTorquePlot")
+
+        self.verticalLayout_8.addLayout(self.layoutTorquePlot)
+
+        self.tabWidget.addTab(self.tabTorque, "")
         self.tabKinematic = QWidget()
         self.tabKinematic.setObjectName(u"tabKinematic")
         self.verticalLayout_6 = QVBoxLayout(self.tabKinematic)
@@ -178,8 +169,8 @@ class Ui_MainWindow(object):
         self.pushButtonScanDirectory.setText(QCoreApplication.translate("MainWindow", u"Scan", None))
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Parse C3D Data", None))
         self.pushButtonUpload.setText(QCoreApplication.translate("MainWindow", u"Upload", None))
-        self.label_2.setText(QCoreApplication.translate("MainWindow", u"Channels:", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabTorque), QCoreApplication.translate("MainWindow", u"Torque", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinematic), QCoreApplication.translate("MainWindow", u"Kinematic", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinetic), QCoreApplication.translate("MainWindow", u"Kinetic", None))
     # retranslateUi

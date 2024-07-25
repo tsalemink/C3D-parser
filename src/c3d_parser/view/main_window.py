@@ -32,11 +32,12 @@ class MainWindow(QMainWindow):
         self._make_connections()
 
     def _setup_figures(self):
-        self._setup_grf_figures()
         self._setup_kinematic_figures()
         self._setup_kinetic_figures()
+        self._setup_grf_figure()
+        self._setup_torque_figure()
 
-    def _setup_grf_figures(self):
+    def _setup_grf_figure(self):
         self._grf_canvas = FigureCanvasQTAgg(Figure())
         self._grf_canvas.figure.suptitle('GRF Data')
         self._plot_x = self._grf_canvas.figure.add_subplot(311)
@@ -81,6 +82,14 @@ class MainWindow(QMainWindow):
         self._kinetic_canvas.figure.tight_layout(pad=0.0, rect=[0, 0.03, 0.98, 0.98], h_pad=0.4, w_pad=0.2)
 
         self._ui.layoutKineticPlot.addWidget(self._kinetic_canvas)
+    def _setup_torque_figure(self):
+        self._torque_canvas = FigureCanvasQTAgg(Figure())
+        self._torque_canvas.figure.suptitle('Torque Data')
+        self._plot_torque = self._torque_canvas.figure.add_subplot(111)
+        self._torque_canvas.figure.tight_layout(pad=0.0)
+
+        self._ui.layoutTorquePlot.addWidget(self._torque_canvas)
+
 
     def _label_axes(self):
         self._plot_x.set_ylabel('X', rotation='horizontal', labelpad=10, horizontalalignment='right')
@@ -142,24 +151,21 @@ class MainWindow(QMainWindow):
             self._grf_data[item.text()] = analog_data
             self._events[item.text()] = events
 
-        self._update_combo_box()
         self._visualise_grf_data()
+        self._visualise_torque_data()
 
     def _upload_data(self):
         pass
 
-    def _update_combo_box(self):
-        self._ui.comboBoxChannels.clear()
-        if self._grf_data:
-            self._ui.comboBoxChannels.addItems(
-                ["Force", "Position", "Torque"]
-            )
-        self._ui.comboBoxChannels.currentIndexChanged.connect(self._visualise_grf_data)
-
     def _visualise_grf_data(self):
-        channels_index = self._ui.comboBoxChannels.currentIndex()
-        start_column = channels_index * 3 + 1
+        t, grf_data = self._extract_data(1)
+        self._plot_grf_data(t, grf_data)
 
+    def _visualise_torque_data(self):
+        t, torque_data = self._extract_data(7)
+        self._plot_torque_data(t, torque_data)
+
+    def _extract_data(self, start_column):
         normalised_data = {"Left": [], "Right": []}
         for i in range(len(self._grf_data)):
             grf_data = list(self._grf_data.values())[i]
@@ -185,7 +191,7 @@ class MainWindow(QMainWindow):
         max_length = max(array.shape[1] for arrays in normalised_data.values() for array in arrays)
         t = np.linspace(0, 100, max_length)
 
-        self._plot_grf_data(t, normalised_data)
+        return t, normalised_data
 
     def _plot_grf_data(self, time_array, grf_data):
         self._plot_x.clear()
@@ -207,3 +213,14 @@ class MainWindow(QMainWindow):
 
         self._label_axes()
         self._grf_canvas.draw()
+
+    def _plot_torque_data(self, time_array, torque_data):
+        self._plot_torque.clear()
+
+        for foot, data_segments in torque_data.items():
+            colour = 'r' if foot == "Left" else 'b'
+            for segment in data_segments:
+                t_segment = time_array[:segment.shape[1]]
+                self._plot_torque.plot(t_segment, segment[2], color=colour, linewidth=1.0)
+
+        self._torque_canvas.draw()
