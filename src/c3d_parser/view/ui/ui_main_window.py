@@ -16,9 +16,11 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
-    QPushButton, QSizePolicy, QSplitter, QTabWidget,
-    QVBoxLayout, QWidget)
+    QLineEdit, QListWidgetItem, QMainWindow, QPushButton,
+    QSizePolicy, QSplitter, QTabWidget, QVBoxLayout,
+    QWidget)
+
+from view.widgets import CustomListWidget
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -67,7 +69,7 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
-        self.listWidgetFiles = QListWidget(self.frameTrial)
+        self.listWidgetFiles = CustomListWidget(self.frameTrial)
         self.listWidgetFiles.setObjectName(u"listWidgetFiles")
 
         self.verticalLayout_2.addWidget(self.listWidgetFiles)

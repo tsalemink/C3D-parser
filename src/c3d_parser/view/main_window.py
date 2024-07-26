@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QMainWindow, QFileDialog, QListWidgetItem, QStyledItemDelegate
+from PySide6.QtWidgets import QMainWindow, QFileDialog, QListWidgetItem
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
@@ -130,14 +130,13 @@ class MainWindow(QMainWindow):
             for file in files:
                 if file.lower().endswith('.c3d'):
                     path = os.path.join(root, file)
-                    category = "dynamic" if is_dynamic(path) else "static"
+                    category = "Dynamic" if is_dynamic(path) else "Static"
                     item = QListWidgetItem(os.path.relpath(path, directory))
                     item.setData(Qt.UserRole, category)
                     item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                     item.setCheckState(Qt.CheckState.Checked)
                     self._ui.listWidgetFiles.addItem(item)
 
-        self._ui.listWidgetFiles.setItemDelegate(CustomDelegate())
         self._ui.pushButtonParseData.setEnabled(True)
 
     def _parse_c3d_data(self):
@@ -227,20 +226,3 @@ class MainWindow(QMainWindow):
                 self._plot_torque.plot(t_segment, segment[2], color=colour, linewidth=1.0)
 
         self._torque_canvas.draw()
-
-
-class CustomDelegate(QStyledItemDelegate):
-    def paint(self, painter, option, index):
-        super().paint(painter, option, index)
-
-        painter.save()
-        category = index.data(Qt.UserRole)
-
-        if category == "static":
-            painter.setPen(Qt.darkBlue)
-        else:
-            painter.setPen(Qt.darkMagenta)
-
-        rect = option.rect.adjusted(0, 0, -5, 0)
-        painter.drawText(rect, Qt.AlignRight, category)
-        painter.restore()

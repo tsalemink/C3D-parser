@@ -77,7 +77,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QListWidget" name="listWidgetFiles"/>
+         <widget class="CustomListWidget" name="listWidgetFiles"/>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -189,6 +189,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CustomListWidget</class>
+   <extends>QListWidget</extends>
+   <header>view/widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
