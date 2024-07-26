@@ -17,11 +17,9 @@ script_directory = os.path.dirname(os.path.abspath(__file__))
 marker_maps_dir = os.path.join(script_directory, 'marker_maps')
 
 
-def parse_c3d(c3d_file, output_directory):
+def parse_c3d(c3d_file, output_directory, is_dynamic):
     input_directory, c3d_file_name = os.path.split(os.path.abspath(c3d_file))
     gait_lab = os.path.basename(os.path.dirname(input_directory))
-    trial_type = os.path.basename(input_directory)
-    dynamic_trial = (trial_type == 'dynamic')
     file_name = os.path.splitext(c3d_file_name)[0]
 
     # De-identify the C3D data.
@@ -52,7 +50,8 @@ def parse_c3d(c3d_file, output_directory):
     trc_file_path = os.path.join(trc_directory, f"{file_name}.trc")
     trc_data.save(trc_file_path)
 
-    if dynamic_trial:
+    analog_data, events = None, None
+    if is_dynamic:
         # Extract GRF data from C3D file.
         analog_data, data_rate, events, plate_count, corners = extract_grf(c3d_file, start_frame, end_frame)
         if analog_data is None:

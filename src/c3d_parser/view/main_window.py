@@ -143,15 +143,14 @@ class MainWindow(QMainWindow):
         self._grf_data = {}
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
-            if item.checkState() == Qt.CheckState.Unchecked:
-                continue
-
+            dynamic = item.data(Qt.UserRole) == "Dynamic"
             directory = self._ui.lineEditDirectory.text()
             file_path = os.path.join(directory, item.text())
             output_directory = os.path.join(directory, '_output')
-            analog_data, events = parse_c3d(file_path, output_directory)
-            self._grf_data[item.text()] = analog_data
-            self._events[item.text()] = events
+            analog_data, events = parse_c3d(file_path, output_directory, dynamic)
+            if dynamic:
+                self._grf_data[item.text()] = analog_data
+                self._events[item.text()] = events
 
         self._visualise_grf_data()
         self._visualise_torque_data()
