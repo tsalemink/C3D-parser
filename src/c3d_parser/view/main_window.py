@@ -27,6 +27,7 @@ class MainWindow(QMainWindow):
         self._analog_data = None
         self._grf_data = {}
         self._events = {}
+        self._plot_lines = {}
 
         self._setup_figures()
         self._make_connections()
@@ -98,6 +99,7 @@ class MainWindow(QMainWindow):
 
     def _make_connections(self):
         self._ui.lineEditDirectory.textChanged.connect(self._validate_directory)
+        self._ui.listWidgetFiles.itemChanged.connect(self._update_plot_visibility)
         self._ui.pushButtonDirectoryChooser.clicked.connect(self._open_directory_chooser)
         self._ui.pushButtonScanDirectory.clicked.connect(self._scan_directory)
         self._ui.pushButtonParseData.clicked.connect(self._parse_c3d_data)
@@ -167,8 +169,9 @@ class MainWindow(QMainWindow):
         self._plot_torque_data(t, torque_data)
 
     def _extract_data(self, start_column):
-        normalised_data = {"Left": [], "Right": []}
+        normalised_data = {"Left": {}, "Right": {}}
         for i in range(len(self._grf_data)):
+            file_name = list(self._grf_data.keys())[i]
             grf_data = list(self._grf_data.values())[i]
             grf_events = list(self._events.values())[i]
 
@@ -186,10 +189,13 @@ class MainWindow(QMainWindow):
                     elif event[0] == "Foot Off" and start:
                         while force_data.iloc[frame, 3] > 0:
                             frame += 1
-                        normalised_data[foot].append(force_data.iloc[start:frame, 1:].values.T)
+                        if file_name not in normalised_data[foot]:
+                            normalised_data[foot][file_name] = []
+                        normalised_data[foot][file_name].append(force_data.iloc[start:frame, 1:].values.T)
                         start = None
 
-        max_length = max(array.shape[1] for arrays in normalised_data.values() for array in arrays)
+        max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
+                         for arrays in arrays_dict.values() for array in arrays)
         t = np.linspace(0, 100, max_length)
 
         return t, normalised_data
@@ -199,18 +205,23 @@ class MainWindow(QMainWindow):
         self._plot_y.clear()
         self._plot_z.clear()
 
-        for foot, data_segments in grf_data.items():
-            colour = 'r' if foot == "Left" else 'b'
-            for i, segment in enumerate(data_segments):
-                t_segment = time_array[:segment.shape[1]]
-                if i in [0, 2, 4]:
-                    segment[:2] = -segment[:2]
-                if foot == "Left":
-                    segment[1] = -segment[1]
+        for foot, files_dict in grf_data.items():
+            for i, (name, data_segments) in enumerate(files_dict.items()):
+                colour = 'r' if foot == "Left" else 'b'
+                for j, segment in enumerate(data_segments):
+                    t_segment = time_array[:segment.shape[1]]
+                    if i in [0, 2, 4]:
+                        segment[:2] = -segment[:2]
+                    if foot == "Left":
+                        segment[1] = -segment[1]
 
-                self._plot_x.plot(t_segment, segment[0], color=colour, linewidth=1.0)
-                self._plot_y.plot(t_segment, segment[1], color=colour, linewidth=1.0)
-                self._plot_z.plot(t_segment, segment[2], color=colour, linewidth=1.0)
+                    line_x, = self._plot_x.plot(t_segment, segment[0], color=colour, linewidth=1.0)
+                    line_y, = self._plot_y.plot(t_segment, segment[1], color=colour, linewidth=1.0)
+                    line_z, = self._plot_z.plot(t_segment, segment[2], color=colour, linewidth=1.0)
+
+                    if name not in self._plot_lines:
+                        self._plot_lines[name] = []
+                    self._plot_lines[name].extend([line_x, line_y, line_z])
 
         self._label_axes()
         self._grf_canvas.draw()
@@ -218,10 +229,20 @@ class MainWindow(QMainWindow):
     def _plot_torque_data(self, time_array, torque_data):
         self._plot_torque.clear()
 
-        for foot, data_segments in torque_data.items():
-            colour = 'r' if foot == "Left" else 'b'
-            for segment in data_segments:
-                t_segment = time_array[:segment.shape[1]]
-                self._plot_torque.plot(t_segment, segment[2], color=colour, linewidth=1.0)
+        for foot, files_dict in torque_data.items():
+            for name, data_segments in files_dict.items():
+                colour = 'r' if foot == "Left" else 'b'
+                for segment in data_segments:
+                    t_segment = time_array[:segment.shape[1]]
+                    line_torque, = self._plot_torque.plot(t_segment, segment[2], color=colour, linewidth=1.0)
+                    self._plot_lines[name].extend([line_torque])
 
+        self._torque_canvas.draw()
+
+    def _update_plot_visibility(self, item):
+        lines = self._plot_lines.get(item.text(), [])
+        visible = item.checkState() == Qt.CheckState.Checked
+        for line in lines:
+            line.set_visible(visible)
+        self._grf_canvas.draw()
         self._torque_canvas.draw()
