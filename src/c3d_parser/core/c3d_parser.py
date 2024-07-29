@@ -409,9 +409,9 @@ def concatenate_grf_data(analog_data, events, mean_centre):
     columns = ["ground_force_vx", "ground_force_vy", "ground_force_vz",
                "ground_force_px", "ground_force_py", "ground_force_pz",
                "ground_torque_x", "ground_torque_y", "ground_torque_z",
-               "ground_force_2_vx", "ground_force_2_vy", "ground_force_2_vz",
-               "ground_force_2_px", "ground_force_2_py", "ground_force_2_pz",
-               "ground_torque_2_x", "ground_torque_2_y", "ground_torque_2_z"]
+               "1_ground_force_vx", "1_ground_force_vy", "1_ground_force_vz",
+               "1_ground_force_px", "1_ground_force_py", "1_ground_force_pz",
+               "1_ground_torque_x", "1_ground_torque_y", "1_ground_torque_z"]
     concatenated_data = pd.DataFrame(columns=['time'] + columns)
     concatenated_data['time'] = analog_data['time']
     for column in columns:
@@ -455,6 +455,10 @@ def concatenate_grf_data(analog_data, events, mean_centre):
         if start:
             end = analog_data.index[-1]
             copy_data()
+
+    # Change header order for OpenSim.
+    concatenated_data = concatenated_data.iloc[:,
+                        [0, 1, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 7, 8, 9, 16, 17, 18]]
 
     return concatenated_data
 
