@@ -68,6 +68,7 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
         transform_grf_coordinates(analog_data, plate_count, corners)
         mean_centre = transform_cop(analog_data, corners)
         analog_data = concatenate_grf_data(analog_data, events, mean_centre)
+        scale_grf_data(analog_data)
 
         # Write GRF data.
         grf_directory = os.path.join(output_directory, 'grf')
@@ -461,6 +462,16 @@ def concatenate_grf_data(analog_data, events, mean_centre):
                         [0, 1, 2, 3, 4, 5, 6, 10, 11, 12, 13, 14, 15, 7, 8, 9, 16, 17, 18]]
 
     return concatenated_data
+
+
+def scale_grf_data(analog_data):
+    columns = [
+        'ground_force_px', 'ground_force_py', 'ground_force_pz',
+        '1_ground_force_px', '1_ground_force_py', '1_ground_force_pz',
+        'ground_torque_x', 'ground_torque_y', 'ground_torque_z',
+        '1_ground_torque_x', '1_ground_torque_y', '1_ground_torque_z'
+    ]
+    analog_data[columns] = analog_data[columns] / 1000
 
 
 def is_dynamic(file_path):
