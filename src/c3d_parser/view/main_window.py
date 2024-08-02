@@ -26,6 +26,7 @@ class MainWindow(QMainWindow):
         self._previous_directory = ''
         self._analog_data = None
         self._grf_data = {}
+        self._kinematic_data = {}
         self._events = {}
         self._plot_lines = {}
 
@@ -33,10 +34,10 @@ class MainWindow(QMainWindow):
         self._make_connections()
 
     def _setup_figures(self):
-        self._setup_kinematic_figures()
-        self._setup_kinetic_figures()
         self._setup_grf_figure()
         self._setup_torque_figure()
+        self._setup_kinematic_figures()
+        self._setup_kinetic_figures()
 
     def _setup_grf_figure(self):
         self._grf_canvas = FigureCanvasQTAgg(Figure())
@@ -51,12 +52,22 @@ class MainWindow(QMainWindow):
 
         self._ui.layoutGRFPlot.addWidget(self._grf_canvas)
 
+    def _setup_torque_figure(self):
+        self._torque_canvas = FigureCanvasQTAgg(Figure())
+        self._torque_canvas.figure.suptitle('Torque Data')
+        self._plot_torque = self._torque_canvas.figure.add_subplot(111)
+        self._torque_canvas.figure.tight_layout(pad=0.0)
+
+        self._ui.layoutTorquePlot.addWidget(self._torque_canvas)
+
     def _setup_kinematic_figures(self):
         self._kinematic_canvas = FigureCanvasQTAgg(Figure())
         self._kinematic_plots = []
         for i in range(3):
-            for j in range(5):
-                plot = self._kinematic_canvas.figure.add_subplot(3, 5, i * 5 + j + 1)
+            for j in range(3):
+                if i == 2 and j == 1:
+                    break
+                plot = self._kinematic_canvas.figure.add_subplot(3, 3, i * 3 + j + 1)
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
                 plot.text(-0.07, 0.5, 'deg', ha='center', va='center', transform=plot.transAxes)
@@ -67,30 +78,7 @@ class MainWindow(QMainWindow):
         self._ui.layoutKinematicPlot.addWidget(self._kinematic_canvas)
 
     def _setup_kinetic_figures(self):
-        self._kinetic_canvas = FigureCanvasQTAgg(Figure())
-        self._kinetic_plots = []
-        for i in range(3):
-            for j in range(4):
-                plot = self._kinetic_canvas.figure.add_subplot(3, 4, i * 4 + j + 1)
-                plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
-                plot.tick_params(axis='y', which='both', labelleft=False, left=False)
-                if j == 3:
-                    plot.text(-0.04, 0.5, 'W', ha='center', va='center', transform=plot.transAxes)
-                else:
-                    plot.text(-0.05, 0.5, 'Nm', ha='center', va='center', transform=plot.transAxes)
-                plot.set_title(f'Plot Title', fontsize=10, pad=-10)
-                self._kinetic_plots.append(plot)
-        self._kinetic_canvas.figure.tight_layout(pad=0.0, rect=[0, 0.03, 0.98, 0.98], h_pad=0.4, w_pad=0.2)
-
-        self._ui.layoutKineticPlot.addWidget(self._kinetic_canvas)
-    def _setup_torque_figure(self):
-        self._torque_canvas = FigureCanvasQTAgg(Figure())
-        self._torque_canvas.figure.suptitle('Torque Data')
-        self._plot_torque = self._torque_canvas.figure.add_subplot(111)
-        self._torque_canvas.figure.tight_layout(pad=0.0)
-
-        self._ui.layoutTorquePlot.addWidget(self._torque_canvas)
-
+        pass
 
     def _label_axes(self):
         self._plot_x.set_ylabel('X', rotation='horizontal', labelpad=10, horizontalalignment='right')
@@ -143,19 +131,22 @@ class MainWindow(QMainWindow):
 
     def _parse_c3d_data(self):
         self._grf_data = {}
+        self._kinematic_data = {}
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
             dynamic = item.data(Qt.UserRole) == "Dynamic"
             directory = self._ui.lineEditDirectory.text()
             file_path = os.path.join(directory, item.text())
             output_directory = os.path.join(directory, '_output')
-            analog_data, events = parse_c3d(file_path, output_directory, dynamic)
+            analog_data, ik_data, events = parse_c3d(file_path, output_directory, dynamic)
             if dynamic:
                 self._grf_data[item.text()] = analog_data
+                self._kinematic_data[item.text()] = ik_data
                 self._events[item.text()] = events
 
         self._visualise_grf_data()
         self._visualise_torque_data()
+        self._visualise_kinematic_data()
 
     def _upload_data(self):
         pass
@@ -181,13 +172,15 @@ class MainWindow(QMainWindow):
                 force_data = grf_data.iloc[:, [0, *range(column, column + 3)]]
 
                 start = None
-                for event_time, event in events.items():
+                for event_time, (event_type, event_plate) in events.items():
+                    if event_plate is None:
+                        continue
                     frame = force_data[force_data['time'] <= event_time].index[-1]
-                    if event[0] == "Foot Strike":
+                    if event_type == "Foot Strike":
                         while force_data.iloc[frame, 3] > 0:
                             frame -= 1
                         start = frame
-                    elif event[0] == "Foot Off" and start:
+                    elif event_type == "Foot Off" and start:
                         while force_data.iloc[frame, 3] > 0:
                             frame += 1
                         if file_name not in normalised_data[foot]:
@@ -240,6 +233,62 @@ class MainWindow(QMainWindow):
 
         self._torque_canvas.draw()
 
+    def _visualise_kinematic_data(self):
+        normalised_data = {"Left": {}, "Right": {}}
+        for i in range(len(self._kinematic_data)):
+            file_name = list(self._kinematic_data.keys())[i]
+            kinematic_data = list(self._kinematic_data.values())[i]
+            grf_events = list(self._events.values())[i]
+
+            for foot, events in grf_events.items():
+                columns = range(7, 11) if foot == "Left" else range(11, 15)
+                data = kinematic_data.iloc[:, [0, 1, 2, 3] + list(columns)]
+
+                start = None
+                for event_time, event in events.items():
+                    if event[0] == "Foot Strike" and start:
+                        frame = data[data['time'] >= event_time].index[0]
+                        if file_name not in normalised_data[foot]:
+                            normalised_data[foot][file_name] = []
+                        normalised_data[foot][file_name].append(data.iloc[start:frame, 1:].values.T)
+                        start = None
+                    elif event[0] == "Foot Strike":
+                        start = data[data['time'] <= event_time].index[-1]
+
+        max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
+                         for arrays in arrays_dict.values() for array in arrays)
+        t = np.linspace(0, 100, max_length)
+
+        self._plot_kinematic_data(t, normalised_data)
+
+    # TODO: Add titles and axis labels. Format the plots.
+    def _plot_kinematic_data(self, time_array, kinematic_data):
+        for plot in self._kinematic_plots:
+            plot.clear()
+
+        for foot, files_dict in kinematic_data.items():
+            for i, (name, data_segments) in enumerate(files_dict.items()):
+                colour = 'r' if foot == "Left" else 'b'
+                for segment in data_segments:
+                    t_segment = np.linspace(0, 100, segment.shape[1])
+
+                    if i in [0, 2, 4]:
+                        segment[0] = -(segment[0] - 180)
+                        segment[1] -= 180
+                    if foot == "Right":
+                        segment[0] = -(segment[0] - 180)
+                    elif foot == "Left":
+                        segment[1] = -segment[1]
+                        segment[3] = -segment[3]
+                        segment[4] = -segment[4]
+
+                    plot_indices = [2, 0, 1, 5, 3, 4, 6]
+                    for i, index in enumerate(plot_indices):
+                        line, = self._kinematic_plots[i].plot(t_segment, segment[index], color=colour, linewidth=1.0)
+                        self._plot_lines[name].append(line)
+
+        self._kinematic_canvas.draw()
+
     def _update_plot_visibility(self, item):
         lines = self._plot_lines.get(item.text(), [])
         visible = item.checkState() == Qt.CheckState.Checked
@@ -247,3 +296,4 @@ class MainWindow(QMainWindow):
             line.set_visible(visible)
         self._grf_canvas.draw()
         self._torque_canvas.draw()
+        self._kinematic_canvas.draw()

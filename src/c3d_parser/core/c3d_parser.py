@@ -11,6 +11,7 @@ from scipy.spatial.transform import Rotation
 from trc import TRCData
 
 from c3d_parser.core.c3d_patch import c3d
+from c3d_parser.core.osim import perform_ik
 
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
@@ -50,7 +51,7 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
     trc_file_path = os.path.join(trc_directory, f"{file_name}.trc")
     trc_data.save(trc_file_path)
 
-    analog_data, events = None, None
+    analog_data, ik_data, events = None, None, None
     if is_dynamic:
         # Extract GRF data from C3D file.
         analog_data, data_rate, events, plate_count, corners = extract_grf(c3d_file, start_frame, end_frame)
@@ -77,7 +78,19 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
         grf_file_path = os.path.join(grf_directory, f"{file_name}_grf.mot")
         write_grf(analog_data, grf_file_path)
 
-    return analog_data, events
+        # TODO: Scale the OpenSim model.
+        #   Temporarily use pre-scaled model.
+        scaled_model = "C:\\Users\\tsal421\\Desktop\\Mesh for Paediatric Shape Model\\Paediatric Gait Models\\SYDNEY\\SYDNEY_scaled_NEW.osim"
+
+        # Perform inverse kinematics.
+        ik_directory = os.path.join(output_directory, 'IK')
+        if not os.path.exists(ik_directory):
+            os.makedirs(ik_directory)
+        ik_output = os.path.join(ik_directory, f"{file_name}_IK.mot")
+        perform_ik(scaled_model, trc_file_path, ik_output)
+        ik_data = read_ik_data(ik_output)
+
+    return analog_data, ik_data, events
 
 
 def de_identify_c3d(file_path, output_directory):
@@ -367,7 +380,6 @@ def zero_grf_data(analog_data, plate_count):
 
 def identify_event_plates(frame_data, events, corners):
     for foot in events:
-        drop_events = []
         for event_time, event in events[foot].items():
             event_index = frame_data[frame_data['Time'] <= event_time].index[-1]
             heel_coordinates = frame_data.at[event_index, foot[0] + 'HEE']
@@ -376,10 +388,7 @@ def identify_event_plates(frame_data, events, corners):
                     events[foot][event_time] = [event, plate]
                     break
             else:
-                drop_events.append(event_time)
-
-        for event_time in drop_events:
-            del events[foot][event_time]
+                events[foot][event_time] = [event, None]
 
 
 def point_on_plate(point, corners):
@@ -436,6 +445,8 @@ def concatenate_grf_data(analog_data, events, mean_centre):
         for event in events[foot]:
             event_type = events[foot][event][0]
             event_plate = events[foot][event][1]
+            if event_plate is None:
+                continue
             frame = analog_data[analog_data['time'] <= event].index[-1]
             source_columns = range(event_plate * 9 + 1, event_plate * 9 + 10)
 
@@ -481,3 +492,16 @@ def is_dynamic(file_path):
             return True
         else:
             return False
+
+
+def read_ik_data(file_path):
+    with open(file_path, 'r') as file:
+        labels, data = [], []
+        for line in file:
+            if line.strip() == "endheader":
+                labels = next(file).strip().split()
+                break
+        for line in file:
+            data.append([float(x) for x in line.strip().split()])
+
+    return pd.DataFrame(data, columns=labels)
