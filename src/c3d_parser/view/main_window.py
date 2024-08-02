@@ -161,14 +161,14 @@ class MainWindow(QMainWindow):
         pass
 
     def _visualise_grf_data(self):
-        t, grf_data = self._extract_data(1)
+        t, grf_data = self._extract_data("grf")
         self._plot_grf_data(t, grf_data)
 
     def _visualise_torque_data(self):
-        t, torque_data = self._extract_data(7)
+        t, torque_data = self._extract_data("torque")
         self._plot_torque_data(t, torque_data)
 
-    def _extract_data(self, start_column):
+    def _extract_data(self, data_type):
         normalised_data = {"Left": {}, "Right": {}}
         for i in range(len(self._grf_data)):
             file_name = list(self._grf_data.keys())[i]
@@ -176,7 +176,8 @@ class MainWindow(QMainWindow):
             grf_events = list(self._events.values())[i]
 
             for foot, events in grf_events.items():
-                column = start_column if foot == "Left" else start_column + 9
+                column = 1 if foot == "Left" and data_type == "grf" else \
+                    13 if foot == "Left" else 7 if data_type == "grf" else 16
                 force_data = grf_data.iloc[:, [0, *range(column, column + 3)]]
 
                 start = None
