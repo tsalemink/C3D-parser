@@ -204,8 +204,6 @@ class MainWindow(QMainWindow):
                 colour = 'r' if foot == "Left" else 'b'
                 for j, segment in enumerate(data_segments):
                     t_segment = time_array[:segment.shape[1]]
-                    if i in [0, 2, 4]:
-                        segment[:2] = -segment[:2]
                     if foot == "Left":
                         segment[1] = -segment[1]
 
@@ -272,9 +270,6 @@ class MainWindow(QMainWindow):
                 for segment in data_segments:
                     t_segment = np.linspace(0, 100, segment.shape[1])
 
-                    if i in [0, 2, 4]:
-                        segment[0] = -(segment[0] - 180)
-                        segment[1] -= 180
                     if foot == "Right":
                         segment[0] = -(segment[0] - 180)
                     elif foot == "Left":

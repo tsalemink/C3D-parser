@@ -43,14 +43,6 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
     filter_data(frame_data, trc_data['DataRate'])
     frame_data = resample_data(frame_data, trc_data['DataRate'])
 
-    # Write harmonised TRC data.
-    set_marker_data(trc_data, frame_data)
-    trc_directory = os.path.join(output_directory, 'trc')
-    if not os.path.exists(trc_directory):
-        os.makedirs(trc_directory)
-    trc_file_path = os.path.join(trc_directory, f"{file_name}.trc")
-    trc_data.save(trc_file_path)
-
     analog_data, ik_data, events = None, None, None
     if is_dynamic:
         # Extract GRF data from C3D file.
@@ -71,6 +63,11 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
         analog_data = concatenate_grf_data(analog_data, events, mean_centre)
         scale_grf_data(analog_data)
 
+        # Rotate trials for +X walking direction.
+        rotation_matrix = get_global_rotation(frame_data)
+        rotate_trc_data(frame_data, rotation_matrix)
+        rotate_grf_data(analog_data, rotation_matrix)
+
         # Write GRF data.
         grf_directory = os.path.join(output_directory, 'grf')
         if not os.path.exists(grf_directory):
@@ -78,6 +75,15 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
         grf_file_path = os.path.join(grf_directory, f"{file_name}_grf.mot")
         write_grf(analog_data, grf_file_path)
 
+    # Write harmonised TRC data.
+    set_marker_data(trc_data, frame_data)
+    trc_directory = os.path.join(output_directory, 'trc')
+    if not os.path.exists(trc_directory):
+        os.makedirs(trc_directory)
+    trc_file_path = os.path.join(trc_directory, f"{file_name}.trc")
+    trc_data.save(trc_file_path)
+
+    if is_dynamic:
         # TODO: Scale the OpenSim model.
         #   Temporarily use pre-scaled model.
         scaled_model = "C:\\Users\\tsal421\\Desktop\\Mesh for Paediatric Shape Model\\Paediatric Gait Models\\SYDNEY\\SYDNEY_scaled_NEW.osim"
@@ -236,6 +242,42 @@ def resample_data(frame_data, data_rate, frequency=100):
         resampled_frame_data.index = pd.RangeIndex(start=1, stop=len(resampled_frame_data) + 1, step=1)
 
     return resampled_frame_data
+
+
+def get_global_rotation(frame_data):
+    r_asis = frame_data["RASI"].values
+    difference = r_asis[-1] - r_asis[0]
+    primary_axis = np.argmax(np.abs(difference))
+    trial_direction = np.zeros(3)
+    trial_direction[primary_axis] = np.sign(difference[primary_axis])
+
+    angle = -np.arctan2(trial_direction[1], trial_direction[0])
+    rotation_matrix = np.round(Rotation.from_euler('z', angle).as_matrix())
+
+    return rotation_matrix
+
+
+def rotate_trc_data(frame_data, rotation_matrix):
+    identity_matrix = np.eye(3)
+    if np.array_equal(rotation_matrix, identity_matrix):
+        return
+
+    for column in frame_data.columns[1:]:
+        frame_data[column] = frame_data[column].apply(
+            lambda x: rotation_matrix @ np.array(x)
+        )
+
+
+def rotate_grf_data(analog_data, rotation_matrix):
+    identity_matrix = np.eye(3)
+    if np.array_equal(rotation_matrix, identity_matrix):
+        return
+
+    for i in range(1, analog_data.columns.size, 3):
+        rotated_values = analog_data.iloc[:, i:i + 3].apply(
+            lambda row: rotation_matrix @ row.values, axis=1
+        )
+        analog_data.iloc[:, i:i + 3] = np.vstack(rotated_values)
 
 
 def extract_grf(file_path, start_frame, end_frame):
