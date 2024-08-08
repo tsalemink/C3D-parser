@@ -11,7 +11,7 @@ from scipy.spatial.transform import Rotation
 from trc import TRCData
 
 from c3d_parser.core.c3d_patch import c3d
-from c3d_parser.core.osim import perform_ik
+from c3d_parser.core.osim import perform_ik, perform_id
 
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
@@ -95,6 +95,13 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
         ik_output = os.path.join(ik_directory, f"{file_name}_IK.mot")
         perform_ik(scaled_model, trc_file_path, ik_output)
         ik_data = read_ik_data(ik_output)
+
+        # Perform inverse dynamics.
+        id_directory = os.path.join(output_directory, 'ID')
+        if not os.path.exists(id_directory):
+            os.makedirs(id_directory)
+        id_output = os.path.join(id_directory, f"{file_name}_ID.sto")
+        perform_id(scaled_model, trc_file_path, grf_file_path, id_output)
 
     return analog_data, ik_data, events
 
