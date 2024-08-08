@@ -125,6 +125,7 @@ class MainWindow(QMainWindow):
 
         self._ui.listWidgetFiles.clear()
         self._ui.pushButtonParseData.setEnabled(False)
+        self._ui.pushButtonUpload.setEnabled(False)
         self._ui.pushButtonScanDirectory.setEnabled(directory_valid)
         self._ui.lineEditDirectory.setStyleSheet(
             DEFAULT_STYLE_SHEET if directory_valid else INVALID_STYLE_SHEET)
@@ -173,6 +174,8 @@ class MainWindow(QMainWindow):
         self._visualise_grf_data()
         self._visualise_torque_data()
         self._visualise_kinematic_data()
+
+        self._ui.pushButtonUpload.setEnabled(True)
 
     def _upload_data(self):
         pass
