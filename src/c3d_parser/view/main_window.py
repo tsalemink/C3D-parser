@@ -41,22 +41,27 @@ class MainWindow(QMainWindow):
 
     def _setup_grf_figure(self):
         self._grf_canvas = FigureCanvasQTAgg(Figure())
-        self._grf_canvas.figure.suptitle('GRF Data')
         self._plot_x = self._grf_canvas.figure.add_subplot(311)
         self._plot_y = self._grf_canvas.figure.add_subplot(312)
         self._plot_z = self._grf_canvas.figure.add_subplot(313)
-        self._plot_x.tick_params(axis='x', which='both', labelbottom=False)
-        self._plot_y.tick_params(axis='x', which='both', labelbottom=False)
-        self._grf_canvas.figure.tight_layout(pad=0.0)
-        self._label_axes()
+        self._plot_x.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
+        self._plot_y.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
+        self._plot_z.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
+        self._plot_x.tick_params(axis='y', which='both', labelleft=False, left=False)
+        self._plot_y.tick_params(axis='y', which='both', labelleft=False, left=False)
+        self._plot_z.tick_params(axis='y', which='both', labelleft=False, left=False)
+        self._grf_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.03, 0.98, 0.96], h_pad=1.4, w_pad=0.2)
+        self._update_grf_axes()
 
         self._ui.layoutGRFPlot.addWidget(self._grf_canvas)
 
     def _setup_torque_figure(self):
         self._torque_canvas = FigureCanvasQTAgg(Figure())
-        self._torque_canvas.figure.suptitle('Torque Data')
         self._plot_torque = self._torque_canvas.figure.add_subplot(111)
-        self._torque_canvas.figure.tight_layout(pad=0.0)
+        self._plot_torque.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
+        self._plot_torque.tick_params(axis='y', which='both', labelleft=False, left=False)
+        self._torque_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.03, 0.98, 0.96], h_pad=1.4, w_pad=2.0)
+        self._update_torque_axes()
 
         self._ui.layoutTorquePlot.addWidget(self._torque_canvas)
 
@@ -70,20 +75,41 @@ class MainWindow(QMainWindow):
                 plot = self._kinematic_canvas.figure.add_subplot(3, 3, i * 3 + j + 1)
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
-                plot.text(-0.07, 0.5, 'deg', ha='center', va='center', transform=plot.transAxes)
-                plot.set_title(f'Plot Title', fontsize=10, pad=-10)
                 self._kinematic_plots.append(plot)
-        self._kinematic_canvas.figure.tight_layout(pad=0.0, rect=[0, 0.03, 0.98, 0.98], h_pad=0.4, w_pad=0.2)
+        self._kinematic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.03, 0.98, 0.96], h_pad=1.4, w_pad=2.0)
+        self._update_kinematic_axes()
 
         self._ui.layoutKinematicPlot.addWidget(self._kinematic_canvas)
 
     def _setup_kinetic_figures(self):
         pass
 
-    def _label_axes(self):
-        self._plot_x.set_ylabel('X', rotation='horizontal', labelpad=10, horizontalalignment='right')
-        self._plot_y.set_ylabel('Y', rotation='horizontal', labelpad=10, horizontalalignment='right')
-        self._plot_z.set_ylabel('Z', rotation='horizontal', labelpad=10, horizontalalignment='right')
+    def _update_grf_axes(self):
+        self._plot_x.set_title(f'GRF (Anterior - Posterior)', fontsize=10, pad=4)
+        self._plot_y.set_title(f'GRF (Medial - Lateral)', fontsize=10, pad=4)
+        self._plot_z.set_title(f'GRF (Vertical)', fontsize=10, pad=4)
+
+        for plot in [self._plot_x, self._plot_y, self._plot_z]:
+            y_min, y_max = plot.get_ylim()
+            plot.set_ylim(np.floor(y_min / 10) * 10, np.ceil(y_max / 10) * 10)
+            y_min, y_max = plot.get_ylim()
+            step = (y_max - y_min) / 4
+
+            plot.axhline(y=0, color='gray', linewidth=1.0, zorder=1)
+            plot.text(x=0, y=y_min, s=int(y_min), ha='right', va='center')
+            plot.text(x=0, y=(y_min + 2 * step), s="N", ha='right', va='center')
+            plot.text(x=0, y=y_max, s=int(y_max), ha='right', va='center')
+
+    def _update_torque_axes(self):
+        self._plot_torque.set_title('Torque (Vertical)', fontsize=10, pad=4)
+
+        y_min, y_max = self._plot_torque.get_ylim()
+        self._plot_torque.set_ylim(np.floor(y_min), np.ceil(y_max))
+        y_min, y_max = self._plot_torque.get_ylim()
+        step = (y_max - y_min) / 4
+
+        self._plot_torque.axhline(y=0, color='gray', linewidth=1.0, zorder=1)
+        self._plot_torque.text(x=0, y=(y_min + 2 * step), s="Nm", ha='right', va='center')
 
     def _make_connections(self):
         self._ui.lineEditDirectory.textChanged.connect(self._validate_directory)
@@ -207,15 +233,14 @@ class MainWindow(QMainWindow):
                     if foot == "Left":
                         segment[1] = -segment[1]
 
-                    line_x, = self._plot_x.plot(t_segment, segment[0], color=colour, linewidth=1.0)
-                    line_y, = self._plot_y.plot(t_segment, segment[1], color=colour, linewidth=1.0)
-                    line_z, = self._plot_z.plot(t_segment, segment[2], color=colour, linewidth=1.0)
-
                     if name not in self._plot_lines:
                         self._plot_lines[name] = []
-                    self._plot_lines[name].extend([line_x, line_y, line_z])
+                    for i, plot in enumerate([self._plot_x, self._plot_y, self._plot_z]):
+                        line, = plot.plot(t_segment, segment[i], color=colour, linewidth=1.0)
+                        plot.set_xlim(left=time_array[0], right=time_array[-1])
+                        self._plot_lines[name].append(line)
 
-        self._label_axes()
+        self._update_grf_axes()
         self._grf_canvas.draw()
 
     def _plot_torque_data(self, time_array, torque_data):
@@ -227,8 +252,10 @@ class MainWindow(QMainWindow):
                 for segment in data_segments:
                     t_segment = time_array[:segment.shape[1]]
                     line_torque, = self._plot_torque.plot(t_segment, segment[2], color=colour, linewidth=1.0)
+                    self._plot_torque.set_xlim(left=time_array[0], right=time_array[-1])
                     self._plot_lines[name].extend([line_torque])
 
+        self._update_torque_axes()
         self._torque_canvas.draw()
 
     def _visualise_kinematic_data(self):
@@ -259,7 +286,6 @@ class MainWindow(QMainWindow):
 
         self._plot_kinematic_data(t, normalised_data)
 
-    # TODO: Add titles and axis labels. Format the plots.
     def _plot_kinematic_data(self, time_array, kinematic_data):
         for plot in self._kinematic_plots:
             plot.clear()
@@ -276,13 +302,48 @@ class MainWindow(QMainWindow):
                         segment[1] = -segment[1]
                         segment[3] = -segment[3]
                         segment[4] = -segment[4]
+                    segment[6] = -segment[6]
+                    segment[0] -= 90
 
                     plot_indices = [2, 0, 1, 5, 3, 4, 6]
                     for i, index in enumerate(plot_indices):
                         line, = self._kinematic_plots[i].plot(t_segment, segment[index], color=colour, linewidth=1.0)
                         self._plot_lines[name].append(line)
 
+        self._update_kinematic_axes()
         self._kinematic_canvas.draw()
+
+    def _update_kinematic_axes(self):
+        plot_labels = {
+            0: ('Pelvic Anterior (+) / Posterior (-) Tilt', 'Ant', 'Pos'),
+            1: ('Pelvic Up (+) / Down (-) Obliquity', 'Up', 'Down'),
+            2: ('Pelvic Internal (+) / External (-) Rotation', 'Int', 'Ext'),
+            3: ('Hip Flexion (+) / Extension (-)', 'Flex', 'Ext'),
+            4: ('Hip Abduction (+) / Adduction (-)', 'Add', 'Abd'),
+            5: ('Hip Internal (+) / External (-) Rotation', 'Int', 'Ext'),
+            6: ('Knee Flexion (-) / Extension (+)', 'Flex', 'Ext')
+        }
+
+        for i, plot in enumerate(self._kinematic_plots):
+            plot.set_xlim(0, 100)
+            if i == 3:
+                plot.set_ylim(-30, 70)
+            elif i == 6:
+                plot.set_ylim(-15, 75)
+            else:
+                plot.set_ylim(-30, 30)
+            plot.axhline(y=0, color='gray', linewidth=1.0, zorder=1)
+
+            title, positive, negative = plot_labels.get(i, ("", ""))
+            y_min, y_max = plot.get_ylim()
+            step = (y_max - y_min) / 4
+
+            plot.set_title(title, fontsize=10, pad=4)
+            plot.text(x=0, y=y_min, s=int(y_min), ha='right', va='center')
+            plot.text(x=0, y=(y_min + 1 * step), s=negative, ha='right', va='center')
+            plot.text(x=0, y=(y_min + 2 * step), s="deg", ha='right', va='center')
+            plot.text(x=0, y=(y_min + 3 * step), s=positive, ha='right', va='center')
+            plot.text(x=0, y=y_max, s=int(y_max), ha='right', va='center')
 
     def _update_plot_visibility(self, item):
         lines = self._plot_lines.get(item.text(), [])
