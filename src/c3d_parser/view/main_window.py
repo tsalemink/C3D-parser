@@ -8,6 +8,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 from c3d_parser.core.c3d_parser import parse_c3d, read_grf, is_dynamic
+from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 
 
@@ -171,6 +172,8 @@ class MainWindow(QMainWindow):
                 self._kinematic_data[item.text()] = ik_data
                 self._events[item.text()] = events
 
+        self._output_directory = output_directory
+
         self._visualise_grf_data()
         self._visualise_torque_data()
         self._visualise_kinematic_data()
@@ -178,7 +181,9 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonUpload.setEnabled(True)
 
     def _upload_data(self):
-        pass
+        selected_trials = self._get_selected_trials()
+        write_normalised_kinematics(self._normalised_data, selected_trials, self._output_directory)
+        write_normalised_kinetics(self._output_directory)
 
     def _visualise_grf_data(self):
         t, grf_data = self._extract_data("grf")
@@ -289,6 +294,8 @@ class MainWindow(QMainWindow):
 
         self._plot_kinematic_data(t, normalised_data)
 
+        self._normalised_data = normalised_data
+
     def _plot_kinematic_data(self, time_array, kinematic_data):
         for plot in self._kinematic_plots:
             plot.clear()
@@ -356,3 +363,11 @@ class MainWindow(QMainWindow):
         self._grf_canvas.draw()
         self._torque_canvas.draw()
         self._kinematic_canvas.draw()
+
+    def _get_selected_trials(self):
+        selected_trials = []
+        for i in range(self._ui.listWidgetFiles.count()):
+            item = self._ui.listWidgetFiles.item(i)
+            if item.checkState() == Qt.Checked:
+                selected_trials.append(item.text())
+        return selected_trials

@@ -554,3 +554,38 @@ def read_ik_data(file_path):
             data.append([float(x) for x in line.strip().split()])
 
     return pd.DataFrame(data, columns=labels)
+
+
+def write_normalised_kinematics(kinematic_data, selected_trials, output_directory):
+    normalised_directory = os.path.join(output_directory, 'normalised')
+    if not os.path.exists(normalised_directory):
+        os.makedirs(normalised_directory)
+    output_file = os.path.join(normalised_directory, f"combined_kinematics.csv")
+    with open(output_file, 'w') as file:
+        columns = ["Frame", "pelvis_list", "pelvis_rotation", "pelvis_tilt",
+                   "hip_adduction", "hip_rotation", "hip_flexion", "knee_angle"]
+        file.write(','.join(columns) + '\n\n\n')
+
+        for foot, files_dict in kinematic_data.items():
+            for name, data_segments in files_dict.items():
+                if name not in selected_trials:
+                    continue
+                for segment in data_segments:
+                    x_original = np.linspace(0, 1, segment.shape[1])
+                    x_new = np.linspace(0, 1, 100)
+                    normalised_segment = np.zeros((7, 100))
+                    for i in range(segment.shape[0]):
+                        normalised_segment[i] = np.interp(x_new, x_original, segment[i])
+
+                    for x in range(1, 101):
+                        row_data = [x] + normalised_segment[:, x - 1].tolist()
+                        file.write(','.join(f'{value:.6f}' for value in row_data) + '\n')
+                    file.write('\n\n')
+
+
+# TODO: Implemnt.
+def write_normalised_kinetics(output_directory):
+    normalised_directory = os.path.join(output_directory, 'normalised')
+    output_file = os.path.join(normalised_directory, f"combined_kinetics.csv")
+    with open(output_file, 'w') as file:
+        pass
