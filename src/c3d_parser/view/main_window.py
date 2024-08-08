@@ -71,8 +71,6 @@ class MainWindow(QMainWindow):
         self._kinematic_plots = []
         for i in range(3):
             for j in range(3):
-                if i == 2 and j == 1:
-                    break
                 plot = self._kinematic_canvas.figure.add_subplot(3, 3, i * 3 + j + 1)
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
@@ -274,7 +272,7 @@ class MainWindow(QMainWindow):
             grf_events = list(self._events.values())[i]
 
             for foot, events in grf_events.items():
-                columns = range(7, 11) if foot == "Left" else range(11, 15)
+                columns = range(7, 13) if foot == "Left" else range(13, 19)
                 data = kinematic_data.iloc[:, [0, 1, 2, 3] + list(columns)]
 
                 start = None
@@ -315,7 +313,7 @@ class MainWindow(QMainWindow):
                     segment[6] = -segment[6]
                     segment[0] -= 90
 
-                    plot_indices = [2, 0, 1, 5, 3, 4, 6]
+                    plot_indices = [2, 0, 1, 5, 3, 4, 6, 7, 8]
                     for i, index in enumerate(plot_indices):
                         line, = self._kinematic_plots[i].plot(t_segment, segment[index], color=colour, linewidth=1.0)
                         self._plot_lines[name].append(line)
@@ -331,7 +329,9 @@ class MainWindow(QMainWindow):
             3: ('Hip Flexion (+) / Extension (-)', 'Flex', 'Ext'),
             4: ('Hip Abduction (+) / Adduction (-)', 'Add', 'Abd'),
             5: ('Hip Internal (+) / External (-) Rotation', 'Int', 'Ext'),
-            6: ('Knee Flexion (-) / Extension (+)', 'Flex', 'Ext')
+            6: ('Knee Flexion (-) / Extension (+)', 'Flex', 'Ext'),
+            7: ('Ankle Dorsiflexion (+) / Plantarflexion (-)', 'Dor', 'Pla'),
+            8: ('Subtalar Inversion (+) / Eversion (-)', 'Inv', 'Eve')
         }
 
         for i, plot in enumerate(self._kinematic_plots):
@@ -340,11 +340,13 @@ class MainWindow(QMainWindow):
                 plot.set_ylim(-30, 70)
             elif i == 6:
                 plot.set_ylim(-15, 75)
+            elif i in [7, 8]:
+                plot.set_ylim(-50, 30)
             else:
                 plot.set_ylim(-30, 30)
             plot.axhline(y=0, color='gray', linewidth=1.0, zorder=1)
 
-            title, positive, negative = plot_labels.get(i, ("", ""))
+            title, positive, negative = plot_labels.get(i, ("", "", ""))
             y_min, y_max = plot.get_ylim()
             step = (y_max - y_min) / 4
 

@@ -86,7 +86,7 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
     if is_dynamic:
         # TODO: Scale the OpenSim model.
         #   Temporarily use pre-scaled model.
-        scaled_model = "C:\\Users\\tsal421\\Desktop\\Mesh for Paediatric Shape Model\\Paediatric Gait Models\\SYDNEY\\SYDNEY_scaled_NEW.osim"
+        scaled_model = "C:\\Users\\tsal421\\Projects\\Gait\\OpenSim-Models\\PGM_SYDNEY_scaled.osim"
 
         # Perform inverse kinematics.
         ik_directory = os.path.join(output_directory, 'IK')
@@ -562,8 +562,10 @@ def write_normalised_kinematics(kinematic_data, selected_trials, output_director
         os.makedirs(normalised_directory)
     output_file = os.path.join(normalised_directory, f"combined_kinematics.csv")
     with open(output_file, 'w') as file:
-        columns = ["Frame", "pelvis_list", "pelvis_rotation", "pelvis_tilt",
-                   "hip_adduction", "hip_rotation", "hip_flexion", "knee_angle"]
+        columns = ["Frame",
+                   "pelvis_list", "pelvis_rotation", "pelvis_tilt",
+                   "hip_adduction", "hip_rotation", "hip_flexion",
+                   "knee_angle", "ankle_angle", "subtalar_angle"]
         file.write(','.join(columns) + '\n\n\n')
 
         for foot, files_dict in kinematic_data.items():
@@ -573,7 +575,7 @@ def write_normalised_kinematics(kinematic_data, selected_trials, output_director
                 for segment in data_segments:
                     x_original = np.linspace(0, 1, segment.shape[1])
                     x_new = np.linspace(0, 1, 100)
-                    normalised_segment = np.zeros((7, 100))
+                    normalised_segment = np.zeros((segment.shape[0], 100))
                     for i in range(segment.shape[0]):
                         normalised_segment[i] = np.interp(x_new, x_original, segment[i])
 
