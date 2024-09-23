@@ -101,7 +101,7 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
         if not os.path.exists(id_directory):
             os.makedirs(id_directory)
         id_output = os.path.join(id_directory, f"{file_name}_ID.sto")
-        perform_id(scaled_model, trc_file_path, grf_file_path, id_output)
+        perform_id(scaled_model, ik_output, grf_file_path, id_output)
 
     return analog_data, ik_data, events
 
