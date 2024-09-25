@@ -31,4 +31,5 @@ def perform_id(osim_file, ik_file, grf_file, output_file):
     id_tool.setCoordinatesFileName(ik_file)
     id_tool.setResultsDir(output_directory)
     id_tool.setOutputGenForceFileName(output_file_name)
+    id_tool.setLowpassCutoffFrequency(6)
     id_tool.run()

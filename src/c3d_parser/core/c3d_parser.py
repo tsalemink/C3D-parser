@@ -43,10 +43,10 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
     filter_data(frame_data, trc_data['DataRate'])
     frame_data = resample_data(frame_data, trc_data['DataRate'])
 
-    analog_data, ik_data, events = None, None, None
+    analog_data, ik_data, id_data, events, subject_weight = None, None, None, None, None
     if is_dynamic:
         # Extract GRF data from C3D file.
-        analog_data, data_rate, events, plate_count, corners = extract_grf(c3d_file, start_frame, end_frame)
+        analog_data, data_rate, events, plate_count, corners, subject_weight = extract_grf(c3d_file, start_frame, end_frame)
         if analog_data is None:
             return
 
@@ -94,7 +94,7 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
             os.makedirs(ik_directory)
         ik_output = os.path.join(ik_directory, f"{file_name}_IK.mot")
         perform_ik(scaled_model, trc_file_path, ik_output)
-        ik_data = read_ik_data(ik_output)
+        ik_data = read_data(ik_output)
 
         # Perform inverse dynamics.
         id_directory = os.path.join(output_directory, 'ID')
@@ -102,8 +102,9 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
             os.makedirs(id_directory)
         id_output = os.path.join(id_directory, f"{file_name}_ID.sto")
         perform_id(scaled_model, ik_output, grf_file_path, id_output)
+        id_data = read_data(id_output)
 
-    return analog_data, ik_data, events
+    return analog_data, ik_data, id_data, events, subject_weight
 
 
 def de_identify_c3d(file_path, output_directory):
@@ -334,7 +335,10 @@ def extract_grf(file_path, start_frame, end_frame):
         # Rotate GRF data to align with global CS.
         corners = reader.get('FORCE_PLATFORM:CORNERS').float_array
 
-    return analog_data, reader.analog_rate, events, plate_count, corners
+        # Extract subject weight.
+        subject_weight = reader.get('PROCESSING:BODYMASS').float_value
+
+    return analog_data, reader.analog_rate, events, plate_count, corners, subject_weight
 
 
 def read_grf(file_path):
@@ -543,12 +547,14 @@ def is_dynamic(file_path):
             return False
 
 
-def read_ik_data(file_path):
+def read_data(file_path):
     with open(file_path, 'r') as file:
         labels, data = [], []
         for line in file:
             if line.strip() == "endheader":
-                labels = next(file).strip().split()
+                while not (line := next(file).strip()):
+                    continue
+                labels = line.split()
                 break
         for line in file:
             data.append([float(x) for x in line.strip().split()])

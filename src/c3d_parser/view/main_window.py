@@ -26,8 +26,10 @@ class MainWindow(QMainWindow):
 
         self._previous_directory = ''
         self._analog_data = None
+        self._subject_weight = None
         self._grf_data = {}
         self._kinematic_data = {}
+        self._kinetic_data = {}
         self._events = {}
         self._plot_lines = {}
 
@@ -81,7 +83,18 @@ class MainWindow(QMainWindow):
         self._ui.layoutKinematicPlot.addWidget(self._kinematic_canvas)
 
     def _setup_kinetic_figures(self):
-        pass
+        self._kinetic_canvas = FigureCanvasQTAgg(Figure())
+        self._kinetic_plots = []
+        for i in range(2):
+            for j in range(3):
+                plot = self._kinetic_canvas.figure.add_subplot(2, 3, i * 3 + j + 1)
+                plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
+                plot.tick_params(axis='y', which='both', labelleft=False, left=False)
+                self._kinetic_plots.append(plot)
+        self._kinetic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.03, 0.98, 0.96], h_pad=1.4, w_pad=2.0)
+        self._update_kinetic_axes()
+
+        self._ui.layoutKineticPlot.addWidget(self._kinetic_canvas)
 
     def _update_grf_axes(self):
         self._plot_x.set_title(f'GRF (Anterior - Posterior)', fontsize=10, pad=4)
@@ -158,29 +171,35 @@ class MainWindow(QMainWindow):
     def _parse_c3d_data(self):
         self._grf_data = {}
         self._kinematic_data = {}
+        self._kinetic_data = {}
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
             dynamic = item.data(Qt.UserRole) == "Dynamic"
             directory = self._ui.lineEditDirectory.text()
             file_path = os.path.join(directory, item.text())
             output_directory = os.path.join(directory, '_output')
-            analog_data, ik_data, events = parse_c3d(file_path, output_directory, dynamic)
+            analog_data, ik_data, id_data, events, subject_weight = parse_c3d(file_path, output_directory, dynamic)
             if dynamic:
                 self._grf_data[item.text()] = analog_data
                 self._kinematic_data[item.text()] = ik_data
+                self._kinetic_data[item.text()] = id_data
                 self._events[item.text()] = events
+
+            if subject_weight and not self._subject_weight:
+                self._subject_weight = subject_weight
 
         self._output_directory = output_directory
 
         self._visualise_grf_data()
         self._visualise_torque_data()
         self._visualise_kinematic_data()
+        self._visualise_kinetic_data()
 
         self._ui.pushButtonUpload.setEnabled(True)
 
     def _upload_data(self):
         selected_trials = self._get_selected_trials()
-        write_normalised_kinematics(self._normalised_data, selected_trials, self._output_directory)
+        write_normalised_kinematics(self._normalised_kinematics, selected_trials, self._output_directory)
         write_normalised_kinetics(self._output_directory)
 
     def _visualise_grf_data(self):
@@ -291,8 +310,7 @@ class MainWindow(QMainWindow):
         t = np.linspace(0, 100, max_length)
 
         self._plot_kinematic_data(t, normalised_data)
-
-        self._normalised_data = normalised_data
+        self._normalised_kinematics = normalised_data
 
     def _plot_kinematic_data(self, time_array, kinematic_data):
         for plot in self._kinematic_plots:
@@ -320,6 +338,58 @@ class MainWindow(QMainWindow):
 
         self._update_kinematic_axes()
         self._kinematic_canvas.draw()
+
+    def _visualise_kinetic_data(self):
+        normalised_data = {"Left": {}, "Right": {}}
+        for i in range(len(self._kinetic_data)):
+            file_name = list(self._kinetic_data.keys())[i]
+            kinetic_data = list(self._kinetic_data.values())[i]
+            grf_events = list(self._events.values())[i]
+
+            for foot, events in grf_events.items():
+                moment_names = ['hip_flexion', 'hip_adduction', 'hip_rotation',
+                                'knee_angle', 'ankle_angle', 'subtalar_angle']
+                for i, name in enumerate(moment_names):
+                    side = foot[0].lower()
+                    moment_names[i] = f"{name}_{side}_moment"
+                data = kinetic_data.loc[:, ['time'] + moment_names]
+
+                start = None
+                for event_time, event in events.items():
+                    if event[0] == "Foot Strike" and start:
+                        frame = data[data['time'] >= event_time].index[0]
+                        if file_name not in normalised_data[foot]:
+                            normalised_data[foot][file_name] = []
+                        converted_data = data.iloc[start:frame, 1:].values.T / self._subject_weight
+                        normalised_data[foot][file_name].append(converted_data)
+
+                        start = None
+                    elif event[0] == "Foot Strike":
+                        start = data[data['time'] <= event_time].index[-1]
+
+        max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
+                         for arrays in arrays_dict.values() for array in arrays)
+        t = np.linspace(0, 100, max_length)
+
+        self._plot_kinetic_data(t, normalised_data)
+        self._normalised_kinetics = normalised_data
+
+    def _plot_kinetic_data(self, time_array, kinetic_data):
+        for plot in self._kinetic_plots:
+            plot.clear()
+
+        for foot, files_dict in kinetic_data.items():
+            for i, (name, data_segments) in enumerate(files_dict.items()):
+                colour = 'r' if foot == "Left" else 'b'
+                for segment in data_segments:
+                    t_segment = np.linspace(0, 100, segment.shape[1])
+
+                    for i, plot in enumerate(self._kinetic_plots):
+                        line, = plot.plot(t_segment, segment[i], color=colour, linewidth=1.0)
+                        self._plot_lines[name].append(line)
+
+        self._update_kinetic_axes()
+        self._kinetic_canvas.draw()
 
     def _update_kinematic_axes(self):
         plot_labels = {
@@ -357,6 +427,38 @@ class MainWindow(QMainWindow):
             plot.text(x=0, y=(y_min + 3 * step), s=positive, ha='right', va='center')
             plot.text(x=0, y=y_max, s=int(y_max), ha='right', va='center')
 
+    def _update_kinetic_axes(self):
+        plot_labels = {
+            0: ('Hip Extensor Moment', 'Ext', 'Flx'),
+            1: ('Hip Abductor Moment', 'Abd', 'Add'),
+            2: ('Hip Rotation Moment', 'Int', 'Ext'),
+            3: ('Knee Extensor Moment', 'Ext', 'Flx'),
+            4: ('Ankle Dorsiflexor Moment', 'Dor', 'Pla'),
+            5: ('Subtalar Inverter Moment', 'Inv', 'Eve')
+        }
+
+        self._kinetic_plots[0].set_ylim(-2.0, 3.0)
+        self._kinetic_plots[1].set_ylim(-1.0, 2.0)
+        self._kinetic_plots[2].set_ylim(-0.5, 0.5)
+        self._kinetic_plots[3].set_ylim(-1.0, 1.0)
+        self._kinetic_plots[4].set_ylim(-1.0, 1.0)
+        self._kinetic_plots[5].set_ylim(-0.5, 0.5)
+
+        for i, plot in enumerate(self._kinetic_plots):
+            plot.set_xlim(0, 100)
+            plot.axhline(y=0, color='gray', linewidth=1.0, zorder=1)
+
+            title, positive, negative = plot_labels.get(i, ("", "", ""))
+            y_min, y_max = plot.get_ylim()
+            step = (y_max - y_min) / 4
+
+            plot.set_title(title, fontsize=10, pad=4)
+            plot.text(x=0, y=y_min, s=y_min, ha='right', va='center')
+            plot.text(x=0, y=(y_min + 1 * step), s=negative, ha='right', va='center')
+            plot.text(x=0, y=(y_min + 2 * step), s="Nm/kg", ha='right', va='center')
+            plot.text(x=0, y=(y_min + 3 * step), s=positive, ha='right', va='center')
+            plot.text(x=0, y=y_max, s=y_max, ha='right', va='center')
+
     def _update_plot_visibility(self, item):
         lines = self._plot_lines.get(item.text(), [])
         visible = item.checkState() == Qt.CheckState.Checked
@@ -365,6 +467,7 @@ class MainWindow(QMainWindow):
         self._grf_canvas.draw()
         self._torque_canvas.draw()
         self._kinematic_canvas.draw()
+        self._kinetic_canvas.draw()
 
     def _get_selected_trials(self):
         selected_trials = []
