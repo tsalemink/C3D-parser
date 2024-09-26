@@ -163,3 +163,4 @@ cython_debug/
 # Hidden test directories.
 tests/data/general/
 tests/output/
+**/_output/
