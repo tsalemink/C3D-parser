@@ -16,6 +16,7 @@ def perform_ik(osim_file, trc_file, output_file):
     ik_tool.setModel(model)
     ik_tool.setMarkerDataFileName(trc_file)
     ik_tool.setOutputMotionFileName(output_file)
+    ik_tool.set_report_errors(False)
     ik_tool.run()
 
 
