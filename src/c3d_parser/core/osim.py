@@ -1,6 +1,11 @@
 
 import os
+import copy
 import opensim as osim
+import xml.etree.ElementTree as ET
+
+
+EXTERNAL_LOADS_TEMPLATE = ET.parse(".\\core\\external_loads_template.xml")
 
 
 # TODO: Implement.
@@ -20,9 +25,9 @@ def perform_ik(osim_file, trc_file, output_file):
     ik_tool.run()
 
 
-# TODO: Include GRF input.
 def perform_id(osim_file, ik_file, grf_file, output_file):
     output_directory, output_file_name = os.path.split(output_file)
+    external_loads_file = setup_external_loads(output_directory, grf_file)
 
     model = osim.Model(osim_file)
     model.initSystem()
@@ -30,7 +35,26 @@ def perform_id(osim_file, ik_file, grf_file, output_file):
     id_tool = osim.InverseDynamicsTool()
     id_tool.setModel(model)
     id_tool.setCoordinatesFileName(ik_file)
+    id_tool.setExternalLoadsFileName(external_loads_file)
     id_tool.setResultsDir(output_directory)
     id_tool.setOutputGenForceFileName(output_file_name)
     id_tool.setLowpassCutoffFrequency(6)
     id_tool.run()
+
+    os.remove(external_loads_file)
+
+
+def setup_external_loads(output_directory, grf_file):
+    grf_file_path = os.path.abspath(grf_file)
+    grf_file_name = os.path.basename(grf_file)
+    external_loads_file = os.path.join(output_directory, 'external_loads.xml')
+
+    root = copy.deepcopy(EXTERNAL_LOADS_TEMPLATE.getroot())
+    root.find("./ExternalLoads/datafile").text = grf_file_path
+    root.find("./ExternalLoads/objects/ExternalForce[@name='externalforce_l']/data_source_name").text = grf_file_name
+    root.find("./ExternalLoads/objects/ExternalForce[@name='externalforce_r']/data_source_name").text = grf_file_name
+
+    tree = ET.ElementTree(root)
+    tree.write(external_loads_file)
+
+    return external_loads_file

@@ -441,7 +441,7 @@ class MainWindow(QMainWindow):
         self._kinetic_plots[1].set_ylim(-1.0, 2.0)
         self._kinetic_plots[2].set_ylim(-0.5, 0.5)
         self._kinetic_plots[3].set_ylim(-1.0, 1.0)
-        self._kinetic_plots[4].set_ylim(-1.0, 1.0)
+        self._kinetic_plots[4].set_ylim(-1.5, 0.5)
         self._kinetic_plots[5].set_ylim(-0.5, 0.5)
 
         for i, plot in enumerate(self._kinetic_plots):
