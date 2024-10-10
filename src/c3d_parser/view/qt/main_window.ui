@@ -193,7 +193,7 @@
   <customwidget>
    <class>CustomListWidget</class>
    <extends>QListWidget</extends>
-   <header>view/widgets.h</header>
+   <header>c3d_parser/view/widgets.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

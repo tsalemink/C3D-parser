@@ -20,7 +20,7 @@ from PySide6.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
     QSizePolicy, QSplitter, QTabWidget, QVBoxLayout,
     QWidget)
 
-from view.widgets import CustomListWidget
+from c3d_parser.view.widgets import CustomListWidget
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
