@@ -42,6 +42,9 @@ def main():
     json_files = os.path.join('../../src/c3d_parser/core/marker_maps', '*.json')
     run_command.append(os.pathsep.join([f'--add-data={json_files}', 'c3d_parser/core/marker_maps/']))
 
+    osim_resources = os.path.join('../../src/c3d_parser/core/osim_resources', '*.xml')
+    run_command.append(os.pathsep.join([f'--add-data={osim_resources}', 'c3d_parser/core/osim_resources/']))
+
     print('Running command: ', run_command)
     PyInstaller.__main__.run(run_command)
 

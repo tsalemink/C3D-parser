@@ -5,7 +5,8 @@ import opensim as osim
 import xml.etree.ElementTree as ET
 
 
-EXTERNAL_LOADS_TEMPLATE = ET.parse(".\\core\\external_loads_template.xml")
+osim_resources = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'osim_resources')
+EXTERNAL_LOADS_TEMPLATE = ET.parse(os.path.join(osim_resources, 'external_loads_template.xml'))
 
 
 # TODO: Implement.
