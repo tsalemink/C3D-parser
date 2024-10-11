@@ -384,6 +384,10 @@ class MainWindow(QMainWindow):
                 for segment in data_segments:
                     t_segment = np.linspace(0, 100, segment.shape[1])
 
+                    if foot == "Right":
+                        segment[1] = -segment[1]
+                        segment[1] += 1
+
                     for i, plot in enumerate(self._kinetic_plots):
                         line, = plot.plot(t_segment, segment[i], color=colour, linewidth=1.0)
                         self._plot_lines[name].append(line)
