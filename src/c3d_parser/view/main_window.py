@@ -291,8 +291,12 @@ class MainWindow(QMainWindow):
             grf_events = list(self._events.values())[i]
 
             for foot, events in grf_events.items():
-                columns = range(7, 13) if foot == "Left" else range(13, 19)
-                data = kinematic_data.iloc[:, [0, 1, 2, 3] + list(columns)]
+                pelvis_kinematics = ['pelvis_tilt', 'pelvis_list', 'pelvis_rotation']
+                other_kinematics = ['hip_flexion', 'hip_adduction', 'hip_rotation',
+                                    'knee_angle', 'ankle_angle', 'subtalar_angle']
+                for i, name in enumerate(other_kinematics):
+                    other_kinematics[i] = f"{name}_{foot[0].lower()}"
+                data = kinematic_data.loc[:, ['time'] + pelvis_kinematics + other_kinematics]
 
                 start = None
                 for event_time, event in events.items():
@@ -323,17 +327,16 @@ class MainWindow(QMainWindow):
                     t_segment = np.linspace(0, 100, segment.shape[1])
 
                     if foot == "Right":
-                        segment[0] = -(segment[0] - 180)
+                        segment[1] = -(segment[1] - 180)
                     elif foot == "Left":
-                        segment[1] = -segment[1]
-                        segment[3] = -segment[3]
+                        segment[2] = -segment[2]
                         segment[4] = -segment[4]
+                        segment[5] = -segment[5]
                     segment[6] = -segment[6]
-                    segment[0] -= 90
+                    segment[1] -= 90
 
-                    plot_indices = [2, 0, 1, 5, 3, 4, 6, 7, 8]
-                    for i, index in enumerate(plot_indices):
-                        line, = self._kinematic_plots[i].plot(t_segment, segment[index], color=colour, linewidth=1.0)
+                    for i, plot in enumerate(self._kinematic_plots):
+                        line, = plot.plot(t_segment, segment[i], color=colour, linewidth=1.0)
                         self._plot_lines[name].append(line)
 
         self._update_kinematic_axes()
@@ -350,8 +353,7 @@ class MainWindow(QMainWindow):
                 moment_names = ['hip_flexion', 'hip_adduction', 'hip_rotation',
                                 'knee_angle', 'ankle_angle', 'subtalar_angle']
                 for i, name in enumerate(moment_names):
-                    side = foot[0].lower()
-                    moment_names[i] = f"{name}_{side}_moment"
+                    moment_names[i] = f"{name}_{foot[0].lower()}_moment"
                 data = kinetic_data.loc[:, ['time'] + moment_names]
 
                 start = None
