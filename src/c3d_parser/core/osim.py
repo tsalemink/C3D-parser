@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 
 osim_resources = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'osim_resources')
 EXTERNAL_LOADS_TEMPLATE = ET.parse(os.path.join(osim_resources, 'external_loads_template.xml'))
+IK_TASK_SET = os.path.join(osim_resources, 'ik_task_set.xml')
 
 
 # TODO: Implement.
@@ -21,6 +22,7 @@ def perform_ik(osim_file, trc_file, output_file):
     ik_tool = osim.InverseKinematicsTool()
     ik_tool.setModel(model)
     ik_tool.setMarkerDataFileName(trc_file)
+    ik_tool.set_IKTaskSet(osim.IKTaskSet(IK_TASK_SET))
     ik_tool.setOutputMotionFileName(output_file)
     ik_tool.set_report_errors(False)
     ik_tool.run()
