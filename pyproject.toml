@@ -21,5 +21,7 @@ dependencies = {file = ["requirements.txt"]}
 [project.urls]
 Repository = "https://github.com/tsalemink/C3D-parser"
 
+# Use `scripts` for debugging.
+# [project.scripts]
 [project.gui-scripts]
 c3d_parser = "c3d_parser.application:main"
