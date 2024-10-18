@@ -18,6 +18,30 @@ script_directory = os.path.dirname(os.path.abspath(__file__))
 marker_maps_dir = os.path.join(script_directory, 'marker_maps')
 
 
+def parse_session(files, input_directory, output_directory):
+    grf_data = {}
+    kinematic_data = {}
+    kinetic_data = {}
+    event_data = {}
+
+    for file_name, dynamic in files.items():
+        file_path = os.path.join(input_directory, file_name)
+        analog_data, ik_data, id_data, events = parse_c3d(file_path, output_directory, dynamic)
+
+        if dynamic:
+            grf_data[file_name] = analog_data
+            kinematic_data[file_name] = ik_data
+            kinetic_data[file_name] = id_data
+            event_data[file_name] = events
+
+    t_grf, normalised_grf_data = normalise_grf_data(grf_data, event_data, 'grf')
+    t_torque, normalised_torque_data = normalise_grf_data(grf_data, event_data, 'torque')
+    t_ik, normalised_kinematics = normalise_kinematics(kinematic_data, event_data)
+    t_id, normalised_kinetics = normalise_kinetics(kinetic_data, event_data)
+
+    return t_grf, normalised_grf_data, t_torque, normalised_torque_data, t_ik, normalised_kinematics, t_id, normalised_kinetics
+
+
 def parse_c3d(c3d_file, output_directory, is_dynamic):
     input_directory, c3d_file_name = os.path.split(os.path.abspath(c3d_file))
     gait_lab = os.path.basename(os.path.dirname(input_directory))
@@ -46,7 +70,7 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
     analog_data, ik_data, id_data, events, subject_weight = None, None, None, None, None
     if is_dynamic:
         # Extract GRF data from C3D file.
-        analog_data, data_rate, events, plate_count, corners, subject_weight = extract_grf(c3d_file, start_frame, end_frame)
+        analog_data, data_rate, events, plate_count, corners, subject_weight = extract_data(c3d_file, start_frame, end_frame)
         if analog_data is None:
             return
 
@@ -103,8 +127,9 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
         id_output = os.path.join(id_directory, f"{file_name}_ID.sto")
         perform_id(scaled_model, ik_output, grf_file_path, id_output)
         id_data = read_data(id_output)
+        mass_adjust_units(id_data, subject_weight)
 
-    return analog_data, ik_data, id_data, events, subject_weight
+    return analog_data, ik_data, id_data, events
 
 
 def de_identify_c3d(file_path, output_directory):
@@ -288,7 +313,7 @@ def rotate_grf_data(analog_data, rotation_matrix):
         analog_data.iloc[:, i:i + 3] = np.vstack(rotated_values)
 
 
-def extract_grf(file_path, start_frame, end_frame):
+def extract_data(file_path, start_frame, end_frame):
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
         if (reader.analog_used == 0) or ('EVENT' not in reader):
@@ -560,6 +585,112 @@ def read_data(file_path):
             data.append([float(x) for x in line.strip().split()])
 
     return pd.DataFrame(data, columns=labels)
+
+
+def mass_adjust_units(kinetic_data, subject_mass):
+    kinetic_data.iloc[:, 1:] /= subject_mass
+
+
+def normalise_grf_data(data, events, data_type):
+    normalised_data = {"Left": {}, "Right": {}}
+    for i in range(len(data)):
+        file_name = list(data.keys())[i]
+        grf_data = list(data.values())[i]
+        trial_events = list(events.values())[i]
+
+        for foot, foot_events in trial_events.items():
+            column = 1 if foot == "Left" and data_type == "grf" else \
+                13 if foot == "Left" else 7 if data_type == "grf" else 16
+            force_data = grf_data.iloc[:, [0, *range(column, column + 3)]]
+
+            start = None
+            for event_time, (event_type, event_plate) in foot_events.items():
+                if event_plate is None:
+                    continue
+                frame = force_data[force_data['time'] <= event_time].index[-1]
+                if event_type == "Foot Strike":
+                    while force_data.iloc[frame, 3] > 0:
+                        frame -= 1
+                    start = frame
+                elif event_type == "Foot Off" and start:
+                    while force_data.iloc[frame, 3] > 0:
+                        frame += 1
+                    if file_name not in normalised_data[foot]:
+                        normalised_data[foot][file_name] = []
+                    normalised_data[foot][file_name].append(force_data.iloc[start:frame, 1:].values.T)
+                    start = None
+
+    max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
+                     for arrays in arrays_dict.values() for array in arrays)
+    t = np.linspace(0, 100, max_length)
+
+    return t, normalised_data
+
+
+def normalise_kinematics(kinematic_data, events):
+    normalised_data = {"Left": {}, "Right": {}}
+    for i in range(len(kinematic_data)):
+        file_name = list(kinematic_data.keys())[i]
+        trial_data = list(kinematic_data.values())[i]
+        trial_events = list(events.values())[i]
+
+        for foot, foot_events in trial_events.items():
+            pelvis_kinematics = ['pelvis_tilt', 'pelvis_list', 'pelvis_rotation']
+            other_kinematics = ['hip_flexion', 'hip_adduction', 'hip_rotation',
+                                'knee_angle', 'ankle_angle', 'subtalar_angle']
+            for i, name in enumerate(other_kinematics):
+                other_kinematics[i] = f"{name}_{foot[0].lower()}"
+            data = trial_data.loc[:, ['time'] + pelvis_kinematics + other_kinematics]
+
+            start = None
+            for event_time, event in foot_events.items():
+                if event[0] == "Foot Strike" and start:
+                    frame = data[data['time'] >= event_time].index[0]
+                    if file_name not in normalised_data[foot]:
+                        normalised_data[foot][file_name] = []
+                    normalised_data[foot][file_name].append(data.iloc[start:frame, 1:].values.T)
+                    start = None
+                elif event[0] == "Foot Strike":
+                    start = data[data['time'] <= event_time].index[-1]
+
+    max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
+                     for arrays in arrays_dict.values() for array in arrays)
+    t = np.linspace(0, 100, max_length)
+
+    return t, normalised_data
+
+
+def normalise_kinetics(kinetic_data, events):
+    normalised_data = {"Left": {}, "Right": {}}
+    for i in range(len(kinetic_data)):
+        file_name = list(kinetic_data.keys())[i]
+        trial_data = list(kinetic_data.values())[i]
+        trial_events = list(events.values())[i]
+
+        for foot, foot_events in trial_events.items():
+            moment_names = ['hip_flexion', 'hip_adduction', 'hip_rotation',
+                            'knee_angle', 'ankle_angle', 'subtalar_angle']
+            for i, name in enumerate(moment_names):
+                moment_names[i] = f"{name}_{foot[0].lower()}_moment"
+            data = trial_data.loc[:, ['time'] + moment_names]
+
+            start = None
+            for event_time, event in foot_events.items():
+                if event[0] == "Foot Strike" and start:
+                    frame = data[data['time'] >= event_time].index[0]
+                    if file_name not in normalised_data[foot]:
+                        normalised_data[foot][file_name] = []
+                    normalised_data[foot][file_name].append(data.iloc[start:frame, 1:].values.T)
+
+                    start = None
+                elif event[0] == "Foot Strike":
+                    start = data[data['time'] <= event_time].index[-1]
+
+    max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
+                     for arrays in arrays_dict.values() for array in arrays)
+    t = np.linspace(0, 100, max_length)
+
+    return t, normalised_data
 
 
 def write_normalised_kinematics(kinematic_data, selected_trials, output_directory):

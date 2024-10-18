@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QMainWindow, QFileDialog, QListWidgetItem
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
-from c3d_parser.core.c3d_parser import parse_c3d, read_grf, is_dynamic
+from c3d_parser.core.c3d_parser import parse_session, read_grf, is_dynamic
 from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 
@@ -169,31 +169,20 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonParseData.setEnabled(True)
 
     def _parse_c3d_data(self):
-        self._grf_data = {}
-        self._kinematic_data = {}
-        self._kinetic_data = {}
+        files = {}
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
             dynamic = item.data(Qt.UserRole) == "Dynamic"
             directory = self._ui.lineEditDirectory.text()
-            file_path = os.path.join(directory, item.text())
-            output_directory = os.path.join(directory, '_output')
-            analog_data, ik_data, id_data, events, subject_weight = parse_c3d(file_path, output_directory, dynamic)
-            if dynamic:
-                self._grf_data[item.text()] = analog_data
-                self._kinematic_data[item.text()] = ik_data
-                self._kinetic_data[item.text()] = id_data
-                self._events[item.text()] = events
+            self._output_directory = os.path.join(directory, '_output')
+            files[item.text()] = dynamic
 
-            if subject_weight and not self._subject_weight:
-                self._subject_weight = subject_weight
+        t_grf, normalised_grf_data, t_torque, normalised_torque_data, t_ik, normalised_kinematics, t_id, normalised_kinetics = parse_session(files, directory, self._output_directory)
 
-        self._output_directory = output_directory
-
-        self._visualise_grf_data()
-        self._visualise_torque_data()
-        self._visualise_kinematic_data()
-        self._visualise_kinetic_data()
+        self._visualise_grf_data(t_grf, normalised_grf_data)
+        self._visualise_torque_data(t_torque, normalised_torque_data)
+        self._visualise_kinematic_data(t_ik, normalised_kinematics)
+        self._visualise_kinetic_data(t_id, normalised_kinetics)
 
         self._ui.pushButtonUpload.setEnabled(True)
 
@@ -202,50 +191,7 @@ class MainWindow(QMainWindow):
         write_normalised_kinematics(self._normalised_kinematics, selected_trials, self._output_directory)
         write_normalised_kinetics(self._output_directory)
 
-    def _visualise_grf_data(self):
-        t, grf_data = self._extract_data("grf")
-        self._plot_grf_data(t, grf_data)
-
-    def _visualise_torque_data(self):
-        t, torque_data = self._extract_data("torque")
-        self._plot_torque_data(t, torque_data)
-
-    def _extract_data(self, data_type):
-        normalised_data = {"Left": {}, "Right": {}}
-        for i in range(len(self._grf_data)):
-            file_name = list(self._grf_data.keys())[i]
-            grf_data = list(self._grf_data.values())[i]
-            grf_events = list(self._events.values())[i]
-
-            for foot, events in grf_events.items():
-                column = 1 if foot == "Left" and data_type == "grf" else \
-                    13 if foot == "Left" else 7 if data_type == "grf" else 16
-                force_data = grf_data.iloc[:, [0, *range(column, column + 3)]]
-
-                start = None
-                for event_time, (event_type, event_plate) in events.items():
-                    if event_plate is None:
-                        continue
-                    frame = force_data[force_data['time'] <= event_time].index[-1]
-                    if event_type == "Foot Strike":
-                        while force_data.iloc[frame, 3] > 0:
-                            frame -= 1
-                        start = frame
-                    elif event_type == "Foot Off" and start:
-                        while force_data.iloc[frame, 3] > 0:
-                            frame += 1
-                        if file_name not in normalised_data[foot]:
-                            normalised_data[foot][file_name] = []
-                        normalised_data[foot][file_name].append(force_data.iloc[start:frame, 1:].values.T)
-                        start = None
-
-        max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
-                         for arrays in arrays_dict.values() for array in arrays)
-        t = np.linspace(0, 100, max_length)
-
-        return t, normalised_data
-
-    def _plot_grf_data(self, time_array, grf_data):
+    def _visualise_grf_data(self, time_array, grf_data):
         self._plot_x.clear()
         self._plot_y.clear()
         self._plot_z.clear()
@@ -268,7 +214,7 @@ class MainWindow(QMainWindow):
         self._update_grf_axes()
         self._grf_canvas.draw()
 
-    def _plot_torque_data(self, time_array, torque_data):
+    def _visualise_torque_data(self, time_array, torque_data):
         self._plot_torque.clear()
 
         for foot, files_dict in torque_data.items():
@@ -283,40 +229,7 @@ class MainWindow(QMainWindow):
         self._update_torque_axes()
         self._torque_canvas.draw()
 
-    def _visualise_kinematic_data(self):
-        normalised_data = {"Left": {}, "Right": {}}
-        for i in range(len(self._kinematic_data)):
-            file_name = list(self._kinematic_data.keys())[i]
-            kinematic_data = list(self._kinematic_data.values())[i]
-            grf_events = list(self._events.values())[i]
-
-            for foot, events in grf_events.items():
-                pelvis_kinematics = ['pelvis_tilt', 'pelvis_list', 'pelvis_rotation']
-                other_kinematics = ['hip_flexion', 'hip_adduction', 'hip_rotation',
-                                    'knee_angle', 'ankle_angle', 'subtalar_angle']
-                for i, name in enumerate(other_kinematics):
-                    other_kinematics[i] = f"{name}_{foot[0].lower()}"
-                data = kinematic_data.loc[:, ['time'] + pelvis_kinematics + other_kinematics]
-
-                start = None
-                for event_time, event in events.items():
-                    if event[0] == "Foot Strike" and start:
-                        frame = data[data['time'] >= event_time].index[0]
-                        if file_name not in normalised_data[foot]:
-                            normalised_data[foot][file_name] = []
-                        normalised_data[foot][file_name].append(data.iloc[start:frame, 1:].values.T)
-                        start = None
-                    elif event[0] == "Foot Strike":
-                        start = data[data['time'] <= event_time].index[-1]
-
-        max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
-                         for arrays in arrays_dict.values() for array in arrays)
-        t = np.linspace(0, 100, max_length)
-
-        self._plot_kinematic_data(t, normalised_data)
-        self._normalised_kinematics = normalised_data
-
-    def _plot_kinematic_data(self, time_array, kinematic_data):
+    def _visualise_kinematic_data(self, time_array, kinematic_data):
         for plot in self._kinematic_plots:
             plot.clear()
 
@@ -342,41 +255,9 @@ class MainWindow(QMainWindow):
         self._update_kinematic_axes()
         self._kinematic_canvas.draw()
 
-    def _visualise_kinetic_data(self):
-        normalised_data = {"Left": {}, "Right": {}}
-        for i in range(len(self._kinetic_data)):
-            file_name = list(self._kinetic_data.keys())[i]
-            kinetic_data = list(self._kinetic_data.values())[i]
-            grf_events = list(self._events.values())[i]
+        self._normalised_kinematics = kinematic_data
 
-            for foot, events in grf_events.items():
-                moment_names = ['hip_flexion', 'hip_adduction', 'hip_rotation',
-                                'knee_angle', 'ankle_angle', 'subtalar_angle']
-                for i, name in enumerate(moment_names):
-                    moment_names[i] = f"{name}_{foot[0].lower()}_moment"
-                data = kinetic_data.loc[:, ['time'] + moment_names]
-
-                start = None
-                for event_time, event in events.items():
-                    if event[0] == "Foot Strike" and start:
-                        frame = data[data['time'] >= event_time].index[0]
-                        if file_name not in normalised_data[foot]:
-                            normalised_data[foot][file_name] = []
-                        converted_data = data.iloc[start:frame, 1:].values.T / self._subject_weight
-                        normalised_data[foot][file_name].append(converted_data)
-
-                        start = None
-                    elif event[0] == "Foot Strike":
-                        start = data[data['time'] <= event_time].index[-1]
-
-        max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
-                         for arrays in arrays_dict.values() for array in arrays)
-        t = np.linspace(0, 100, max_length)
-
-        self._plot_kinetic_data(t, normalised_data)
-        self._normalised_kinetics = normalised_data
-
-    def _plot_kinetic_data(self, time_array, kinetic_data):
+    def _visualise_kinetic_data(self, time_array, kinetic_data):
         for plot in self._kinetic_plots:
             plot.clear()
 
@@ -396,6 +277,8 @@ class MainWindow(QMainWindow):
 
         self._update_kinetic_axes()
         self._kinetic_canvas.draw()
+
+        self._normalised_kinetics = kinetic_data
 
     def _update_kinematic_axes(self):
         plot_labels = {
