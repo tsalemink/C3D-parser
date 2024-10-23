@@ -177,18 +177,18 @@ class MainWindow(QMainWindow):
             self._output_directory = os.path.join(directory, '_output')
             files[item.text()] = dynamic
 
-        grf_data, torque_data, kinematics, kinetics = parse_session(files, directory, self._output_directory)
+        grf_data, torque_data, self._kinematics, self._kinetics = parse_session(files, directory, self._output_directory)
 
         self._visualise_grf_data(grf_data)
         self._visualise_torque_data(torque_data)
-        self._visualise_kinematic_data(kinematics)
-        self._visualise_kinetic_data(kinetics)
+        self._visualise_kinematic_data(self._kinematics)
+        self._visualise_kinetic_data(self._kinetics)
 
         self._ui.pushButtonUpload.setEnabled(True)
 
     def _upload_data(self):
         selected_trials = self._get_selected_trials()
-        write_normalised_kinematics(self._normalised_kinematics, selected_trials, self._output_directory)
+        write_normalised_kinematics(self._kinematics, selected_trials, self._output_directory)
         write_normalised_kinetics(self._output_directory)
 
     def _visualise_grf_data(self, grf_data):
@@ -247,8 +247,6 @@ class MainWindow(QMainWindow):
         self._update_kinematic_axes()
         self._kinematic_canvas.draw()
 
-        self._normalised_kinematics = kinematic_data
-
     def _visualise_kinetic_data(self, kinetic_data):
         for plot in self._kinetic_plots:
             plot.clear()
@@ -265,8 +263,6 @@ class MainWindow(QMainWindow):
 
         self._update_kinetic_axes()
         self._kinetic_canvas.draw()
-
-        self._normalised_kinetics = kinetic_data
 
     def _update_kinematic_axes(self):
         plot_labels = {
