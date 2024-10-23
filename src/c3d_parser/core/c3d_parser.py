@@ -713,14 +713,25 @@ def write_normalised_kinematics(kinematic_data, selected_trials, output_director
     if not os.path.exists(normalised_directory):
         os.makedirs(normalised_directory)
     output_file = os.path.join(normalised_directory, f"combined_kinematics.csv")
-    with open(output_file, 'w') as file:
-        columns = ["Frame",
-                   "pelvis_list", "pelvis_rotation", "pelvis_tilt",
-                   "hip_adduction", "hip_rotation", "hip_flexion",
-                   "knee_angle", "ankle_angle", "subtalar_angle"]
-        file.write(','.join(columns) + '\n\n\n')
+    columns = ["pelvis_list", "pelvis_rotation", "pelvis_tilt",
+               "hip_adduction", "hip_rotation", "hip_flexion",
+               "knee_angle", "ankle_angle", "subtalar_angle"]
+    write_normalised_data(kinematic_data, columns, selected_trials, output_file)
 
-        for foot, files_dict in kinematic_data.items():
+
+def write_normalised_kinetics(kinetic_data, selected_trials, output_directory):
+    normalised_directory = os.path.join(output_directory, 'normalised')
+    output_file = os.path.join(normalised_directory, f"combined_kinetics.csv")
+    columns = ["hip_adduction_moment", "hip_rotation_moment", "hip_flexion_moment",
+               "knee_angle_moment", "ankle_angle_moment", "subtalar_angle_moment"]
+    write_normalised_data(kinetic_data, columns, selected_trials, output_file)
+
+
+def write_normalised_data(data, column_names, selected_trials, output_file):
+    with open(output_file, 'w') as file:
+        file.write(','.join(["Frame"] + column_names) + '\n\n\n')
+
+        for foot, files_dict in data.items():
             for name, data_segments in files_dict.items():
                 if name not in selected_trials:
                     continue
@@ -735,11 +746,3 @@ def write_normalised_kinematics(kinematic_data, selected_trials, output_director
                         row_data = [x] + normalised_segment[:, x - 1].tolist()
                         file.write(','.join(f'{value:.6f}' for value in row_data) + '\n')
                     file.write('\n\n')
-
-
-# TODO: Implemnt.
-def write_normalised_kinetics(output_directory):
-    normalised_directory = os.path.join(output_directory, 'normalised')
-    output_file = os.path.join(normalised_directory, f"combined_kinetics.csv")
-    with open(output_file, 'w') as file:
-        pass

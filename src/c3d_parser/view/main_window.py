@@ -189,7 +189,7 @@ class MainWindow(QMainWindow):
     def _upload_data(self):
         selected_trials = self._get_selected_trials()
         write_normalised_kinematics(self._kinematics, selected_trials, self._output_directory)
-        write_normalised_kinetics(self._output_directory)
+        write_normalised_kinetics(self._kinetics, selected_trials, self._output_directory)
 
     def _visualise_grf_data(self, grf_data):
         self._plot_x.clear()
