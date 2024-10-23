@@ -177,12 +177,12 @@ class MainWindow(QMainWindow):
             self._output_directory = os.path.join(directory, '_output')
             files[item.text()] = dynamic
 
-        t_grf, normalised_grf_data, t_torque, normalised_torque_data, t_ik, normalised_kinematics, t_id, normalised_kinetics = parse_session(files, directory, self._output_directory)
+        grf_data, torque_data, kinematics, kinetics = parse_session(files, directory, self._output_directory)
 
-        self._visualise_grf_data(t_grf, normalised_grf_data)
-        self._visualise_torque_data(t_torque, normalised_torque_data)
-        self._visualise_kinematic_data(t_ik, normalised_kinematics)
-        self._visualise_kinetic_data(t_id, normalised_kinetics)
+        self._visualise_grf_data(grf_data)
+        self._visualise_torque_data(torque_data)
+        self._visualise_kinematic_data(kinematics)
+        self._visualise_kinetic_data(kinetics)
 
         self._ui.pushButtonUpload.setEnabled(True)
 
@@ -191,7 +191,7 @@ class MainWindow(QMainWindow):
         write_normalised_kinematics(self._normalised_kinematics, selected_trials, self._output_directory)
         write_normalised_kinetics(self._output_directory)
 
-    def _visualise_grf_data(self, time_array, grf_data):
+    def _visualise_grf_data(self, grf_data):
         self._plot_x.clear()
         self._plot_y.clear()
         self._plot_z.clear()
@@ -200,7 +200,7 @@ class MainWindow(QMainWindow):
             for i, (name, data_segments) in enumerate(files_dict.items()):
                 colour = 'r' if foot == "Left" else 'b'
                 for j, segment in enumerate(data_segments):
-                    t_segment = time_array[:segment.shape[1]]
+                    t_segment = np.arange(segment.shape[1])
                     if foot == "Left":
                         segment[1] = -segment[1]
 
@@ -208,28 +208,31 @@ class MainWindow(QMainWindow):
                         self._plot_lines[name] = []
                     for i, plot in enumerate([self._plot_x, self._plot_y, self._plot_z]):
                         line, = plot.plot(t_segment, segment[i], color=colour, linewidth=1.0)
-                        plot.set_xlim(left=time_array[0], right=time_array[-1])
                         self._plot_lines[name].append(line)
+
+        for plot in [self._plot_x, self._plot_y, self._plot_z]:
+            plot.margins(x=0)
 
         self._update_grf_axes()
         self._grf_canvas.draw()
 
-    def _visualise_torque_data(self, time_array, torque_data):
+    def _visualise_torque_data(self, torque_data):
         self._plot_torque.clear()
 
         for foot, files_dict in torque_data.items():
             for name, data_segments in files_dict.items():
                 colour = 'r' if foot == "Left" else 'b'
                 for segment in data_segments:
-                    t_segment = time_array[:segment.shape[1]]
+                    t_segment = np.arange(segment.shape[1])
                     line_torque, = self._plot_torque.plot(t_segment, segment[2], color=colour, linewidth=1.0)
-                    self._plot_torque.set_xlim(left=time_array[0], right=time_array[-1])
                     self._plot_lines[name].extend([line_torque])
+
+        self._plot_torque.margins(x=0)
 
         self._update_torque_axes()
         self._torque_canvas.draw()
 
-    def _visualise_kinematic_data(self, time_array, kinematic_data):
+    def _visualise_kinematic_data(self, kinematic_data):
         for plot in self._kinematic_plots:
             plot.clear()
 
@@ -257,7 +260,7 @@ class MainWindow(QMainWindow):
 
         self._normalised_kinematics = kinematic_data
 
-    def _visualise_kinetic_data(self, time_array, kinetic_data):
+    def _visualise_kinetic_data(self, kinetic_data):
         for plot in self._kinetic_plots:
             plot.clear()
 

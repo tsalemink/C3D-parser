@@ -34,12 +34,12 @@ def parse_session(files, input_directory, output_directory):
             kinetic_data[file_name] = id_data
             event_data[file_name] = events
 
-    t_grf, normalised_grf_data = normalise_grf_data(grf_data, event_data, 'grf')
-    t_torque, normalised_torque_data = normalise_grf_data(grf_data, event_data, 'torque')
-    t_ik, normalised_kinematics = normalise_kinematics(kinematic_data, event_data)
-    t_id, normalised_kinetics = normalise_kinetics(kinetic_data, event_data)
+    normalised_grf_data = normalise_grf_data(grf_data, event_data, 'grf')
+    normalised_torque_data = normalise_grf_data(grf_data, event_data, 'torque')
+    normalised_kinematics = normalise_kinematics(kinematic_data, event_data)
+    normalised_kinetics = normalise_kinetics(kinetic_data, event_data)
 
-    return t_grf, normalised_grf_data, t_torque, normalised_torque_data, t_ik, normalised_kinematics, t_id, normalised_kinetics
+    return normalised_grf_data, normalised_torque_data, normalised_kinematics, normalised_kinetics
 
 
 def parse_c3d(c3d_file, output_directory, is_dynamic):
@@ -620,11 +620,7 @@ def normalise_grf_data(data, events, data_type):
                     normalised_data[foot][file_name].append(force_data.iloc[start:frame, 1:].values.T)
                     start = None
 
-    max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
-                     for arrays in arrays_dict.values() for array in arrays)
-    t = np.linspace(0, 100, max_length)
-
-    return t, normalised_data
+    return normalised_data
 
 
 def normalise_kinematics(kinematic_data, events):
@@ -653,11 +649,7 @@ def normalise_kinematics(kinematic_data, events):
                 elif event[0] == "Foot Strike":
                     start = data[data['time'] <= event_time].index[-1]
 
-    max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
-                     for arrays in arrays_dict.values() for array in arrays)
-    t = np.linspace(0, 100, max_length)
-
-    return t, normalised_data
+    return normalised_data
 
 
 def normalise_kinetics(kinetic_data, events):
@@ -686,11 +678,9 @@ def normalise_kinetics(kinetic_data, events):
                 elif event[0] == "Foot Strike":
                     start = data[data['time'] <= event_time].index[-1]
 
-    max_length = max(array.shape[1] for arrays_dict in normalised_data.values()
-                     for arrays in arrays_dict.values() for array in arrays)
-    t = np.linspace(0, 100, max_length)
+    return normalised_data
 
-    return t, normalised_data
+
 
 
 def write_normalised_kinematics(kinematic_data, selected_trials, output_directory):
