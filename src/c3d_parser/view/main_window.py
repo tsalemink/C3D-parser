@@ -201,8 +201,6 @@ class MainWindow(QMainWindow):
                 colour = 'r' if foot == "Left" else 'b'
                 for j, segment in enumerate(data_segments):
                     t_segment = np.arange(segment.shape[1])
-                    if foot == "Left":
-                        segment[1] = -segment[1]
 
                     if name not in self._plot_lines:
                         self._plot_lines[name] = []
@@ -242,15 +240,6 @@ class MainWindow(QMainWindow):
                 for segment in data_segments:
                     t_segment = np.linspace(0, 100, segment.shape[1])
 
-                    if foot == "Right":
-                        segment[1] = -(segment[1] - 180)
-                    elif foot == "Left":
-                        segment[2] = -segment[2]
-                        segment[4] = -segment[4]
-                        segment[5] = -segment[5]
-                    segment[6] = -segment[6]
-                    segment[1] -= 90
-
                     for i, plot in enumerate(self._kinematic_plots):
                         line, = plot.plot(t_segment, segment[i], color=colour, linewidth=1.0)
                         self._plot_lines[name].append(line)
@@ -269,10 +258,6 @@ class MainWindow(QMainWindow):
                 colour = 'r' if foot == "Left" else 'b'
                 for segment in data_segments:
                     t_segment = np.linspace(0, 100, segment.shape[1])
-
-                    if foot == "Right":
-                        segment[1] = -segment[1]
-                        segment[1] += 1
 
                     for i, plot in enumerate(self._kinetic_plots):
                         line, = plot.plot(t_segment, segment[i], color=colour, linewidth=1.0)

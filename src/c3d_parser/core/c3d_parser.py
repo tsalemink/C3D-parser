@@ -617,7 +617,13 @@ def normalise_grf_data(data, events, data_type):
                         frame += 1
                     if file_name not in normalised_data[foot]:
                         normalised_data[foot][file_name] = []
-                    normalised_data[foot][file_name].append(force_data.iloc[start:frame, 1:].values.T)
+                    data_segment = force_data.iloc[start:frame, 1:]
+
+                    # Perform side-specific transformations.
+                    if "ground_force_vy" in data_segment.columns:
+                        data_segment["ground_force_vy"] = -data_segment["ground_force_vy"]
+
+                    normalised_data[foot][file_name].append(data_segment.values.T)
                     start = None
 
     return normalised_data
@@ -644,7 +650,20 @@ def normalise_kinematics(kinematic_data, events):
                     frame = data[data['time'] >= event_time].index[0]
                     if file_name not in normalised_data[foot]:
                         normalised_data[foot][file_name] = []
-                    normalised_data[foot][file_name].append(data.iloc[start:frame, 1:].values.T)
+                    data_segment = data.iloc[start:frame, 1:]
+
+                    # Perform side-specific transformations.
+                    if foot == "Left":
+                        data_segment["pelvis_rotation"] = -data_segment["pelvis_rotation"]
+                        data_segment["hip_adduction_l"] = -data_segment["hip_adduction_l"]
+                        data_segment["hip_rotation_l"] = -data_segment["hip_rotation_l"]
+                        data_segment["knee_angle_l"] = -data_segment["knee_angle_l"]
+                    if foot == "Right":
+                        data_segment["pelvis_list"] = -(data_segment["pelvis_list"] - 180)
+                        data_segment["knee_angle_r"] = -data_segment["knee_angle_r"]
+                    data_segment["pelvis_list"] -= 90
+
+                    normalised_data[foot][file_name].append(data_segment.values.T)
                     start = None
                 elif event[0] == "Foot Strike":
                     start = data[data['time'] <= event_time].index[-1]
@@ -672,15 +691,18 @@ def normalise_kinetics(kinetic_data, events):
                     frame = data[data['time'] >= event_time].index[0]
                     if file_name not in normalised_data[foot]:
                         normalised_data[foot][file_name] = []
-                    normalised_data[foot][file_name].append(data.iloc[start:frame, 1:].values.T)
+                    data_segment = data.iloc[start:frame, 1:]
 
+                    # Perform side-specific transformations.
+                    if foot == "Right":
+                        data_segment["hip_adduction_r_moment"] = -data_segment["hip_adduction_r_moment"] + 1
+
+                    normalised_data[foot][file_name].append(data_segment.values.T)
                     start = None
                 elif event[0] == "Foot Strike":
                     start = data[data['time'] <= event_time].index[-1]
 
     return normalised_data
-
-
 
 
 def write_normalised_kinematics(kinematic_data, selected_trials, output_directory):
