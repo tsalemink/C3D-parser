@@ -1,6 +1,7 @@
 
 import os
 import numpy as np
+from collections import defaultdict
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QMainWindow, QFileDialog, QListWidgetItem
@@ -31,10 +32,14 @@ class MainWindow(QMainWindow):
         self._kinematic_data = {}
         self._kinetic_data = {}
         self._events = {}
-        self._plot_lines = {}
 
         self._setup_figures()
         self._make_connections()
+
+        self._grf_curves = GaitCurves(self._grf_canvas)
+        self._torque_curves = GaitCurves(self._torque_canvas)
+        self._kinematic_curves = GaitCurves(self._kinematic_canvas)
+        self._kinetic_curves = GaitCurves(self._kinetic_canvas)
 
     def _setup_figures(self):
         self._setup_grf_figure()
@@ -57,6 +62,7 @@ class MainWindow(QMainWindow):
         self._update_grf_axes()
 
         self._ui.layoutGRFPlot.addWidget(self._grf_canvas)
+        self._grf_canvas.mpl_connect('pick_event', lambda event: self._toggle_cycle(event, self._grf_curves))
 
     def _setup_torque_figure(self):
         self._torque_canvas = FigureCanvasQTAgg(Figure())
@@ -67,6 +73,7 @@ class MainWindow(QMainWindow):
         self._update_torque_axes()
 
         self._ui.layoutTorquePlot.addWidget(self._torque_canvas)
+        self._torque_canvas.mpl_connect('pick_event', lambda event: self._toggle_cycle(event, self._torque_curves))
 
     def _setup_kinematic_figures(self):
         self._kinematic_canvas = FigureCanvasQTAgg(Figure())
@@ -81,6 +88,7 @@ class MainWindow(QMainWindow):
         self._update_kinematic_axes()
 
         self._ui.layoutKinematicPlot.addWidget(self._kinematic_canvas)
+        self._kinematic_canvas.mpl_connect('pick_event', lambda event: self._toggle_cycle(event, self._kinematic_curves))
 
     def _setup_kinetic_figures(self):
         self._kinetic_canvas = FigureCanvasQTAgg(Figure())
@@ -95,6 +103,7 @@ class MainWindow(QMainWindow):
         self._update_kinetic_axes()
 
         self._ui.layoutKineticPlot.addWidget(self._kinetic_canvas)
+        self._kinetic_canvas.mpl_connect('pick_event', lambda event: self._toggle_cycle(event, self._kinetic_curves))
 
     def _update_grf_axes(self):
         self._plot_x.set_title(f'GRF (Anterior - Posterior)', fontsize=10, pad=4)
@@ -197,16 +206,15 @@ class MainWindow(QMainWindow):
         self._plot_z.clear()
 
         for foot, files_dict in grf_data.items():
-            for i, (name, data_segments) in enumerate(files_dict.items()):
+            for name, data_segments in files_dict.items():
                 colour = 'r' if foot == "Left" else 'b'
-                for j, segment in enumerate(data_segments):
+                for i, segment in enumerate(data_segments):
                     t_segment = np.arange(segment.shape[1])
 
-                    if name not in self._plot_lines:
-                        self._plot_lines[name] = []
-                    for i, plot in enumerate([self._plot_x, self._plot_y, self._plot_z]):
-                        line, = plot.plot(t_segment, segment[i], color=colour, linewidth=1.0)
-                        self._plot_lines[name].append(line)
+                    for j, plot in enumerate([self._plot_x, self._plot_y, self._plot_z]):
+                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=1.0)
+                        line.set_picker(True)
+                        self._grf_curves.add_curve(name, f"{foot}_{i}", line)
 
         for plot in [self._plot_x, self._plot_y, self._plot_z]:
             plot.margins(x=0)
@@ -220,10 +228,11 @@ class MainWindow(QMainWindow):
         for foot, files_dict in torque_data.items():
             for name, data_segments in files_dict.items():
                 colour = 'r' if foot == "Left" else 'b'
-                for segment in data_segments:
+                for i, segment in enumerate(data_segments):
                     t_segment = np.arange(segment.shape[1])
-                    line_torque, = self._plot_torque.plot(t_segment, segment[2], color=colour, linewidth=1.0)
-                    self._plot_lines[name].extend([line_torque])
+                    line, = self._plot_torque.plot(t_segment, segment[2], color=colour, linewidth=1.0)
+                    line.set_picker(True)
+                    self._torque_curves.add_curve(name, f"{foot}_{i}", line)
 
         self._plot_torque.margins(x=0)
 
@@ -235,14 +244,15 @@ class MainWindow(QMainWindow):
             plot.clear()
 
         for foot, files_dict in kinematic_data.items():
-            for i, (name, data_segments) in enumerate(files_dict.items()):
+            for name, data_segments in files_dict.items():
                 colour = 'r' if foot == "Left" else 'b'
-                for segment in data_segments:
+                for i, segment in enumerate(data_segments):
                     t_segment = np.linspace(0, 100, segment.shape[1])
 
-                    for i, plot in enumerate(self._kinematic_plots):
-                        line, = plot.plot(t_segment, segment[i], color=colour, linewidth=1.0)
-                        self._plot_lines[name].append(line)
+                    for j, plot in enumerate(self._kinematic_plots):
+                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=1.0)
+                        line.set_picker(True)
+                        self._kinematic_curves.add_curve(name, f"{foot}_{i}", line)
 
         self._update_kinematic_axes()
         self._kinematic_canvas.draw()
@@ -252,14 +262,15 @@ class MainWindow(QMainWindow):
             plot.clear()
 
         for foot, files_dict in kinetic_data.items():
-            for i, (name, data_segments) in enumerate(files_dict.items()):
+            for name, data_segments in files_dict.items():
                 colour = 'r' if foot == "Left" else 'b'
-                for segment in data_segments:
+                for i, segment in enumerate(data_segments):
                     t_segment = np.linspace(0, 100, segment.shape[1])
 
-                    for i, plot in enumerate(self._kinetic_plots):
-                        line, = plot.plot(t_segment, segment[i], color=colour, linewidth=1.0)
-                        self._plot_lines[name].append(line)
+                    for j, plot in enumerate(self._kinetic_plots):
+                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=1.0)
+                        line.set_picker(True)
+                        self._kinetic_curves.add_curve(name, f"{foot}_{i}", line)
 
         self._update_kinetic_axes()
         self._kinetic_canvas.draw()
@@ -333,14 +344,9 @@ class MainWindow(QMainWindow):
             plot.text(x=0, y=y_max, s=y_max, ha='right', va='center')
 
     def _update_plot_visibility(self, item):
-        lines = self._plot_lines.get(item.text(), [])
         visible = item.checkState() == Qt.CheckState.Checked
-        for line in lines:
-            line.set_visible(visible)
-        self._grf_canvas.draw()
-        self._torque_canvas.draw()
-        self._kinematic_canvas.draw()
-        self._kinetic_canvas.draw()
+        for curves in [self._grf_curves, self._torque_curves, self._kinematic_curves, self._kinetic_curves]:
+            curves.set_file_visibility(item.text(), visible)
 
     def _get_selected_trials(self):
         selected_trials = []
@@ -349,3 +355,50 @@ class MainWindow(QMainWindow):
             if item.checkState() == Qt.Checked:
                 selected_trials.append(item.text())
         return selected_trials
+
+    def _toggle_cycle(self, event, curves):
+        line = event.artist
+        for file_name, cycles in curves.items():
+            for cycle_number, lines in cycles.items():
+                if line in lines:
+                    curves.toggle_cycle(file_name, cycle_number)
+
+
+class GaitCurves(defaultdict):
+
+    def __init__(self, canvas):
+        super().__init__(lambda: defaultdict(list))
+
+        self._canvas = canvas
+        self._selected_curves = []
+
+    def add_curve(self, file_name, cycle, curve):
+        self[file_name][cycle].append(curve)
+
+    def get_curves(self, file_name, cycle):
+        return self[file_name][cycle]
+
+    def set_file_visibility(self, file_name, visible):
+        cycles = self[file_name]
+        for cycle, lines in cycles.items():
+            for line in lines:
+                line.set_visible(visible)
+
+        self._canvas.draw()
+
+    def toggle_cycle(self, file_name, cycle):
+        identifier = (file_name, cycle)
+        if identifier in self._selected_curves:
+            self._selected_curves.remove(identifier)
+            colour = 'red' if "Left" in cycle else 'blue'
+            z_order = 2
+        else:
+            self._selected_curves.append(identifier)
+            colour = 'green'
+            z_order = 3
+
+        for line in self[file_name][cycle]:
+            line.set_color(colour)
+            line.set_zorder(z_order)
+
+        self._canvas.draw()
