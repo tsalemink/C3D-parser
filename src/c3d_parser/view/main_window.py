@@ -3,8 +3,8 @@ import os
 import numpy as np
 from collections import defaultdict
 
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QMainWindow, QFileDialog, QListWidgetItem
+from PySide6.QtCore import Qt, QPoint
+from PySide6.QtWidgets import QMainWindow, QMenu, QFileDialog, QListWidgetItem
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
@@ -193,8 +193,10 @@ class MainWindow(QMainWindow):
 
     def _upload_data(self):
         selected_trials = self._get_selected_trials()
-        write_normalised_kinematics(self._kinematics, selected_trials, self._output_directory)
-        write_normalised_kinetics(self._kinetics, selected_trials, self._output_directory)
+        kinematic_exclusions = self._kinematic_curves.get_excluded_cycles()
+        kinetic_exclusions = self._kinetic_curves.get_excluded_cycles()
+        write_normalised_kinematics(self._kinematics, selected_trials, kinematic_exclusions, self._output_directory)
+        write_normalised_kinetics(self._kinetics, selected_trials, kinetic_exclusions, self._output_directory)
 
     def _visualise_grf_data(self, grf_data):
         self._plot_x.clear()
@@ -353,7 +355,6 @@ class MainWindow(QMainWindow):
         return selected_trials
 
 
-
 class GaitCurves(defaultdict):
 
     def __init__(self, canvas):
@@ -361,8 +362,10 @@ class GaitCurves(defaultdict):
 
         self._canvas = canvas
         self._canvas.mpl_connect('pick_event', lambda event: self.toggle_cycle(event))
+        self._canvas.mpl_connect('button_press_event', lambda event: self.show_curve_menu(event))
 
         self._selected_curves = []
+        self._excluded_cycles = set()
 
     def add_curve(self, file_name, cycle, curve):
         self[file_name][cycle].append(curve)
@@ -379,6 +382,9 @@ class GaitCurves(defaultdict):
         self._canvas.draw()
 
     def toggle_cycle(self, event):
+        if event.mouseevent.button == 3:
+            return
+
         line = event.artist
         for file_name, cycles in self.items():
             for cycle, lines in cycles.items():
@@ -398,3 +404,40 @@ class GaitCurves(defaultdict):
                         line.set_zorder(z_order)
 
         self._canvas.draw()
+
+    def show_curve_menu(self, event):
+        if event.button == 3:
+            context_menu = QMenu()
+            include_action = context_menu.addAction("Include Cycles")
+            exclude_action = context_menu.addAction("Exclude Cycles")
+            include_action.triggered.connect(self.include_curves)
+            exclude_action.triggered.connect(self.exclude_curves)
+
+            point = QPoint(event.x, self._canvas.figure.bbox.height - event.y)
+            context_menu.exec_(self._canvas.mapToGlobal(point))
+
+    def include_curves(self):
+        self._excluded_cycles.difference_update(self._selected_curves)
+        for file_name, cycle in self._selected_curves:
+            colour = 'red' if "Left" in cycle else 'blue'
+            for line in self[file_name][cycle]:
+                line.set_linestyle('solid')
+                line.set_color(colour)
+                line.set_zorder(2)
+
+        self._canvas.draw()
+
+    def exclude_curves(self):
+        self._excluded_cycles.update(self._selected_curves)
+        for file_name, cycle in self._selected_curves:
+            colour = 'red' if "Left" in cycle else 'blue'
+            for line in self[file_name][cycle]:
+                line.set_linestyle('dotted')
+                line.set_color(colour)
+                line.set_zorder(1)
+        self._selected_curves = []
+
+        self._canvas.draw()
+
+    def get_excluded_cycles(self):
+        return self._excluded_cycles

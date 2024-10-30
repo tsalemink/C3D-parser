@@ -708,7 +708,7 @@ def normalise_kinetics(kinetic_data, events):
     return normalised_data
 
 
-def write_normalised_kinematics(kinematic_data, selected_trials, output_directory):
+def write_normalised_kinematics(kinematic_data, selected_trials, excluded_cycles, output_directory):
     normalised_directory = os.path.join(output_directory, 'normalised')
     if not os.path.exists(normalised_directory):
         os.makedirs(normalised_directory)
@@ -716,31 +716,37 @@ def write_normalised_kinematics(kinematic_data, selected_trials, output_director
     columns = ["pelvis_list", "pelvis_rotation", "pelvis_tilt",
                "hip_adduction", "hip_rotation", "hip_flexion",
                "knee_angle", "ankle_angle", "subtalar_angle"]
-    write_normalised_data(kinematic_data, columns, selected_trials, output_file)
+    write_normalised_data(kinematic_data, columns, selected_trials, excluded_cycles, output_file)
 
 
-def write_normalised_kinetics(kinetic_data, selected_trials, output_directory):
+def write_normalised_kinetics(kinetic_data, selected_trials, excluded_cycles, output_directory):
     normalised_directory = os.path.join(output_directory, 'normalised')
     output_file = os.path.join(normalised_directory, f"combined_kinetics.csv")
     columns = ["hip_adduction_moment", "hip_rotation_moment", "hip_flexion_moment",
                "knee_angle_moment", "ankle_angle_moment", "subtalar_angle_moment"]
-    write_normalised_data(kinetic_data, columns, selected_trials, output_file)
+    write_normalised_data(kinetic_data, columns, selected_trials, excluded_cycles, output_file)
 
 
-def write_normalised_data(data, column_names, selected_trials, output_file):
+def write_normalised_data(data, column_names, selected_trials, excluded_cycles, output_file):
     with open(output_file, 'w') as file:
         file.write(','.join(["Frame"] + column_names) + '\n\n\n')
 
         for foot, files_dict in data.items():
-            for name, data_segments in files_dict.items():
-                if name not in selected_trials:
+            for file_name, data_segments in files_dict.items():
+                if file_name not in selected_trials:
                     continue
-                for segment in data_segments:
+
+                for i, segment in enumerate(data_segments):
+                    cycle = f"{foot}_{i}"
+                    cycle_identifier = (file_name, cycle)
+                    if cycle_identifier in excluded_cycles:
+                        continue
+
                     x_original = np.linspace(0, 1, segment.shape[1])
                     x_new = np.linspace(0, 1, 100)
                     normalised_segment = np.zeros((segment.shape[0], 100))
-                    for i in range(segment.shape[0]):
-                        normalised_segment[i] = np.interp(x_new, x_original, segment[i])
+                    for j in range(segment.shape[0]):
+                        normalised_segment[j] = np.interp(x_new, x_original, segment[j])
 
                     for x in range(1, 101):
                         row_data = [x] + normalised_segment[:, x - 1].tolist()
