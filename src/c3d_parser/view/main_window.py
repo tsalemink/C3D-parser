@@ -62,7 +62,6 @@ class MainWindow(QMainWindow):
         self._update_grf_axes()
 
         self._ui.layoutGRFPlot.addWidget(self._grf_canvas)
-        self._grf_canvas.mpl_connect('pick_event', lambda event: self._toggle_cycle(event, self._grf_curves))
 
     def _setup_torque_figure(self):
         self._torque_canvas = FigureCanvasQTAgg(Figure())
@@ -73,7 +72,6 @@ class MainWindow(QMainWindow):
         self._update_torque_axes()
 
         self._ui.layoutTorquePlot.addWidget(self._torque_canvas)
-        self._torque_canvas.mpl_connect('pick_event', lambda event: self._toggle_cycle(event, self._torque_curves))
 
     def _setup_kinematic_figures(self):
         self._kinematic_canvas = FigureCanvasQTAgg(Figure())
@@ -88,7 +86,6 @@ class MainWindow(QMainWindow):
         self._update_kinematic_axes()
 
         self._ui.layoutKinematicPlot.addWidget(self._kinematic_canvas)
-        self._kinematic_canvas.mpl_connect('pick_event', lambda event: self._toggle_cycle(event, self._kinematic_curves))
 
     def _setup_kinetic_figures(self):
         self._kinetic_canvas = FigureCanvasQTAgg(Figure())
@@ -103,7 +100,6 @@ class MainWindow(QMainWindow):
         self._update_kinetic_axes()
 
         self._ui.layoutKineticPlot.addWidget(self._kinetic_canvas)
-        self._kinetic_canvas.mpl_connect('pick_event', lambda event: self._toggle_cycle(event, self._kinetic_curves))
 
     def _update_grf_axes(self):
         self._plot_x.set_title(f'GRF (Anterior - Posterior)', fontsize=10, pad=4)
@@ -356,12 +352,6 @@ class MainWindow(QMainWindow):
                 selected_trials.append(item.text())
         return selected_trials
 
-    def _toggle_cycle(self, event, curves):
-        line = event.artist
-        for file_name, cycles in curves.items():
-            for cycle_number, lines in cycles.items():
-                if line in lines:
-                    curves.toggle_cycle(file_name, cycle_number)
 
 
 class GaitCurves(defaultdict):
@@ -370,6 +360,8 @@ class GaitCurves(defaultdict):
         super().__init__(lambda: defaultdict(list))
 
         self._canvas = canvas
+        self._canvas.mpl_connect('pick_event', lambda event: self.toggle_cycle(event))
+
         self._selected_curves = []
 
     def add_curve(self, file_name, cycle, curve):
@@ -386,19 +378,23 @@ class GaitCurves(defaultdict):
 
         self._canvas.draw()
 
-    def toggle_cycle(self, file_name, cycle):
-        identifier = (file_name, cycle)
-        if identifier in self._selected_curves:
-            self._selected_curves.remove(identifier)
-            colour = 'red' if "Left" in cycle else 'blue'
-            z_order = 2
-        else:
-            self._selected_curves.append(identifier)
-            colour = 'green'
-            z_order = 3
+    def toggle_cycle(self, event):
+        line = event.artist
+        for file_name, cycles in self.items():
+            for cycle, lines in cycles.items():
+                if line in lines:
+                    identifier = (file_name, cycle)
+                    if identifier in self._selected_curves:
+                        self._selected_curves.remove(identifier)
+                        colour = 'red' if "Left" in cycle else 'blue'
+                        z_order = 2
+                    else:
+                        self._selected_curves.append(identifier)
+                        colour = 'green'
+                        z_order = 3
 
-        for line in self[file_name][cycle]:
-            line.set_color(colour)
-            line.set_zorder(z_order)
+                    for line in self[file_name][cycle]:
+                        line.set_color(colour)
+                        line.set_zorder(z_order)
 
         self._canvas.draw()
