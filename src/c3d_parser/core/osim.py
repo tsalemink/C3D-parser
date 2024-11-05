@@ -31,6 +31,7 @@ def perform_ik(osim_file, trc_file, output_file):
 def perform_id(osim_file, ik_file, grf_file, output_file):
     output_directory, output_file_name = os.path.split(output_file)
     external_loads_file = setup_external_loads(output_directory, grf_file)
+    time_values = osim.TimeSeriesTable(ik_file).getIndependentColumn()
 
     model = osim.Model(osim_file)
     model.initSystem()
@@ -42,6 +43,8 @@ def perform_id(osim_file, ik_file, grf_file, output_file):
     id_tool.setResultsDir(output_directory)
     id_tool.setOutputGenForceFileName(output_file_name)
     id_tool.setLowpassCutoffFrequency(6)
+    id_tool.setStartTime(time_values[0])
+    id_tool.setEndTime(time_values[-1])
     id_tool.run()
 
     os.remove(external_loads_file)
