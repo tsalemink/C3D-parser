@@ -9,7 +9,7 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 from c3d_parser.core.c3d_parser import parse_session, read_grf, is_dynamic
-from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics
+from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 
 
@@ -182,7 +182,7 @@ class MainWindow(QMainWindow):
             self._output_directory = os.path.join(directory, '_output')
             files[item.text()] = dynamic
 
-        grf_data, torque_data, self._kinematics, self._kinetics = parse_session(files, directory, self._output_directory)
+        grf_data, torque_data, self._kinematics, self._kinetics, self._s_t_data = parse_session(files, directory, self._output_directory)
 
         self._visualise_grf_data(grf_data)
         self._visualise_torque_data(torque_data)
@@ -197,6 +197,7 @@ class MainWindow(QMainWindow):
         kinetic_exclusions = self._kinetic_curves.get_excluded_cycles()
         write_normalised_kinematics(self._kinematics, selected_trials, kinematic_exclusions, self._output_directory)
         write_normalised_kinetics(self._kinetics, selected_trials, kinetic_exclusions, self._output_directory)
+        write_spatiotemporal_data(self._s_t_data, selected_trials, self._output_directory)
 
     def _visualise_grf_data(self, grf_data):
         self._plot_x.clear()

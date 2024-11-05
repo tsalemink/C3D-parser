@@ -5,6 +5,7 @@ import json
 import numpy as np
 import pandas as pd
 
+from collections import defaultdict
 from scipy import signal, interpolate
 from scipy.spatial.transform import Rotation
 
@@ -23,23 +24,25 @@ def parse_session(files, input_directory, output_directory):
     kinematic_data = {}
     kinetic_data = {}
     event_data = {}
+    spatiotemporal_data = {}
 
     for file_name, dynamic in files.items():
         file_path = os.path.join(input_directory, file_name)
-        analog_data, ik_data, id_data, events = parse_c3d(file_path, output_directory, dynamic)
+        analog_data, ik_data, id_data, events, s_t_data = parse_c3d(file_path, output_directory, dynamic)
 
         if dynamic:
             grf_data[file_name] = analog_data
             kinematic_data[file_name] = ik_data
             kinetic_data[file_name] = id_data
             event_data[file_name] = events
+            spatiotemporal_data[file_name] = s_t_data
 
     normalised_grf_data = normalise_grf_data(grf_data, event_data, 'grf')
     normalised_torque_data = normalise_grf_data(grf_data, event_data, 'torque')
     normalised_kinematics = normalise_kinematics(kinematic_data, event_data)
     normalised_kinetics = normalise_kinetics(kinetic_data, event_data)
 
-    return normalised_grf_data, normalised_torque_data, normalised_kinematics, normalised_kinetics
+    return normalised_grf_data, normalised_torque_data, normalised_kinematics, normalised_kinetics, spatiotemporal_data
 
 
 def parse_c3d(c3d_file, output_directory, is_dynamic):
@@ -68,7 +71,7 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
     filter_data(frame_data, trc_data['DataRate'])
     frame_data = resample_data(frame_data, trc_data['DataRate'], marker_data_rate)
 
-    analog_data, ik_data, id_data, events, subject_weight = None, None, None, None, None
+    analog_data, ik_data, id_data, events, s_t_data = None, None, None, None, None
     if is_dynamic:
         # Extract GRF data from C3D file.
         analog_data, data_rate, events, plate_count, corners, subject_weight = extract_data(c3d_file, start_frame, end_frame)
@@ -133,7 +136,9 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
         calculate_joint_powers(ik_data, id_data, events)
         mass_adjust_units(id_data, subject_weight)
 
-    return analog_data, ik_data, id_data, events
+        s_t_data = calculate_spatiotemporal_data(frame_data, events)
+
+    return analog_data, ik_data, id_data, events, s_t_data
 
 
 def de_identify_c3d(file_path, output_directory):
@@ -772,3 +777,106 @@ def write_normalised_data(data, column_names, selected_trials, excluded_cycles, 
                         row_data = [x] + normalised_segment[:, x - 1].tolist()
                         file.write(','.join(f'{value:.6f}' for value in row_data) + '\n')
                     file.write('\n\n')
+
+
+def calculate_spatiotemporal_data(frame_data, events):
+    stride_lengths = []
+    step_lengths = {"Left": [], "Right": []}
+    step_widths = []
+    stance_phases = {"Left": [], "Right": []}
+    swing_phases = {"Left": [], "Right": []}
+    single_support_phase = {"Left": [], "Right": []}
+    double_support_phase = {"Left": [], "Right": []}
+    strike_count = 0
+
+    time_ordered_events = defaultdict(dict)
+    for foot, foot_events in events.items():
+        for time, event in foot_events.items():
+            time_ordered_events[time][foot] = event
+
+    opposite_side = {"Left": "Right", "Right": "Left"}
+    strike_position = {"Left": None, "Right": None}
+    foot_events = {"Left": None, "Right": None}
+    for event_time in sorted(time_ordered_events):
+        for foot, (event_type, event_plate) in time_ordered_events[event_time].items():
+            if event_type == "Foot Strike":
+                strike_count += 1
+                event_index = frame_data[frame_data['Time'] <= event_time].index[-1]
+                heel_coordinates = frame_data.at[event_index, foot[0] + 'HEE']
+
+                # Calculate length of stride.
+                if strike_position[foot] is not None:
+                    stride_length = heel_coordinates[0] - strike_position[foot][0]
+                    stride_lengths.append(stride_length)
+                strike_position[foot] = heel_coordinates
+
+                # Calculate length and width of step.
+                if strike_position[opposite_side[foot]] is not None:
+                    previous_coordinates = strike_position[opposite_side[foot]]
+
+                    step_length = heel_coordinates[0] - previous_coordinates[0]
+                    step_lengths[foot].append(step_length)
+
+                    step_width = heel_coordinates[1] - previous_coordinates[1]
+                    step_widths.append(step_width)
+
+            # Calculate stance and swing phases.
+            if foot_events[foot] is not None:
+                time_interval = event_time - foot_events[foot]
+                if event_type == "Foot Strike":
+                    swing_phases[foot].append(time_interval)
+                elif event_type == "Foot Off":
+                    stance_phases[foot].append(time_interval)
+            foot_events[foot] = event_time
+
+            # Calculate single and double support phases.
+            if foot_events[opposite_side[foot]] is not None:
+                time_interval = event_time - foot_events[opposite_side[foot]]
+                if event_type == "Foot Strike":
+                    single_support_phase[foot].append(time_interval)
+                elif event_type == "Foot Off":
+                    double_support_phase[foot].append(time_interval)
+
+    s_t_data = {}
+
+    # Determine length and width averages.
+    s_t_data["Stride Length (m)"] = (sum(stride_lengths) / len(stride_lengths)) / 1000
+    s_t_data["Step Length - Left (m)"] = (sum(step_lengths["Left"]) / len(step_lengths["Left"])) / 1000
+    s_t_data["Step Length - Right (m)"] = (sum(step_lengths["Right"]) / len(step_lengths["Right"])) / 1000
+    s_t_data["Step Width (m)"] = (sum(step_widths) / len(step_widths)) / 1000
+
+    # Determine phase percentages.
+    stance_time = sum(stance_phases["Left"] + stance_phases["Right"])
+    swing_time = sum(swing_phases["Left"] + swing_phases["Right"])
+    total_gait_cycle_time = stance_time + swing_time
+    s_t_data["Stance Phase %"] = (stance_time / total_gait_cycle_time) * 100
+    s_t_data["Swing Phase %"] = (swing_time / total_gait_cycle_time) * 100
+
+    single_support_time = sum(single_support_phase["Left"] + single_support_phase["Right"])
+    double_support_time = sum(double_support_phase["Left"] + double_support_phase["Right"])
+    total_gait_cycle_time = single_support_time + double_support_time
+    s_t_data["Single Support Phase %"] = (single_support_time / total_gait_cycle_time) * 100
+    s_t_data["Double Support Phase %"] = (double_support_time / total_gait_cycle_time) * 100
+
+    time = frame_data['Time'].values
+    total_time = time[-1] - time[0]
+
+    # Calculate gait-speed.
+    total_distance = sum(step_lengths["Left"] + step_lengths["Right"])
+    s_t_data["Gait Speed (m/s)"] = (total_distance / total_time) / 1000
+
+    # Calculate cadence.
+    s_t_data["Cadence (steps/min)"] = (strike_count / total_time) * 60
+
+    return s_t_data
+
+
+def write_spatiotemporal_data(data, selected_trials, output_directory):
+    normalised_directory = os.path.join(output_directory, 'normalised')
+    output_file = os.path.join(normalised_directory, f"spattemp.csv")
+
+    data_frame = pd.DataFrame(data)
+    valid_trials = [trial for trial in selected_trials if trial in data_frame.columns]
+    data_frame = data_frame[valid_trials]
+    data_frame['Average'] = data_frame.mean(axis=1).round(3)
+    data_frame[['Average']].to_csv(output_file, header=False)
