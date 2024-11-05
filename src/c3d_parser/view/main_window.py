@@ -90,9 +90,9 @@ class MainWindow(QMainWindow):
     def _setup_kinetic_figures(self):
         self._kinetic_canvas = FigureCanvasQTAgg(Figure())
         self._kinetic_plots = []
-        for i in range(2):
+        for i in range(3):
             for j in range(3):
-                plot = self._kinetic_canvas.figure.add_subplot(2, 3, i * 3 + j + 1)
+                plot = self._kinetic_canvas.figure.add_subplot(3, 3, i * 3 + j + 1)
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
                 self._kinetic_plots.append(plot)
@@ -311,12 +311,15 @@ class MainWindow(QMainWindow):
 
     def _update_kinetic_axes(self):
         plot_labels = {
-            0: ('Hip Extensor Moment', 'Ext', 'Flx'),
-            1: ('Hip Abductor Moment', 'Abd', 'Add'),
-            2: ('Hip Rotation Moment', 'Int', 'Ext'),
-            3: ('Knee Extensor Moment', 'Ext', 'Flx'),
-            4: ('Ankle Dorsiflexor Moment', 'Dor', 'Pla'),
-            5: ('Subtalar Inverter Moment', 'Inv', 'Eve')
+            0: ('Hip Extensor Moment', 'Nm/kg', 'Ext', 'Flx'),
+            1: ('Hip Abductor Moment', 'Nm/kg', 'Abd', 'Add'),
+            2: ('Hip Rotation Moment', 'Nm/kg', 'Int', 'Ext'),
+            3: ('Knee Extensor Moment', 'Nm/kg', 'Ext', 'Flx'),
+            4: ('Ankle Dorsiflexor Moment', 'Nm/kg', 'Dor', 'Pla'),
+            5: ('Subtalar Inverter Moment', 'Nm/kg', 'Inv', 'Eve'),
+            6: ('Total Hip Power', 'W/kg', 'Gen', 'Abs'),
+            7: ('Total Knee Power', 'W/kg', 'Gen', 'Abs'),
+            8: ('Total Ankle Power', 'W/kg', 'Gen', 'Abs')
         }
 
         self._kinetic_plots[0].set_ylim(-2.0, 3.0)
@@ -325,19 +328,22 @@ class MainWindow(QMainWindow):
         self._kinetic_plots[3].set_ylim(-1.0, 1.0)
         self._kinetic_plots[4].set_ylim(-1.5, 0.5)
         self._kinetic_plots[5].set_ylim(-0.5, 0.5)
+        self._kinetic_plots[6].set_ylim(-3.0, 3.0)
+        self._kinetic_plots[7].set_ylim(-3.0, 3.0)
+        self._kinetic_plots[8].set_ylim(-1.0, 3.0)
 
         for i, plot in enumerate(self._kinetic_plots):
             plot.set_xlim(0, 100)
             plot.axhline(y=0, color='gray', linewidth=1.0, zorder=1)
 
-            title, positive, negative = plot_labels.get(i, ("", "", ""))
+            title, units, positive, negative = plot_labels.get(i, ("", "", ""))
             y_min, y_max = plot.get_ylim()
             step = (y_max - y_min) / 4
 
             plot.set_title(title, fontsize=10, pad=4)
             plot.text(x=0, y=y_min, s=y_min, ha='right', va='center')
             plot.text(x=0, y=(y_min + 1 * step), s=negative, ha='right', va='center')
-            plot.text(x=0, y=(y_min + 2 * step), s="Nm/kg", ha='right', va='center')
+            plot.text(x=0, y=(y_min + 2 * step), s=units, ha='right', va='center')
             plot.text(x=0, y=(y_min + 3 * step), s=positive, ha='right', va='center')
             plot.text(x=0, y=y_max, s=y_max, ha='right', va='center')
 

@@ -130,6 +130,7 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
         perform_id(scaled_model, ik_output, grf_file_path, id_output)
         id_data = read_data(id_output)
         filter_data(id_data, marker_data_rate, cut_off_frequency=8)
+        calculate_joint_powers(ik_data, id_data, events)
         mass_adjust_units(id_data, subject_weight)
 
     return analog_data, ik_data, id_data, events
@@ -594,6 +595,21 @@ def mass_adjust_units(kinetic_data, subject_mass):
     kinetic_data.iloc[:, 1:] /= subject_mass
 
 
+def calculate_joint_powers(kinematic_data, kinetic_data, events):
+    time = kinematic_data['time'].values
+    for joint in ['hip_flexion', 'knee_angle', 'ankle_angle']:
+        for leg in ['l', 'r']:
+            joint_angle = kinematic_data[f'{joint}_{leg}'].values
+            joint_moment = kinetic_data[f'{joint}_{leg}_moment'].values
+            angular_velocity = calculate_angular_velocity(joint_angle, time)
+            kinetic_data[f'{joint}_{leg}_power'] = angular_velocity * joint_moment
+
+
+def calculate_angular_velocity(joint_angle, time):
+    joint_angle_radians = np.deg2rad(joint_angle)
+    return np.gradient(joint_angle_radians, time)
+
+
 def normalise_grf_data(data, events, data_type):
     normalised_data = {"Left": {}, "Right": {}}
     for i in range(len(data)):
@@ -684,9 +700,12 @@ def normalise_kinetics(kinetic_data, events):
         for foot, foot_events in trial_events.items():
             moment_names = ['hip_flexion', 'hip_adduction', 'hip_rotation',
                             'knee_angle', 'ankle_angle', 'subtalar_angle']
+            power_names = ['hip_flexion', 'knee_angle', 'ankle_angle']
             for i, name in enumerate(moment_names):
                 moment_names[i] = f"{name}_{foot[0].lower()}_moment"
-            data = trial_data.loc[:, ['time'] + moment_names]
+            for i, name in enumerate(power_names):
+                power_names[i] = f"{name}_{foot[0].lower()}_power"
+            data = trial_data.loc[:, ['time'] + moment_names + power_names]
 
             start = None
             for event_time, event in foot_events.items():
@@ -723,7 +742,8 @@ def write_normalised_kinetics(kinetic_data, selected_trials, excluded_cycles, ou
     normalised_directory = os.path.join(output_directory, 'normalised')
     output_file = os.path.join(normalised_directory, f"combined_kinetics.csv")
     columns = ["hip_adduction_moment", "hip_rotation_moment", "hip_flexion_moment",
-               "knee_angle_moment", "ankle_angle_moment", "subtalar_angle_moment"]
+               "knee_angle_moment", "ankle_angle_moment", "subtalar_angle_moment",
+               "hip_flexion_power", "knee_angle_power", "ankle_angle_power"]
     write_normalised_data(kinetic_data, columns, selected_trials, excluded_cycles, output_file)
 
 
