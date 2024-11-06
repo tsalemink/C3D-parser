@@ -868,7 +868,60 @@ def calculate_spatiotemporal_data(frame_data, events):
     # Calculate cadence.
     s_t_data["Cadence (steps/min)"] = (strike_count / total_time) * 60
 
+    # Calculate foot progression.
+    left_foot, right_foot = calculate_foot_progression(frame_data, time_ordered_events)
+    s_t_data["Foot Progression - Left (deg)"] = left_foot
+    s_t_data["Foot Progression - Right (deg)"] = right_foot
+
     return s_t_data
+
+
+def calculate_walking_direction(frame_data):
+    start_pos = frame_data[['LASI', 'RASI']].iloc[0].mean(axis=0)
+    end_pos = frame_data[['LASI', 'RASI']].iloc[-1].mean(axis=0)
+    walking_direction = end_pos[:2] - start_pos[:2]
+    walking_direction /= np.linalg.norm(walking_direction)
+
+    return walking_direction
+
+
+def calculate_foot_progression(frame_data, time_ordered_events):
+    walking_direction = calculate_walking_direction(frame_data)
+
+    foot_angles = {"Left": [], "Right": []}
+    foot_events = {"Left": None, "Right": None}
+    for event_time in sorted(time_ordered_events):
+        for foot, (event_type, event_plate) in time_ordered_events[event_time].items():
+            if foot_events[foot] is not None:
+                if event_type == "Foot Off":
+                    mid_stance_time = (foot_events[foot] + event_time) / 2
+                    frame = frame_data[frame_data['Time'] >= mid_stance_time].index[0]
+                    heel_position = frame_data.loc[frame, f"{foot[0]}HEE"]
+                    toe_position = frame_data.loc[frame, f"{foot[0]}TOE"]
+                    foot_vector = toe_position[:2] - heel_position[:2]
+                    foot_vector /= np.linalg.norm(foot_vector)
+
+                    foot_angle = np.arctan2(foot_vector[1], foot_vector[0])
+                    walking_angle = np.arctan2(walking_direction[1], walking_direction[0])
+                    angle = np.degrees(foot_angle - walking_angle)
+                    if foot == 'Right':
+                        angle = -angle
+
+                    foot_angles[foot].append(normalise_angle(angle))
+            foot_events[foot] = event_time
+
+    left_progression = sum(foot_angles["Left"]) / len(foot_angles["Left"])
+    right_progression = sum(foot_angles["Right"]) / len(foot_angles["Right"])
+
+    return left_progression, right_progression
+
+
+def normalise_angle(angle):
+    if angle < -180:
+        angle += 360
+    elif angle > 180:
+        angle -= 360
+    return angle
 
 
 def write_spatiotemporal_data(data, selected_trials, output_directory):
