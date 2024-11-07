@@ -951,5 +951,5 @@ def write_spatiotemporal_data(data, selected_trials, output_directory):
     data_frame = pd.DataFrame(data)
     valid_trials = [trial for trial in selected_trials if trial in data_frame.columns]
     data_frame = data_frame[valid_trials]
-    data_frame['Average'] = data_frame.mean(axis=1).round(3)
-    data_frame[['Average']].to_csv(output_file, header=False)
+    data_frame['Average'] = data_frame.mean(axis=1)
+    data_frame.round(3).to_csv(output_file)
