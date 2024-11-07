@@ -868,7 +868,7 @@ def calculate_spatiotemporal_data(frame_data, events):
     total_time = end_time - start_time
 
     # Calculate gait-speed.
-    total_distance = sum(step_lengths["Left"] + step_lengths["Right"])
+    total_distance = calculate_distance_covered(frame_data, start_time, end_time)
     s_t_data["Gait Speed (m/s)"] = (total_distance / total_time) / 1000
 
     # Calculate cadence.
@@ -880,6 +880,20 @@ def calculate_spatiotemporal_data(frame_data, events):
     s_t_data["Foot Progression - Right (deg)"] = right_foot
 
     return s_t_data
+
+
+def calculate_distance_covered(frame_data, start_time, end_time):
+    start_frame = frame_data[frame_data['Time'] >= start_time].index[0]
+    end_frame = frame_data[frame_data['Time'] >= end_time].index[0]
+    start_pos = frame_data.loc[start_frame, ['LASI', 'RASI']].mean()
+    end_pos = frame_data.loc[end_frame, ['LASI', 'RASI']].mean()
+    walking_direction = end_pos[:2] - start_pos[:2]
+    walking_direction /= np.linalg.norm(walking_direction)
+
+    distance_vector = end_pos - start_pos
+    distance_travelled = np.dot(distance_vector[:2], walking_direction)
+
+    return distance_travelled
 
 
 def calculate_walking_direction(frame_data):
