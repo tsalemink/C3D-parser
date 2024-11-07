@@ -858,15 +858,21 @@ def calculate_spatiotemporal_data(frame_data, events):
     s_t_data["Single Support Phase %"] = (single_support_time / total_gait_cycle_time) * 100
     s_t_data["Double Support Phase %"] = (double_support_time / total_gait_cycle_time) * 100
 
-    time = frame_data['Time'].values
-    total_time = time[-1] - time[0]
+    start_time, end_time = None, None
+    for event_time in sorted(time_ordered_events):
+        for event_type, _ in time_ordered_events[event_time].values():
+            if event_type == "Foot Strike":
+                if start_time is None:
+                    start_time = event_time
+                end_time = event_time
+    total_time = end_time - start_time
 
     # Calculate gait-speed.
     total_distance = sum(step_lengths["Left"] + step_lengths["Right"])
     s_t_data["Gait Speed (m/s)"] = (total_distance / total_time) / 1000
 
     # Calculate cadence.
-    s_t_data["Cadence (steps/min)"] = (strike_count / total_time) * 60
+    s_t_data["Cadence (steps/min)"] = ((strike_count - 1) / total_time) * 60
 
     # Calculate foot progression.
     left_foot, right_foot = calculate_foot_progression(frame_data, time_ordered_events)
