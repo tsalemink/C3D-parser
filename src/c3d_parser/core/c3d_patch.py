@@ -1,7 +1,16 @@
 
 import c3d
+import logging
 
 import numpy as np
+
+
+# Configure logging.
+logger = logging.getLogger('C3D-Parser')
+
+
+# Set variables required by patch functions.
+check_metadata_base = c3d.Reader._check_metadata
 
 
 def add_frames(self, frames, index=None):
@@ -43,8 +52,20 @@ def set_point_labels(self, labels, name='LABELS'):
     self.point_group.add_str(name, 'Point labels.', label_str, label_max_size, len(labels))
 
 
+def _check_metadata(self):
+    """
+    For cases where the C3D headers have not been correctly set.
+    """
+    if self._header.scale_factor == -1.0 and self._header.scale_factor != self.point_scale:
+        logger.warning(f"Header scale factor ({self._header.scale_factor}) does not match metadata ({self.point_scale}). Updating header.")
+        self._header.scale_factor = self.point_scale
+
+    check_metadata_base(self)
+
+
 # Patch methods.
 c3d.Writer.add_frames = add_frames
 c3d.Reader.parameter_blocks = parameter_blocks
 c3d.Writer.parameter_blocks = parameter_blocks
 c3d.Writer.set_point_labels = set_point_labels
+c3d.Reader._check_metadata = _check_metadata
