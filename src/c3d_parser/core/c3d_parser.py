@@ -2,6 +2,7 @@
 import os
 import math
 import json
+import logging
 import numpy as np
 import pandas as pd
 
@@ -13,6 +14,11 @@ from trc import TRCData
 
 from c3d_parser.core.c3d_patch import c3d
 from c3d_parser.core.osim import perform_ik, perform_id
+
+
+# Configure logging.
+logger = logging.getLogger('C3D-Parser')
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
@@ -49,6 +55,8 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
     input_directory, c3d_file_name = os.path.split(os.path.abspath(c3d_file))
     gait_lab = os.path.basename(os.path.dirname(input_directory))
     file_name = os.path.splitext(c3d_file_name)[0]
+
+    logger.info(f"Parsing file: {c3d_file}")
 
     # De-identify the C3D data.
     de_identified_directory = os.path.join(output_directory, 'de_identified')
@@ -231,7 +239,7 @@ def trim_frames(frame_data, max_trim=50):
 
     remaining_frames = list(set(incomplete_frames.keys()) - set(start_frames) - set(end_frames))
     if remaining_frames:
-        print(f"WARNING: Frames {remaining_frames} are incomplete.")
+        logger.warn(f"Frames {remaining_frames} are incomplete.")
 
     return first_frame, last_frame
 
