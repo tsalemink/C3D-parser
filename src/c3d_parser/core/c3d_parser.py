@@ -582,7 +582,12 @@ def scale_grf_data(analog_data):
 
 def is_dynamic(file_path):
     with open(file_path, 'rb') as handle:
-        reader = c3d.Reader(handle)
+        try:
+            logging.disable()
+            reader = c3d.Reader(handle)
+        finally:
+            logging.disable(logging.NOTSET)
+
         if reader.analog_used > 0:
             return True
         else:
