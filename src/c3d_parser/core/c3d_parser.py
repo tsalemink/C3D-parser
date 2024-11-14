@@ -75,13 +75,13 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
     with open(map_file, 'r') as file:
         marker_map = json.load(file)
     harmonise_markers(frame_data, marker_map)
-    start_frame, end_frame = trim_frames(frame_data)
     filter_data(frame_data, trc_data['DataRate'])
     frame_data = resample_data(frame_data, trc_data['DataRate'], marker_data_rate)
 
     analog_data, ik_data, id_data, events, s_t_data = None, None, None, None, None
     if is_dynamic:
         # Extract GRF data from C3D file.
+        start_frame, end_frame = trim_frames(frame_data)
         analog_data, data_rate, events, plate_count, corners, subject_weight = extract_data(c3d_file, start_frame, end_frame)
         if analog_data is None:
             return
@@ -212,6 +212,12 @@ def harmonise_markers(frame_data, marker_mapping):
 
 
 def trim_frames(frame_data, max_trim=50):
+    first_frame = frame_data.index.min()
+    last_frame = frame_data.index.max()
+
+    if not frame_data.shape[0] > (2 * max_trim):
+        return first_frame, last_frame
+
     # Check for incomplete frames.
     incomplete_frames = {}
     for frame_number, frame in frame_data.iterrows():
@@ -224,10 +230,8 @@ def trim_frames(frame_data, max_trim=50):
             incomplete_frames[frame_number] = missing_markers
 
     # Trim incomplete frames near the beginning or end of the trial.
-    first_frame = frame_data.index.min()
     start_frames = [frame_number for frame_number in incomplete_frames if frame_number < first_frame + max_trim]
     trim_start = max(start_frames) + 1 if start_frames else first_frame
-    last_frame = frame_data.index.max()
     end_frames = [frame_number for frame_number in incomplete_frames if last_frame - max_trim < frame_number]
     trim_end = min(end_frames) - 1 if end_frames else last_frame
 
@@ -588,7 +592,7 @@ def is_dynamic(file_path):
         finally:
             logging.disable(logging.NOTSET)
 
-        if reader.analog_used > 0:
+        if reader.analog_used > 0 and reader.frame_count > 100:
             return True
         else:
             return False
@@ -895,9 +899,12 @@ def calculate_spatiotemporal_data(frame_data, events):
     return s_t_data
 
 
-def calculate_distance_covered(frame_data, start_time, end_time):
-    start_frame = frame_data[frame_data['Time'] >= start_time].index[0]
-    end_frame = frame_data[frame_data['Time'] >= end_time].index[0]
+def calculate_distance_covered(frame_data, start_time=None, end_time=None):
+    start_frame = frame_data.index[0] if start_time is None \
+        else frame_data[frame_data['Time'] >= start_time].index[0]
+    end_frame = frame_data.index[-1] if end_time is None \
+        else frame_data[frame_data['Time'] >= end_time].index[0]
+
     start_pos = frame_data.loc[start_frame, ['LASI', 'RASI']].mean()
     end_pos = frame_data.loc[end_frame, ['LASI', 'RASI']].mean()
     walking_direction = end_pos[:2] - start_pos[:2]
