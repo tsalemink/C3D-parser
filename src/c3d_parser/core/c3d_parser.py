@@ -229,6 +229,10 @@ def trim_frames(frame_data, max_trim=50):
         if missing_markers:
             incomplete_frames[frame_number] = missing_markers
 
+    if len(incomplete_frames) >= 0.9 * len(frame_data):
+        logger.warn("Large percentage of incomplete frames.")
+        return first_frame, last_frame
+
     # Trim incomplete frames near the beginning or end of the trial.
     start_frames = [frame_number for frame_number in incomplete_frames if frame_number < first_frame + max_trim]
     trim_start = max(start_frames) + 1 if start_frames else first_frame
@@ -245,7 +249,7 @@ def trim_frames(frame_data, max_trim=50):
     if remaining_frames:
         logger.warn(f"Frames {remaining_frames} are incomplete.")
 
-    return first_frame, last_frame
+    return trim_start, trim_end
 
 
 def filter_data(frame_data, data_rate, cut_off_frequency=6):
@@ -343,8 +347,8 @@ def extract_data(file_path, start_frame, end_frame):
         # Extract analog data
         time_increment = 1 / reader.analog_rate
         start = (start_frame - 1) / reader.point_rate
-        stop = (end_frame - 1) / reader.point_rate + ((reader.analog_per_frame - 1) * time_increment)
-        times = np.linspace(start, stop, reader.analog_sample_count).tolist()
+        stop = (end_frame) / reader.point_rate - (time_increment / 2)
+        times = np.arange(start, stop, time_increment).tolist()
         analog_data = {'time': times}
 
         labels = reader.get('ANALOG:LABELS').string_array
@@ -370,8 +374,10 @@ def extract_data(file_path, start_frame, end_frame):
         for i in range(event_count):
             foot = contexts[i].strip()
             label = labels[i].strip()
-            time = times[i][1]
-            events[foot][time] = label
+            event_time = times[i][1]
+            if start < event_time and event_time < stop:
+                events[foot][event_time] = label
+
         for foot in events.keys():
             events[foot] = dict(sorted(events[foot].items()))
 
