@@ -25,6 +25,10 @@ script_directory = os.path.dirname(os.path.abspath(__file__))
 marker_maps_dir = os.path.join(script_directory, 'marker_maps')
 
 
+class MarkerError(Exception):
+    pass
+
+
 def parse_session(files, input_directory, output_directory):
     grf_data = {}
     kinematic_data = {}
@@ -34,7 +38,11 @@ def parse_session(files, input_directory, output_directory):
 
     for file_name, dynamic in files.items():
         file_path = os.path.join(input_directory, file_name)
-        analog_data, ik_data, id_data, events, s_t_data = parse_c3d(file_path, output_directory, dynamic)
+        try:
+            analog_data, ik_data, id_data, events, s_t_data = parse_c3d(file_path, output_directory, dynamic)
+        except MarkerError as e:
+            logger.error(e)
+            continue
 
         if dynamic:
             grf_data[file_name] = analog_data
@@ -75,13 +83,13 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
     with open(map_file, 'r') as file:
         marker_map = json.load(file)
     harmonise_markers(frame_data, marker_map)
-    filter_data(frame_data, trc_data['DataRate'])
-    frame_data = resample_data(frame_data, trc_data['DataRate'], marker_data_rate)
 
     analog_data, ik_data, id_data, events, s_t_data = None, None, None, None, None
     if is_dynamic:
         # Extract GRF data from C3D file.
         start_frame, end_frame = trim_frames(frame_data)
+        filter_data(frame_data, trc_data['DataRate'])
+        frame_data = resample_data(frame_data, trc_data['DataRate'], marker_data_rate)
         analog_data, data_rate, events, plate_count, corners, subject_weight = extract_data(c3d_file, start_frame, end_frame)
         if analog_data is None:
             return
@@ -211,12 +219,9 @@ def harmonise_markers(frame_data, marker_mapping):
         frame_data.drop(columns=[None], axis=1, inplace=True)
 
 
-def trim_frames(frame_data, max_trim=50):
+def trim_frames(frame_data):
     first_frame = frame_data.index.min()
     last_frame = frame_data.index.max()
-
-    if not frame_data.shape[0] > (2 * max_trim):
-        return first_frame, last_frame
 
     # Check for incomplete frames.
     incomplete_frames = {}
@@ -230,14 +235,19 @@ def trim_frames(frame_data, max_trim=50):
             incomplete_frames[frame_number] = missing_markers
 
     if len(incomplete_frames) >= 0.9 * len(frame_data):
-        logger.warn("Large percentage of incomplete frames.")
-        return first_frame, last_frame
+        raise MarkerError("Too many frames missing marker data. Unable to process trial.")
 
     # Trim incomplete frames near the beginning or end of the trial.
-    start_frames = [frame_number for frame_number in incomplete_frames if frame_number < first_frame + max_trim]
-    trim_start = max(start_frames) + 1 if start_frames else first_frame
-    end_frames = [frame_number for frame_number in incomplete_frames if last_frame - max_trim < frame_number]
-    trim_end = min(end_frames) - 1 if end_frames else last_frame
+    trim_start = first_frame
+    for frame in incomplete_frames:
+        if (frame - trim_start) > 20:
+            break
+        trim_start = frame + 1
+    trim_end = last_frame
+    for frame in reversed(incomplete_frames):
+        if (trim_end - frame) > 20:
+            break
+        trim_end = frame - 1
 
     frame_list = frame_data.index.to_list()
     complete_frames = frame_list[frame_list.index(trim_start):frame_list.index(trim_end) + 1]
@@ -245,7 +255,7 @@ def trim_frames(frame_data, max_trim=50):
     if not drop_frames.empty:
         frame_data.drop(drop_frames, inplace=True)
 
-    remaining_frames = list(set(incomplete_frames.keys()) - set(start_frames) - set(end_frames))
+    remaining_frames = [frame for frame in incomplete_frames.keys() if trim_start <= frame <= trim_end]
     if remaining_frames:
         logger.warn(f"Frames {remaining_frames} are incomplete.")
 
@@ -909,7 +919,7 @@ def calculate_distance_covered(frame_data, start_time=None, end_time=None):
     start_frame = frame_data.index[0] if start_time is None \
         else frame_data[frame_data['Time'] >= start_time].index[0]
     end_frame = frame_data.index[-1] if end_time is None \
-        else frame_data[frame_data['Time'] >= end_time].index[0]
+        else frame_data[frame_data['Time'] <= end_time].index[0]
 
     start_pos = frame_data.loc[start_frame, ['LASI', 'RASI']].mean()
     end_pos = frame_data.loc[end_frame, ['LASI', 'RASI']].mean()
