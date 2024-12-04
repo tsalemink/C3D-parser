@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QMainWindow, QMenu, QFileDialog, QListWidgetItem
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
-from c3d_parser.core.c3d_parser import parse_session, read_grf, is_dynamic
+from c3d_parser.core.c3d_parser import parse_session, read_grf, is_dynamic, marker_maps_dir
 from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 
@@ -33,6 +33,7 @@ class MainWindow(QMainWindow):
         self._kinetic_data = {}
         self._events = {}
 
+        self._setup_combo_box()
         self._setup_figures()
         self._make_connections()
 
@@ -40,6 +41,10 @@ class MainWindow(QMainWindow):
         self._torque_curves = GaitCurves(self._torque_canvas)
         self._kinematic_curves = GaitCurves(self._kinematic_canvas)
         self._kinetic_curves = GaitCurves(self._kinetic_canvas)
+
+    def _setup_combo_box(self):
+        labs = [os.path.splitext(lab)[0] for lab in os.listdir(marker_maps_dir)]
+        self._ui.comboBoxLab.addItems(labs)
 
     def _setup_figures(self):
         self._setup_grf_figure()
@@ -182,7 +187,9 @@ class MainWindow(QMainWindow):
             self._output_directory = os.path.join(directory, '_output')
             files[item.text()] = dynamic
 
-        grf_data, torque_data, self._kinematics, self._kinetics, self._s_t_data = parse_session(files, directory, self._output_directory)
+        lab = self._ui.comboBoxLab.currentText()
+        grf_data, torque_data, self._kinematics, self._kinetics, self._s_t_data = \
+            parse_session(files, directory, self._output_directory, lab)
 
         self._visualise_grf_data(grf_data)
         self._visualise_torque_data(torque_data)

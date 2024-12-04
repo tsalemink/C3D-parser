@@ -29,7 +29,7 @@ class MarkerError(Exception):
     pass
 
 
-def parse_session(files, input_directory, output_directory):
+def parse_session(files, input_directory, output_directory, lab):
     grf_data = {}
     kinematic_data = {}
     kinetic_data = {}
@@ -39,7 +39,7 @@ def parse_session(files, input_directory, output_directory):
     for file_name, dynamic in files.items():
         file_path = os.path.join(input_directory, file_name)
         try:
-            analog_data, ik_data, id_data, events, s_t_data = parse_c3d(file_path, output_directory, dynamic)
+            analog_data, ik_data, id_data, events, s_t_data = parse_c3d(file_path, output_directory, dynamic, lab)
         except MarkerError as e:
             logger.error(e)
             continue
@@ -59,9 +59,8 @@ def parse_session(files, input_directory, output_directory):
     return normalised_grf_data, normalised_torque_data, normalised_kinematics, normalised_kinetics, spatiotemporal_data
 
 
-def parse_c3d(c3d_file, output_directory, is_dynamic):
-    input_directory, c3d_file_name = os.path.split(os.path.abspath(c3d_file))
-    gait_lab = os.path.basename(os.path.dirname(input_directory))
+def parse_c3d(c3d_file, output_directory, is_dynamic, lab):
+    c3d_file_name = os.path.basename(c3d_file)
     file_name = os.path.splitext(c3d_file_name)[0]
 
     logger.info(f"Parsing file: {c3d_file}")
@@ -79,7 +78,7 @@ def parse_c3d(c3d_file, output_directory, is_dynamic):
 
     # Harmonise TRC data.
     marker_data_rate = 100
-    map_file = os.path.join(marker_maps_dir, f"{gait_lab}.json")
+    map_file = os.path.join(marker_maps_dir, f"{lab}.json")
     with open(map_file, 'r') as file:
         marker_map = json.load(file)
     harmonise_markers(frame_data, marker_map)
