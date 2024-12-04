@@ -25,31 +25,34 @@ script_directory = os.path.dirname(os.path.abspath(__file__))
 marker_maps_dir = os.path.join(script_directory, 'marker_maps')
 
 
-class MarkerError(Exception):
+class ParserError(Exception):
     pass
 
 
-def parse_session(files, input_directory, output_directory, lab):
+def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab):
+    file_path = os.path.join(input_directory, static_trial)
+    subject_mass, osim_model = parse_static_trial(file_path, lab, output_directory)
+
     grf_data = {}
     kinematic_data = {}
     kinetic_data = {}
     event_data = {}
     spatiotemporal_data = {}
 
-    for file_name, dynamic in files.items():
-        file_path = os.path.join(input_directory, file_name)
+    for trial in dynamic_trials:
+        file_path = os.path.join(input_directory, trial)
         try:
-            analog_data, ik_data, id_data, events, s_t_data = parse_c3d(file_path, output_directory, dynamic, lab)
-        except MarkerError as e:
+            analog_data, ik_data, id_data, events, s_t_data = \
+                parse_dynamic_trial(file_path, osim_model, subject_mass, lab, output_directory)
+        except ParserError as e:
             logger.error(e)
             continue
 
-        if dynamic:
-            grf_data[file_name] = analog_data
-            kinematic_data[file_name] = ik_data
-            kinetic_data[file_name] = id_data
-            event_data[file_name] = events
-            spatiotemporal_data[file_name] = s_t_data
+        grf_data[trial] = analog_data
+        kinematic_data[trial] = ik_data
+        kinetic_data[trial] = id_data
+        event_data[trial] = events
+        spatiotemporal_data[trial] = s_t_data
 
     normalised_grf_data = normalise_grf_data(grf_data, event_data, 'grf')
     normalised_torque_data = normalise_grf_data(grf_data, event_data, 'torque')
@@ -59,104 +62,109 @@ def parse_session(files, input_directory, output_directory, lab):
     return normalised_grf_data, normalised_torque_data, normalised_kinematics, normalised_kinetics, spatiotemporal_data
 
 
-def parse_c3d(c3d_file, output_directory, is_dynamic, lab):
+def parse_static_trial(c3d_file, lab, output_directory):
+    logger.info(f"Parsing static trial: {c3d_file}")
+
     c3d_file_name = os.path.basename(c3d_file)
     file_name = os.path.splitext(c3d_file_name)[0]
+    de_identify_c3d(c3d_file, output_directory)
 
-    logger.info(f"Parsing file: {c3d_file}")
-
-    # De-identify the C3D data.
-    de_identified_directory = os.path.join(output_directory, 'de_identified')
-    if not os.path.exists(de_identified_directory):
-        os.makedirs(de_identified_directory)
-    de_identify_c3d(c3d_file, de_identified_directory)
-
-    # Extract TRC data from C3D file.
+    # Harmonise TRC data.
     trc_data = TRCData()
     trc_data.import_from(c3d_file)
     frame_data = extract_marker_data(trc_data)
+    harmonise_markers(frame_data, lab)
+    set_marker_data(trc_data, frame_data)
+    trc_file_path = write_trc_data(trc_data, file_name, output_directory)
+
+    subject_mass = extract_mass(c3d_file)
+
+    # TODO: Scale the OpenSim model so that it can be used for the dynamic trial.
+    scaled_model = "C:\\Users\\tsal421\\Projects\\Gait\\OpenSim-Models\\PGM_SYDNEY_scaled.osim"
+
+    return subject_mass, scaled_model
+
+
+def parse_dynamic_trial(c3d_file, osim_model, subject_mass, lab, output_directory):
+    logger.info(f"Parsing dynamic trial: {c3d_file}")
+
+    c3d_file_name = os.path.basename(c3d_file)
+    file_name = os.path.splitext(c3d_file_name)[0]
+    de_identify_c3d(c3d_file, output_directory)
 
     # Harmonise TRC data.
+    trc_data = TRCData()
+    trc_data.import_from(c3d_file)
+    frame_data = extract_marker_data(trc_data)
+    harmonise_markers(frame_data, lab)
+
     marker_data_rate = 100
-    map_file = os.path.join(marker_maps_dir, f"{lab}.json")
-    with open(map_file, 'r') as file:
-        marker_map = json.load(file)
-    harmonise_markers(frame_data, marker_map)
 
-    analog_data, ik_data, id_data, events, s_t_data = None, None, None, None, None
-    if is_dynamic:
-        # Extract GRF data from C3D file.
-        start_frame, end_frame = trim_frames(frame_data)
-        filter_data(frame_data, trc_data['DataRate'])
-        frame_data = resample_data(frame_data, trc_data['DataRate'], marker_data_rate)
-        analog_data, data_rate, events, plate_count, corners, subject_weight = extract_data(c3d_file, start_frame, end_frame)
-        if analog_data is None:
-            return
+    # Extract GRF data from C3D file.
+    start_frame, end_frame = trim_frames(frame_data)
+    filter_data(frame_data, trc_data['DataRate'])
+    frame_data = resample_data(frame_data, trc_data['DataRate'], marker_data_rate)
+    analog_data, data_rate, events, plate_count, corners = extract_data(c3d_file, start_frame, end_frame)
 
-        # Match events to force plates.
-        identify_event_plates(frame_data, events, corners)
+    # Match events to force plates.
+    identify_event_plates(frame_data, events, corners)
 
-        # Harmonise GRF data.
-        filter_data(analog_data, data_rate)
-        analog_data = resample_data(analog_data, data_rate, frequency=1000)
-        zero_grf_data(analog_data, plate_count)
-        analog_data = calculate_force_and_couple(analog_data, plate_count)
-        transform_grf_coordinates(analog_data, plate_count, corners)
-        mean_centre = transform_cop(analog_data, corners)
-        analog_data = concatenate_grf_data(analog_data, events, mean_centre)
-        scale_grf_data(analog_data)
+    # Harmonise GRF data.
+    filter_data(analog_data, data_rate)
+    analog_data = resample_data(analog_data, data_rate, frequency=1000)
+    zero_grf_data(analog_data, plate_count)
+    analog_data = calculate_force_and_couple(analog_data, plate_count)
+    transform_grf_coordinates(analog_data, plate_count, corners)
+    mean_centre = transform_cop(analog_data, corners)
+    analog_data = concatenate_grf_data(analog_data, events, mean_centre)
+    scale_grf_data(analog_data)
 
-        # Rotate trials for +X walking direction.
-        rotation_matrix = get_global_rotation(frame_data)
-        rotate_trc_data(frame_data, rotation_matrix)
-        rotate_grf_data(analog_data, rotation_matrix)
+    # Rotate trials for +X walking direction.
+    rotation_matrix = get_global_rotation(frame_data)
+    rotate_trc_data(frame_data, rotation_matrix)
+    rotate_grf_data(analog_data, rotation_matrix)
 
-        # Write GRF data.
-        grf_directory = os.path.join(output_directory, 'grf')
-        if not os.path.exists(grf_directory):
-            os.makedirs(grf_directory)
-        grf_file_path = os.path.join(grf_directory, f"{file_name}_grf.mot")
-        write_grf(analog_data, grf_file_path)
+    # Write GRF data.
+    grf_directory = os.path.join(output_directory, 'grf')
+    if not os.path.exists(grf_directory):
+        os.makedirs(grf_directory)
+    grf_file_path = os.path.join(grf_directory, f"{file_name}_grf.mot")
+    write_grf(analog_data, grf_file_path)
 
     # Write harmonised TRC data.
     set_marker_data(trc_data, frame_data, rate=marker_data_rate)
-    trc_directory = os.path.join(output_directory, 'trc')
-    if not os.path.exists(trc_directory):
-        os.makedirs(trc_directory)
-    trc_file_path = os.path.join(trc_directory, f"{file_name}.trc")
-    trc_data.save(trc_file_path)
+    trc_file_path = write_trc_data(trc_data, file_name, output_directory)
 
-    if is_dynamic:
-        # TODO: Scale the OpenSim model.
-        #   Temporarily use pre-scaled model.
-        scaled_model = "C:\\Users\\tsal421\\Projects\\Gait\\OpenSim-Models\\PGM_SYDNEY_scaled.osim"
+    # Perform inverse kinematics.
+    ik_directory = os.path.join(output_directory, 'IK')
+    if not os.path.exists(ik_directory):
+        os.makedirs(ik_directory)
+    ik_output = os.path.join(ik_directory, f"{file_name}_IK.mot")
+    perform_ik(osim_model, trc_file_path, ik_output)
+    ik_data = read_data(ik_output)
+    filter_data(ik_data, marker_data_rate, cut_off_frequency=8)
 
-        # Perform inverse kinematics.
-        ik_directory = os.path.join(output_directory, 'IK')
-        if not os.path.exists(ik_directory):
-            os.makedirs(ik_directory)
-        ik_output = os.path.join(ik_directory, f"{file_name}_IK.mot")
-        perform_ik(scaled_model, trc_file_path, ik_output)
-        ik_data = read_data(ik_output)
-        filter_data(ik_data, marker_data_rate, cut_off_frequency=8)
+    # Perform inverse dynamics.
+    id_directory = os.path.join(output_directory, 'ID')
+    if not os.path.exists(id_directory):
+        os.makedirs(id_directory)
+    id_output = os.path.join(id_directory, f"{file_name}_ID.sto")
+    perform_id(osim_model, ik_output, grf_file_path, id_output)
+    id_data = read_data(id_output)
+    filter_data(id_data, marker_data_rate, cut_off_frequency=8)
+    calculate_joint_powers(ik_data, id_data, events)
+    mass_adjust_units(id_data, subject_mass)
 
-        # Perform inverse dynamics.
-        id_directory = os.path.join(output_directory, 'ID')
-        if not os.path.exists(id_directory):
-            os.makedirs(id_directory)
-        id_output = os.path.join(id_directory, f"{file_name}_ID.sto")
-        perform_id(scaled_model, ik_output, grf_file_path, id_output)
-        id_data = read_data(id_output)
-        filter_data(id_data, marker_data_rate, cut_off_frequency=8)
-        calculate_joint_powers(ik_data, id_data, events)
-        mass_adjust_units(id_data, subject_weight)
-
-        s_t_data = calculate_spatiotemporal_data(frame_data, events)
+    s_t_data = calculate_spatiotemporal_data(frame_data, events)
 
     return analog_data, ik_data, id_data, events, s_t_data
 
 
 def de_identify_c3d(file_path, output_directory):
+    output_directory = os.path.join(output_directory, 'de_identified')
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
     input_directory, file_name = os.path.split(os.path.abspath(file_path))
     output_directory = os.path.abspath(output_directory)
 
@@ -207,7 +215,21 @@ def set_marker_data(trc_data, frame_data, rate=100):
     trc_data['NumFrames'] = frame_data.shape[0]
 
 
-def harmonise_markers(frame_data, marker_mapping):
+def write_trc_data(trc_data, file_name, output_directory):
+    trc_directory = os.path.join(output_directory, 'trc')
+    if not os.path.exists(trc_directory):
+        os.makedirs(trc_directory)
+    trc_file_path = os.path.join(trc_directory, f"{file_name}.trc")
+    trc_data.save(trc_file_path)
+
+    return trc_file_path
+
+
+def harmonise_markers(frame_data, lab):
+    map_file = os.path.join(marker_maps_dir, f"{lab}.json")
+    with open(map_file, 'r') as file:
+        marker_mapping = json.load(file)
+
     # Harmonise marker labels.
     reversed_mapping = {value: key for key, value in marker_mapping.items() if value is not None}
     header_mapping = {header: reversed_mapping.get(header, None) for header in frame_data.columns[1:]}
@@ -234,7 +256,7 @@ def trim_frames(frame_data):
             incomplete_frames[frame_number] = missing_markers
 
     if len(incomplete_frames) >= 0.9 * len(frame_data):
-        raise MarkerError("Too many frames missing marker data. Unable to process trial.")
+        raise ParserError("Too many frames missing marker data. Unable to process trial.")
 
     # Trim incomplete frames near the beginning or end of the trial.
     trim_start = first_frame
@@ -350,8 +372,11 @@ def rotate_grf_data(analog_data, rotation_matrix):
 def extract_data(file_path, start_frame, end_frame):
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
-        if (reader.analog_used == 0) or ('EVENT' not in reader):
-            return None, None, None, None, None
+
+        if reader.analog_used == 0:
+            raise ParserError("No analog data found in dynamic trial.")
+        if 'EVENT' not in reader:
+            raise ParserError("No events found in dynamic trial.")
 
         # Extract analog data
         time_increment = 1 / reader.analog_rate
@@ -396,10 +421,18 @@ def extract_data(file_path, start_frame, end_frame):
         # Rotate GRF data to align with global CS.
         corners = reader.get('FORCE_PLATFORM:CORNERS').float_array
 
-        # Extract subject weight.
-        subject_weight = reader.get('PROCESSING:BODYMASS').float_value
+    return analog_data, reader.analog_rate, events, plate_count, corners
 
-    return analog_data, reader.analog_rate, events, plate_count, corners, subject_weight
+
+def extract_mass(file_path):
+    with open(file_path, 'rb') as handle:
+        reader = c3d.Reader(handle)
+
+        body_mass = reader.get('PROCESSING:BODYMASS')
+        if body_mass is None:
+            raise ParserError("No subject-mass found in static trial.")
+
+    return body_mass.float_value
 
 
 def read_grf(file_path):

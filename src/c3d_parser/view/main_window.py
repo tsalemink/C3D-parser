@@ -4,11 +4,11 @@ import numpy as np
 from collections import defaultdict
 
 from PySide6.QtCore import Qt, QPoint
-from PySide6.QtWidgets import QMainWindow, QMenu, QFileDialog, QListWidgetItem
+from PySide6.QtWidgets import QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
-from c3d_parser.core.c3d_parser import parse_session, read_grf, is_dynamic, marker_maps_dir
+from c3d_parser.core.c3d_parser import parse_session, read_grf, is_dynamic, marker_maps_dir, ParserError
 from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 
@@ -179,17 +179,30 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonParseData.setEnabled(True)
 
     def _parse_c3d_data(self):
-        files = {}
+        static_trials = []
+        dynamic_trials = []
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
-            dynamic = item.data(Qt.UserRole) == "Dynamic"
             directory = self._ui.lineEditDirectory.text()
             self._output_directory = os.path.join(directory, '_output')
-            files[item.text()] = dynamic
+            if item.data(Qt.UserRole) == "Dynamic":
+                dynamic_trials.append(item.text())
+            else:
+                static_trials.append(item.text())
+
+        if len(static_trials) == 0:
+            logger.error("No static trial found. You may need to classify one manually.")
+            return
+        if len(static_trials) == 1:
+            static_trial = static_trials[0]
+        if len(static_trials) > 1:
+            static_trial, ok = QInputDialog.getItem(None, "Select Static Trial", "Please select one static trial:", static_trials, 0, False)
+            if not ok:
+                return
 
         lab = self._ui.comboBoxLab.currentText()
         grf_data, torque_data, self._kinematics, self._kinetics, self._s_t_data = \
-            parse_session(files, directory, self._output_directory, lab)
+            parse_session(static_trial, dynamic_trials, directory, self._output_directory, lab)
 
         self._visualise_grf_data(grf_data)
         self._visualise_torque_data(torque_data)
