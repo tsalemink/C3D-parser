@@ -1,5 +1,6 @@
 
 import os
+import logging
 import numpy as np
 from collections import defaultdict
 
@@ -11,6 +12,11 @@ from matplotlib.figure import Figure
 from c3d_parser.core.c3d_parser import parse_session, read_grf, is_dynamic, marker_maps_dir, ParserError
 from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
+
+
+# Configure logging.
+logger = logging.getLogger('C3D-Parser')
+logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
 
 DEFAULT_STYLE_SHEET = ''
