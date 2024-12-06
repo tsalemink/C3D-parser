@@ -77,12 +77,13 @@ def parse_static_trial(c3d_file, lab, output_directory):
     set_marker_data(trc_data, frame_data)
     trc_file_path = write_trc_data(trc_data, file_name, output_directory)
 
-    subject_mass = extract_mass(c3d_file)
+    mass, left_knee_width, right_knee_width = extract_static_data(c3d_file)
+    frame = add_medial_knee_markers(frame_data, left_knee_width, right_knee_width)
 
     # TODO: Scale the OpenSim model so that it can be used for the dynamic trial.
     scaled_model = "C:\\Users\\tsal421\\Projects\\Gait\\OpenSim-Models\\PGM_SYDNEY_scaled.osim"
 
-    return subject_mass, scaled_model
+    return mass, scaled_model
 
 
 def parse_dynamic_trial(c3d_file, osim_model, subject_mass, lab, output_directory):
@@ -424,15 +425,24 @@ def extract_data(file_path, start_frame, end_frame):
     return analog_data, reader.analog_rate, events, plate_count, corners
 
 
-def extract_mass(file_path):
+def extract_static_data(file_path):
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
 
-        body_mass = reader.get('PROCESSING:BODYMASS')
-        if body_mass is None:
-            raise ParserError("No subject-mass found in static trial.")
+        if 'PROCESSING' not in reader:
+            raise ParserError("No processing section found in static trial.")
+        processing_group = reader.get('PROCESSING')
 
-    return body_mass.float_value
+        if 'BODYMASS' not in processing_group:
+            raise ParserError("No subject-mass found in static trial.")
+        mass = reader.get('PROCESSING:Bodymass').float_value
+
+        if 'LKNEEWIDTH' not in processing_group or 'RKNEEWIDTH' not in processing_group:
+            raise ParserError("No knee-width found in static trial.")
+        left_knee_width = reader.get('PROCESSING:LKneeWidth').float_value
+        right_knee_width = reader.get('PROCESSING:RKneeWidth').float_value
+
+    return mass, left_knee_width, right_knee_width
 
 
 def read_grf(file_path):
@@ -1021,3 +1031,27 @@ def write_spatiotemporal_data(data, selected_trials, output_directory):
     data_frame = data_frame[valid_trials]
     data_frame['Average'] = data_frame.mean(axis=1)
     data_frame.round(3).to_csv(output_file)
+
+
+def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marker_radius=14, padding=7):
+    """
+    This function takes a pandas.DataFrame of TRC data, extracts a single frame from the data
+    and adds the medial knee markers if they are missing. It returns the frame as a pandas.Series.
+    """
+    frame = frame_data.iloc[len(frame_data) // 2].copy()
+
+    for side in ['L', 'R']:
+        medial_label = f'{side}KNEM'
+        if medial_label not in frame.index:
+            axis_marker = frame[f'{side}KAX']
+            lateral_marker = frame[f'{side}KNE']
+            axix_vector = lateral_marker - axis_marker
+            magnitude = np.sqrt((np.array(axix_vector) ** 2.0).sum(-1))
+            knee_axis = np.divide(axix_vector, magnitude)
+
+            # Adjust knee width to account for marker-radius, skin-padding.
+            left_knee_width += ((marker_radius / 2) + padding) * 2
+            medial_marker = lateral_marker + left_knee_width * knee_axis
+            frame[medial_label] = medial_marker
+
+    return frame
