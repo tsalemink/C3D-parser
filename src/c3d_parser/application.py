@@ -8,6 +8,8 @@ from c3d_parser.view.main_window import MainWindow
 
 def main():
     app = QApplication(sys.argv)
+    app.setOrganizationName("Auckland Bioengineering Institute")
+    app.setApplicationName("C3D Parser")
 
     window = MainWindow()
     window.show()

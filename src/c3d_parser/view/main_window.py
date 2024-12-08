@@ -4,8 +4,8 @@ import logging
 import numpy as np
 from collections import defaultdict
 
-from PySide6.QtCore import Qt, QPoint
-from PySide6.QtWidgets import QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog
+from PySide6.QtCore import Qt, QSettings, QPoint
+from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
@@ -42,6 +42,7 @@ class MainWindow(QMainWindow):
         self._setup_combo_box()
         self._setup_figures()
         self._make_connections()
+        self._load_settings()
 
         self._grf_curves = GaitCurves(self._grf_canvas)
         self._torque_curves = GaitCurves(self._torque_canvas)
@@ -386,6 +387,37 @@ class MainWindow(QMainWindow):
             if item.checkState() == Qt.Checked:
                 selected_trials.append(item.text())
         return selected_trials
+
+
+    def _save_settings(self):
+        settings = QSettings()
+        settings.beginGroup('MainWindow')
+
+        settings.setValue('lab', self._ui.comboBoxLab.currentText())
+        settings.setValue('directory', self._ui.lineEditDirectory.text())
+
+        settings.endArray()
+        settings.endGroup()
+
+    def _load_settings(self):
+        settings = QSettings()
+        settings.beginGroup('MainWindow')
+
+        if settings.contains('lab'):
+            self._ui.comboBoxLab.setCurrentText(settings.value('lab'))
+        if settings.contains('directory'):
+            self._ui.lineEditDirectory.setText(settings.value('directory'))
+
+        settings.endArray()
+        settings.endGroup()
+
+    def _quit_application(self):
+        self._save_settings()
+        QApplication.quit()
+
+    def closeEvent(self, event):
+        if self.sender() is None:
+            self._quit_application()
 
 
 class GaitCurves(defaultdict):
