@@ -147,6 +147,7 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonScanDirectory.clicked.connect(self._scan_directory)
         self._ui.pushButtonParseData.clicked.connect(self._parse_c3d_data)
         self._ui.pushButtonUpload.clicked.connect(self._upload_data)
+        self._ui.actionQuit.triggered.connect(self._quit_application)
 
     def _validate_directory(self):
         directory = self._ui.lineEditDirectory.text()
