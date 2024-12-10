@@ -12,6 +12,7 @@ from matplotlib.figure import Figure
 from c3d_parser.core.c3d_parser import parse_session, read_grf, is_dynamic, marker_maps_dir, ParserError
 from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
+from c3d_parser.view.dialogs.options_dialog import OptionsDialog
 
 
 # Configure logging.
@@ -38,6 +39,8 @@ class MainWindow(QMainWindow):
         self._kinematic_data = {}
         self._kinetic_data = {}
         self._events = {}
+
+        self._line_width = 1.0
 
         self._setup_combo_box()
         self._setup_figures()
@@ -240,7 +243,7 @@ class MainWindow(QMainWindow):
                     t_segment = np.arange(segment.shape[1])
 
                     for j, plot in enumerate([self._plot_x, self._plot_y, self._plot_z]):
-                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=1.0)
+                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=self._line_width)
                         line.set_picker(True)
                         self._grf_curves.add_curve(name, f"{foot}_{i}", line)
 
@@ -258,7 +261,7 @@ class MainWindow(QMainWindow):
                 colour = 'r' if foot == "Left" else 'b'
                 for i, segment in enumerate(data_segments):
                     t_segment = np.arange(segment.shape[1])
-                    line, = self._plot_torque.plot(t_segment, segment[2], color=colour, linewidth=1.0)
+                    line, = self._plot_torque.plot(t_segment, segment[2], color=colour, linewidth=self._line_width)
                     line.set_picker(True)
                     self._torque_curves.add_curve(name, f"{foot}_{i}", line)
 
@@ -278,7 +281,7 @@ class MainWindow(QMainWindow):
                     t_segment = np.linspace(0, 100, segment.shape[1])
 
                     for j, plot in enumerate(self._kinematic_plots):
-                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=1.0)
+                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=self._line_width)
                         line.set_picker(True)
                         self._kinematic_curves.add_curve(name, f"{foot}_{i}", line)
 
@@ -296,7 +299,7 @@ class MainWindow(QMainWindow):
                     t_segment = np.linspace(0, 100, segment.shape[1])
 
                     for j, plot in enumerate(self._kinetic_plots):
-                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=1.0)
+                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=self._line_width)
                         line.set_picker(True)
                         self._kinetic_curves.add_curve(name, f"{foot}_{i}", line)
 
@@ -391,28 +394,51 @@ class MainWindow(QMainWindow):
         return selected_trials
 
     def _show_options_dialog(self):
-        pass
+        dlg = OptionsDialog(self)
+        dlg.load(self._get_options())
+        if dlg.exec():
+            self._set_options(dlg.save())
+            self._update_curves()
+
+    def _get_options(self):
+        options = {
+            'line_width': self._line_width
+        }
+
+        return options
+
+    def _set_options(self, options):
+        self._line_width = options['line_width']
+
+    def _update_curves(self):
+        for curves in [self._grf_curves, self._torque_curves, self._kinematic_curves, self._kinetic_curves]:
+            curves.update_line_width(self._line_width)
 
     def _save_settings(self):
         settings = QSettings()
-        settings.beginGroup('MainWindow')
 
+        settings.beginGroup('MainWindow')
         settings.setValue('lab', self._ui.comboBoxLab.currentText())
         settings.setValue('directory', self._ui.lineEditDirectory.text())
+        settings.endGroup()
 
-        settings.endArray()
+        settings.beginGroup('Options')
+        settings.setValue('line_width', self._line_width)
         settings.endGroup()
 
     def _load_settings(self):
         settings = QSettings()
-        settings.beginGroup('MainWindow')
 
+        settings.beginGroup('MainWindow')
         if settings.contains('lab'):
             self._ui.comboBoxLab.setCurrentText(settings.value('lab'))
         if settings.contains('directory'):
             self._ui.lineEditDirectory.setText(settings.value('directory'))
+        settings.endGroup()
 
-        settings.endArray()
+        settings.beginGroup('Options')
+        if settings.contains('line_width'):
+            self._line_width = float(settings.value('line_width'))
         settings.endGroup()
 
     def _quit_application(self):
@@ -493,6 +519,14 @@ class GaitCurves(defaultdict):
                 line.set_linestyle('solid')
                 line.set_color(colour)
                 line.set_zorder(2)
+
+        self._canvas.draw()
+
+    def update_line_width(self, line_width):
+        for cycles in self.values():
+            for lines in cycles.values():
+                for line in lines:
+                    line.set_linewidth(line_width)
 
         self._canvas.draw()
 
