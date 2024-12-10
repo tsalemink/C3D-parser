@@ -148,6 +148,7 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonParseData.clicked.connect(self._parse_c3d_data)
         self._ui.pushButtonUpload.clicked.connect(self._upload_data)
         self._ui.actionQuit.triggered.connect(self._quit_application)
+        self._ui.actionOptions.triggered.connect(self._show_options_dialog)
 
     def _validate_directory(self):
         directory = self._ui.lineEditDirectory.text()
@@ -389,6 +390,8 @@ class MainWindow(QMainWindow):
                 selected_trials.append(item.text())
         return selected_trials
 
+    def _show_options_dialog(self):
+        pass
 
     def _save_settings(self):
         settings = QSettings()

@@ -185,10 +185,14 @@ class Ui_MainWindow(object):
         self.menuBar.setGeometry(QRect(0, 0, 1500, 22))
         self.menuFile = QMenu(self.menuBar)
         self.menuFile.setObjectName(u"menuFile")
+        self.menuView = QMenu(self.menuBar)
+        self.menuView.setObjectName(u"menuView")
         MainWindow.setMenuBar(self.menuBar)
 
         self.menuBar.addAction(self.menuFile.menuAction())
+        self.menuBar.addAction(self.menuView.menuAction())
         self.menuFile.addAction(self.actionQuit)
+        self.menuView.addAction(self.actionOptions)
 
         self.retranslateUi(MainWindow)
 
@@ -216,5 +220,6 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinematic), QCoreApplication.translate("MainWindow", u"Kinematic", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinetic), QCoreApplication.translate("MainWindow", u"Kinetic", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
+        self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
     # retranslateUi
 
