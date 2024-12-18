@@ -739,8 +739,8 @@ def normalise_kinematics(kinematic_data, events):
             pelvis_kinematics = ['pelvis_tilt', 'pelvis_list', 'pelvis_rotation']
             other_kinematics = ['hip_flexion', 'hip_adduction', 'hip_rotation',
                                 'knee_angle', 'ankle_angle', 'subtalar_angle']
-            for i, name in enumerate(other_kinematics):
-                other_kinematics[i] = f"{name}_{foot[0].lower()}"
+            for j, name in enumerate(other_kinematics):
+                other_kinematics[j] = f"{name}_{foot[0].lower()}"
             data = trial_data.loc[:, ['time'] + pelvis_kinematics + other_kinematics]
 
             start = None
