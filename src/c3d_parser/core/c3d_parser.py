@@ -29,9 +29,9 @@ class ParserError(Exception):
     pass
 
 
-def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab):
+def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, kad_marker_diameter):
     file_path = os.path.join(input_directory, static_trial)
-    subject_mass, osim_model = parse_static_trial(file_path, lab, output_directory)
+    subject_mass, osim_model = parse_static_trial(file_path, lab, kad_marker_diameter, output_directory)
 
     grf_data = {}
     kinematic_data = {}
@@ -62,7 +62,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     return normalised_grf_data, normalised_torque_data, normalised_kinematics, normalised_kinetics, spatiotemporal_data
 
 
-def parse_static_trial(c3d_file, lab, output_directory):
+def parse_static_trial(c3d_file, lab, kad_marker_diameter, output_directory):
     logger.info(f"Parsing static trial: {c3d_file}")
 
     c3d_file_name = os.path.basename(c3d_file)
@@ -78,7 +78,7 @@ def parse_static_trial(c3d_file, lab, output_directory):
     trc_file_path = write_trc_data(trc_data, file_name, output_directory)
 
     mass, left_knee_width, right_knee_width = extract_static_data(c3d_file)
-    frame = add_medial_knee_markers(frame_data, left_knee_width, right_knee_width)
+    frame = add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, kad_marker_diameter)
 
     # TODO: Scale the OpenSim model so that it can be used for the dynamic trial.
     scaled_model = "C:\\Users\\tsal421\\Projects\\Gait\\OpenSim-Models\\PGM_SYDNEY_scaled.osim"
@@ -1033,10 +1033,13 @@ def write_spatiotemporal_data(data, selected_trials, output_directory):
     data_frame.round(3).to_csv(output_file)
 
 
-def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marker_radius=14, padding=7):
+def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, kad_marker_diameter=14, padding=7):
     """
     This function takes a pandas.DataFrame of TRC data, extracts a single frame from the data
     and adds the medial knee markers if they are missing. It returns the frame as a pandas.Series.
+
+    The ``padding`` argument should include skin-padding as well as the thickness of the base
+    plate used to attach the markers.
     """
     frame = frame_data.iloc[len(frame_data) // 2].copy()
 
@@ -1050,7 +1053,7 @@ def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marke
             knee_axis = np.divide(axix_vector, magnitude)
 
             # Adjust knee width to account for marker-radius, skin-padding.
-            left_knee_width += ((marker_radius / 2) + padding) * 2
+            left_knee_width += ((kad_marker_diameter / 2) + padding) * 2
             medial_marker = lateral_marker + left_knee_width * knee_axis
             frame[medial_label] = medial_marker
 

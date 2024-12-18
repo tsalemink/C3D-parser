@@ -16,10 +16,11 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QHBoxLayout,
-    QLabel, QLineEdit, QListWidgetItem, QMainWindow,
-    QMenu, QMenuBar, QPushButton, QSizePolicy,
-    QSplitter, QTabWidget, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox, QFrame,
+    QHBoxLayout, QLabel, QLineEdit, QListWidgetItem,
+    QMainWindow, QMenu, QMenuBar, QPushButton,
+    QSizePolicy, QSplitter, QTabWidget, QVBoxLayout,
+    QWidget)
 
 from c3d_parser.view.widgets import CustomListWidget
 
@@ -71,6 +72,38 @@ class Ui_MainWindow(object):
 
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
+
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.label_3 = QLabel(self.frameTrial)
+        self.label_3.setObjectName(u"label_3")
+
+        self.horizontalLayout_4.addWidget(self.label_3)
+
+        self.doubleSpinBoxMarkerDiameter = QDoubleSpinBox(self.frameTrial)
+        self.doubleSpinBoxMarkerDiameter.setObjectName(u"doubleSpinBoxMarkerDiameter")
+        self.doubleSpinBoxMarkerDiameter.setValue(14.000000000000000)
+
+        self.horizontalLayout_4.addWidget(self.doubleSpinBoxMarkerDiameter)
+
+
+        self.verticalLayout_2.addLayout(self.horizontalLayout_4)
+
+        self.horizontalLayout_5 = QHBoxLayout()
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.label_4 = QLabel(self.frameTrial)
+        self.label_4.setObjectName(u"label_4")
+
+        self.horizontalLayout_5.addWidget(self.label_4)
+
+        self.doubleSpinBoxKADMarkerDiameter = QDoubleSpinBox(self.frameTrial)
+        self.doubleSpinBoxKADMarkerDiameter.setObjectName(u"doubleSpinBoxKADMarkerDiameter")
+        self.doubleSpinBoxKADMarkerDiameter.setValue(25.000000000000000)
+
+        self.horizontalLayout_5.addWidget(self.doubleSpinBoxKADMarkerDiameter)
+
+
+        self.verticalLayout_2.addLayout(self.horizontalLayout_5)
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
@@ -210,6 +243,8 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(shortcut)
         self.actionOptions.setText(QCoreApplication.translate("MainWindow", u"Options", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Lab: ", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"Marker Diameter:", None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"KAD Marker Diameter:", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Input:", None))
         self.pushButtonDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.pushButtonScanDirectory.setText(QCoreApplication.translate("MainWindow", u"Scan", None))
