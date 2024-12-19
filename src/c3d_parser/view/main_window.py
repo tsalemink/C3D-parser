@@ -419,6 +419,9 @@ class MainWindow(QMainWindow):
         settings = QSettings()
 
         settings.beginGroup('MainWindow')
+        settings.setValue('size', self.size())
+        settings.setValue('pos', self.pos())
+        settings.setValue('is_maximized', self.isMaximized())
         settings.setValue('lab', self._ui.comboBoxLab.currentText())
         settings.setValue('directory', self._ui.lineEditDirectory.text())
         settings.endGroup()
@@ -431,6 +434,13 @@ class MainWindow(QMainWindow):
         settings = QSettings()
 
         settings.beginGroup('MainWindow')
+        if settings.contains('size'):
+            self.resize(settings.value('size'))
+        if settings.contains('pos'):
+            self.move(settings.value('pos'))
+        if settings.contains('is_maximized'):
+            if settings.value('is_maximized', 'true') == 'true':
+                self.showMaximized()
         if settings.contains('lab'):
             self._ui.comboBoxLab.setCurrentText(settings.value('lab'))
         if settings.contains('directory'):
