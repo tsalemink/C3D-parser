@@ -1053,8 +1053,9 @@ def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, kad_m
             knee_axis = np.divide(axix_vector, magnitude)
 
             # Adjust knee width to account for marker-radius, skin-padding.
-            left_knee_width += ((kad_marker_diameter / 2) + padding) * 2
-            medial_marker = lateral_marker + left_knee_width * knee_axis
+            knee_width = left_knee_width if side == 'L' else right_knee_width
+            knee_width += ((kad_marker_diameter / 2) + padding) * 2
+            medial_marker = lateral_marker + knee_width * knee_axis
             frame[medial_label] = medial_marker
 
     return frame
