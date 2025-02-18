@@ -213,9 +213,9 @@ class MainWindow(QMainWindow):
                 return
 
         lab = self._ui.comboBoxLab.currentText()
-        kad_marker_diameter = self._ui.doubleSpinBoxKADMarkerDiameter.value()
+        marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
         grf_data, torque_data, self._kinematics, self._kinetics, self._s_t_data = \
-            parse_session(static_trial, dynamic_trials, directory, self._output_directory, lab, kad_marker_diameter)
+            parse_session(static_trial, dynamic_trials, directory, self._output_directory, lab, marker_diameter)
 
         self._visualise_grf_data(grf_data)
         self._visualise_torque_data(torque_data)
