@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QLi
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
-from c3d_parser.core.c3d_parser import parse_session, read_grf, is_dynamic, marker_maps_dir, ParserError
+from c3d_parser.core.c3d_parser import parse_session, read_grf, is_dynamic, marker_maps_dir, CancelException
 from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
@@ -214,8 +214,13 @@ class MainWindow(QMainWindow):
 
         lab = self._ui.comboBoxLab.currentText()
         marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
-        grf_data, torque_data, self._kinematics, self._kinetics, self._s_t_data = \
-            parse_session(static_trial, dynamic_trials, directory, self._output_directory, lab, marker_diameter)
+
+        try:
+            grf_data, torque_data, self._kinematics, self._kinetics, self._s_t_data = \
+                parse_session(static_trial, dynamic_trials, directory, self._output_directory, lab, marker_diameter)
+        except CancelException as e:
+            logger.info(e)
+            return
 
         self._visualise_grf_data(grf_data)
         self._visualise_torque_data(torque_data)

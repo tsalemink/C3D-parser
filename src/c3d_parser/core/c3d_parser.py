@@ -14,6 +14,7 @@ from trc import TRCData
 
 from c3d_parser.core.c3d_patch import c3d
 from c3d_parser.core.osim import perform_ik, perform_id
+from c3d_parser.view.dialogs.subject_info_dialog import SubjectInfoDialog
 
 
 # Configure logging.
@@ -26,6 +27,10 @@ marker_maps_dir = os.path.join(script_directory, 'marker_maps')
 
 
 class ParserError(Exception):
+    pass
+
+
+class CancelException(Exception):
     pass
 
 
@@ -77,13 +82,13 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory):
     set_marker_data(trc_data, frame_data)
     trc_file_path = write_trc_data(trc_data, file_name, output_directory)
 
-    mass, left_knee_width, right_knee_width = extract_static_data(c3d_file)
+    height, weight, left_knee_width, right_knee_width = extract_static_data(c3d_file)
     frame = add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marker_diameter)
 
     # TODO: Scale the OpenSim model so that it can be used for the dynamic trial.
     scaled_model = "C:\\Users\\tsal421\\Projects\\Gait\\OpenSim-Models\\PGM_SYDNEY_scaled.osim"
 
-    return mass, scaled_model
+    return weight, scaled_model
 
 
 def parse_dynamic_trial(c3d_file, osim_model, subject_mass, lab, output_directory):
@@ -433,16 +438,25 @@ def extract_static_data(file_path):
             raise ParserError("No processing section found in static trial.")
         processing_group = reader.get('PROCESSING')
 
-        if 'BODYMASS' not in processing_group:
-            raise ParserError("No subject-mass found in static trial.")
-        mass = reader.get('PROCESSING:Bodymass').float_value
+        if 'BODYMASS' in processing_group and 'HEIGHT' in processing_group:
+            height = reader.get('PROCESSING:Height').float_value
+            weight = reader.get('PROCESSING:Bodymass').float_value
+        else:
+            dlg = SubjectInfoDialog()
+            if dlg.exec():
+                height = dlg.subject_height()
+                weight = dlg.subject_weight()
+            else:
+                raise CancelException("Processing cancelled.")
 
-        if 'LKNEEWIDTH' not in processing_group or 'RKNEEWIDTH' not in processing_group:
-            raise ParserError("No knee-width found in static trial.")
-        left_knee_width = reader.get('PROCESSING:LKneeWidth').float_value
-        right_knee_width = reader.get('PROCESSING:RKneeWidth').float_value
+        if 'LKNEEWIDTH' in processing_group and 'RKNEEWIDTH' in processing_group:
+            left_knee_width = reader.get('PROCESSING:LKneeWidth').float_value
+            right_knee_width = reader.get('PROCESSING:RKneeWidth').float_value
+        else:
+            left_knee_width = None
+            right_knee_width = None
 
-    return mass, left_knee_width, right_knee_width
+    return height, weight, left_knee_width, right_knee_width
 
 
 def read_grf(file_path):
@@ -1046,6 +1060,9 @@ def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marke
     for side in ['L', 'R']:
         medial_label = f'{side}KNEM'
         if medial_label not in frame.index:
+            if left_knee_width is None or right_knee_width is None:
+                raise ParserError("No knee-width values found in static trial. Unable to add medial knee markers.")
+
             axis_marker = frame[f'{side}KAX']
             lateral_marker = frame[f'{side}KNE']
             axix_vector = lateral_marker - axis_marker
