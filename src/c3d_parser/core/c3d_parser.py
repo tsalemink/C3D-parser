@@ -36,28 +36,43 @@ class CancelException(Exception):
 
 def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter):
     file_path = os.path.join(input_directory, static_trial)
-    subject_mass, osim_model = parse_static_trial(file_path, lab, marker_diameter, output_directory)
+    subject_mass = parse_static_trial(file_path, lab, marker_diameter, output_directory)
+
+    marker_data_rate = 100
 
     grf_data = {}
-    kinematic_data = {}
-    kinetic_data = {}
     event_data = {}
     spatiotemporal_data = {}
+    kinematic_data = {}
+    kinetic_data = {}
+
+    trc_file_paths = {}
+    grf_file_paths = {}
 
     for trial in dynamic_trials:
         file_path = os.path.join(input_directory, trial)
         try:
-            analog_data, ik_data, id_data, events, s_t_data = \
-                parse_dynamic_trial(file_path, osim_model, subject_mass, lab, output_directory)
+            analog_data, events, s_t_data, trc_file_path, grf_file_path = \
+                parse_dynamic_trial(file_path, subject_mass, lab, output_directory, marker_data_rate)
         except ParserError as e:
             logger.error(e)
             continue
 
         grf_data[trial] = analog_data
-        kinematic_data[trial] = ik_data
-        kinetic_data[trial] = id_data
         event_data[trial] = events
         spatiotemporal_data[trial] = s_t_data
+
+        trc_file_paths[trial] = trc_file_path
+        grf_file_paths[trial] = grf_file_path
+
+    osim_model = create_osim_model()
+
+    for trial in dynamic_trials:
+        ik_data, ik_output = run_ik(osim_model, trc_file_paths[trial], output_directory, marker_data_rate)
+        id_data = run_id(osim_model, ik_data, ik_output, grf_file_paths[trial], output_directory, marker_data_rate, events, subject_mass)
+
+        kinematic_data[trial] = ik_data
+        kinetic_data[trial] = id_data
 
     normalised_grf_data = normalise_grf_data(grf_data, event_data, 'grf')
     normalised_torque_data = normalise_grf_data(grf_data, event_data, 'torque')
@@ -85,13 +100,10 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory):
     height, weight, left_knee_width, right_knee_width = extract_static_data(c3d_file)
     frame = add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marker_diameter)
 
-    # TODO: Scale the OpenSim model so that it can be used for the dynamic trial.
-    scaled_model = "C:\\Users\\tsal421\\Projects\\Gait\\OpenSim-Models\\PGM_SYDNEY_scaled.osim"
-
-    return weight, scaled_model
+    return weight
 
 
-def parse_dynamic_trial(c3d_file, osim_model, subject_mass, lab, output_directory):
+def parse_dynamic_trial(c3d_file, subject_mass, lab, output_directory, marker_data_rate):
     logger.info(f"Parsing dynamic trial: {c3d_file}")
 
     c3d_file_name = os.path.basename(c3d_file)
@@ -103,8 +115,6 @@ def parse_dynamic_trial(c3d_file, osim_model, subject_mass, lab, output_director
     trc_data.import_from(c3d_file)
     frame_data = extract_marker_data(trc_data)
     harmonise_markers(frame_data, lab)
-
-    marker_data_rate = 100
 
     # Extract GRF data from C3D file.
     start_frame, end_frame = trim_frames(frame_data)
@@ -141,7 +151,14 @@ def parse_dynamic_trial(c3d_file, osim_model, subject_mass, lab, output_director
     set_marker_data(trc_data, frame_data, rate=marker_data_rate)
     trc_file_path = write_trc_data(trc_data, file_name, output_directory)
 
+    s_t_data = calculate_spatiotemporal_data(frame_data, events)
+
+    return analog_data, events, s_t_data, trc_file_path, grf_file_path
+
+
+def run_ik(osim_model, trc_file_path, output_directory, marker_data_rate):
     # Perform inverse kinematics.
+    file_name = os.path.splitext(os.path.basename(trc_file_path))[0]
     ik_directory = os.path.join(output_directory, 'IK')
     if not os.path.exists(ik_directory):
         os.makedirs(ik_directory)
@@ -150,7 +167,12 @@ def parse_dynamic_trial(c3d_file, osim_model, subject_mass, lab, output_director
     ik_data = read_data(ik_output)
     filter_data(ik_data, marker_data_rate, cut_off_frequency=8)
 
+    return ik_data, ik_output
+
+
+def run_id(osim_model, ik_data, ik_output, grf_file_path, output_directory, marker_data_rate, events, subject_mass):
     # Perform inverse dynamics.
+    file_name = os.path.basename(grf_file_path).replace("_grf.mot", "")
     id_directory = os.path.join(output_directory, 'ID')
     if not os.path.exists(id_directory):
         os.makedirs(id_directory)
@@ -161,9 +183,7 @@ def parse_dynamic_trial(c3d_file, osim_model, subject_mass, lab, output_director
     calculate_joint_powers(ik_data, id_data, events)
     mass_adjust_units(id_data, subject_mass)
 
-    s_t_data = calculate_spatiotemporal_data(frame_data, events)
-
-    return analog_data, ik_data, id_data, events, s_t_data
+    return id_data
 
 
 def de_identify_c3d(file_path, output_directory):
@@ -1076,3 +1096,10 @@ def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marke
             frame[medial_label] = medial_marker
 
     return frame
+
+
+# TODO: Implement.
+def create_osim_model():
+    model_path = "C:\\Users\\tsal421\\Projects\\Gait\\OpenSim-Models\\PGM_SYDNEY_scaled.osim"
+
+    return model_path
