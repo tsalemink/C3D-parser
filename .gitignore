@@ -164,3 +164,8 @@ cython_debug/
 tests/data/general/
 tests/output/
 **/_output/
+
+# OpenSim outputs
+_ik_marker_errors.sto
+_ik_model_marker_locations.sto
+ik_output.mot
