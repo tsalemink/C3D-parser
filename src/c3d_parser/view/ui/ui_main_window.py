@@ -134,12 +134,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.pushButtonScanDirectory = QPushButton(self.frameTrial)
-        self.pushButtonScanDirectory.setObjectName(u"pushButtonScanDirectory")
-        self.pushButtonScanDirectory.setEnabled(False)
-
-        self.horizontalLayout_2.addWidget(self.pushButtonScanDirectory)
-
         self.pushButtonParseData = QPushButton(self.frameTrial)
         self.pushButtonParseData.setObjectName(u"pushButtonParseData")
         self.pushButtonParseData.setEnabled(False)
@@ -247,7 +241,6 @@ class Ui_MainWindow(object):
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"KAD Marker Diameter:", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Input:", None))
         self.pushButtonDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.pushButtonScanDirectory.setText(QCoreApplication.translate("MainWindow", u"Scan", None))
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Parse C3D Data", None))
         self.pushButtonUpload.setText(QCoreApplication.translate("MainWindow", u"Upload", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))

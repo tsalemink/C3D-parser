@@ -147,7 +147,6 @@ class MainWindow(QMainWindow):
         self._ui.lineEditDirectory.textChanged.connect(self._validate_directory)
         self._ui.listWidgetFiles.itemChanged.connect(self._update_plot_visibility)
         self._ui.pushButtonDirectoryChooser.clicked.connect(self._open_directory_chooser)
-        self._ui.pushButtonScanDirectory.clicked.connect(self._scan_directory)
         self._ui.pushButtonParseData.clicked.connect(self._parse_c3d_data)
         self._ui.pushButtonUpload.clicked.connect(self._upload_data)
         self._ui.actionQuit.triggered.connect(self._quit_application)
@@ -160,9 +159,11 @@ class MainWindow(QMainWindow):
         self._ui.listWidgetFiles.clear()
         self._ui.pushButtonParseData.setEnabled(False)
         self._ui.pushButtonUpload.setEnabled(False)
-        self._ui.pushButtonScanDirectory.setEnabled(directory_valid)
         self._ui.lineEditDirectory.setStyleSheet(
             DEFAULT_STYLE_SHEET if directory_valid else INVALID_STYLE_SHEET)
+
+        if directory_valid:
+            self._scan_directory()
 
     def _open_directory_chooser(self):
         directory = QFileDialog.getExistingDirectory(
