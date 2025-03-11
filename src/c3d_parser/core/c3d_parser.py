@@ -249,7 +249,7 @@ def write_trc_data(trc_data, file_name, output_directory):
     if not os.path.exists(trc_directory):
         os.makedirs(trc_directory)
     trc_file_path = os.path.join(trc_directory, f"{file_name}.trc")
-    trc_data.save(trc_file_path)
+    trc_data.save(trc_file_path, add_trailing_tab=True)
 
     return trc_file_path
 
