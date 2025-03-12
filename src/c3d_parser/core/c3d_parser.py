@@ -97,6 +97,8 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory):
     trc_data.import_from(c3d_file)
     frame_data = extract_marker_data(trc_data)
     harmonise_markers(frame_data, lab)
+    rotation_matrix = get_static_rotation(frame_data)
+    rotate_trc_data(frame_data, rotation_matrix)
     set_marker_data(trc_data, frame_data)
     trc_file_path = write_trc_data(trc_data, file_name, output_directory)
 
@@ -373,6 +375,18 @@ def get_global_rotation(frame_data):
     rotation_matrix = np.round(Rotation.from_euler('z', angle).as_matrix())
 
     return rotation_matrix
+
+
+def get_static_rotation(frame_data):
+    for l_asis, r_asis in zip(frame_data["LASI"], frame_data["RASI"]):
+        if not (np.any(np.isnan(l_asis)) or np.any(np.isnan(r_asis))):
+            asis_vector = l_asis - r_asis
+            unit_vector = asis_vector / np.linalg.norm(asis_vector)
+
+            angle = np.arctan2(unit_vector[0], unit_vector[1])
+            rotation_matrix = Rotation.from_euler('z', angle).as_matrix()
+
+            return rotation_matrix
 
 
 def rotate_trc_data(frame_data, rotation_matrix):
