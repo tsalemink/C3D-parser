@@ -36,6 +36,7 @@ class MainWindow(QMainWindow):
         self._analog_data = None
         self._subject_weight = None
         self._grf_data = {}
+        self._torque_data = {}
         self._kinematic_data = {}
         self._kinetic_data = {}
         self._events = {}
@@ -217,16 +218,16 @@ class MainWindow(QMainWindow):
         marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
 
         try:
-            grf_data, torque_data, self._kinematics, self._kinetics, self._s_t_data = \
+            self._grf_data, self._torque_data, self._kinematic_data, self._kinetic_data, self._s_t_data = \
                 parse_session(static_trial, dynamic_trials, directory, self._output_directory, lab, marker_diameter)
         except CancelException as e:
             logger.info(e)
             return
 
-        self._visualise_grf_data(grf_data)
-        self._visualise_torque_data(torque_data)
-        self._visualise_kinematic_data(self._kinematics)
-        self._visualise_kinetic_data(self._kinetics)
+        self._visualise_grf_data(self._grf_data)
+        self._visualise_torque_data(self._torque_data)
+        self._visualise_kinematic_data(self._kinematic_data)
+        self._visualise_kinetic_data(self._kinetic_data)
 
         self._ui.pushButtonUpload.setEnabled(True)
 
@@ -234,8 +235,8 @@ class MainWindow(QMainWindow):
         selected_trials = self._get_selected_trials()
         kinematic_exclusions = self._kinematic_curves.get_excluded_cycles()
         kinetic_exclusions = self._kinetic_curves.get_excluded_cycles()
-        write_normalised_kinematics(self._kinematics, selected_trials, kinematic_exclusions, self._output_directory)
-        write_normalised_kinetics(self._kinetics, selected_trials, kinetic_exclusions, self._output_directory)
+        write_normalised_kinematics(self._kinematic_data, selected_trials, kinematic_exclusions, self._output_directory)
+        write_normalised_kinetics(self._kinetic_data, selected_trials, kinetic_exclusions, self._output_directory)
         write_spatiotemporal_data(self._s_t_data, selected_trials, self._output_directory)
 
     def _visualise_grf_data(self, grf_data):
