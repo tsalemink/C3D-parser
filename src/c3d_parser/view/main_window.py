@@ -4,7 +4,7 @@ import logging
 import numpy as np
 from collections import defaultdict
 
-from PySide6.QtCore import Qt, QSettings, QPoint
+from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal
 from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
@@ -24,6 +24,24 @@ DEFAULT_STYLE_SHEET = ''
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 
 
+class _ExecThread(QThread):
+    finished = Signal(tuple)
+    cancelled = Signal(Exception)
+
+    def __init__(self, func, *args, **kwargs):
+        super().__init__()
+        self.func = func
+        self.args = args
+        self.kwargs = kwargs
+
+    def run(self):
+        try:
+            output = self.func(*self.args, **self.kwargs)
+            self.finished.emit(output)
+        except CancelException as e:
+            self.cancelled.emit(e)
+
+
 class MainWindow(QMainWindow):
 
     def __init__(self):
@@ -35,8 +53,6 @@ class MainWindow(QMainWindow):
         self._previous_directory = ''
         self._analog_data = None
         self._subject_weight = None
-        self._grf_data = {}
-        self._torque_data = {}
         self._kinematic_data = {}
         self._kinetic_data = {}
         self._events = {}
@@ -214,22 +230,31 @@ class MainWindow(QMainWindow):
             if not ok:
                 return
 
+        self._ui.pushButtonParseData.setEnabled(False)
+
         lab = self._ui.comboBoxLab.currentText()
         marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
 
-        try:
-            self._grf_data, self._torque_data, self._kinematic_data, self._kinetic_data, self._s_t_data = \
-                parse_session(static_trial, dynamic_trials, directory, self._output_directory, lab, marker_diameter)
-        except CancelException as e:
-            logger.info(e)
-            return
+        self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, directory, self._output_directory, lab, marker_diameter)
+        self._worker.finished.connect(self._parse_finished)
+        self._worker.cancelled.connect(self._parse_cancelled)
+        self._worker.start()
 
-        self._visualise_grf_data(self._grf_data)
-        self._visualise_torque_data(self._torque_data)
+    def _parse_finished(self, result):
+        grf_data, torque_data, self._kinematic_data, self._kinetic_data, self._s_t_data = result
+
+        self._visualise_grf_data(grf_data)
+        self._visualise_torque_data(torque_data)
         self._visualise_kinematic_data(self._kinematic_data)
         self._visualise_kinetic_data(self._kinetic_data)
 
+        self._ui.pushButtonParseData.setEnabled(True)
         self._ui.pushButtonUpload.setEnabled(True)
+
+    def _parse_cancelled(self, e):
+        logger.info(e)
+
+        self._ui.pushButtonParseData.setEnabled(True)
 
     def _upload_data(self):
         selected_trials = self._get_selected_trials()
