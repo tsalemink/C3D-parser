@@ -202,6 +202,23 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.tabWidget)
 
+        self.horizontalLayout_7 = QHBoxLayout()
+        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.horizontalLayout_7.setContentsMargins(6, -1, -1, -1)
+        self.labelProgress = QLabel(self.frameVisualisation)
+        self.labelProgress.setObjectName(u"labelProgress")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.labelProgress.sizePolicy().hasHeightForWidth())
+        self.labelProgress.setSizePolicy(sizePolicy2)
+        self.labelProgress.setMinimumSize(QSize(0, 24))
+
+        self.horizontalLayout_7.addWidget(self.labelProgress)
+
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout_7)
+
         self.splitter.addWidget(self.frameVisualisation)
 
         self.verticalLayout.addWidget(self.splitter)
@@ -247,6 +264,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabTorque), QCoreApplication.translate("MainWindow", u"Torque", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinematic), QCoreApplication.translate("MainWindow", u"Kinematic", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinetic), QCoreApplication.translate("MainWindow", u"Kinetic", None))
+        self.labelProgress.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
     # retranslateUi

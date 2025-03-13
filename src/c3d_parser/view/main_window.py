@@ -4,7 +4,7 @@ import logging
 import numpy as np
 from collections import defaultdict
 
-from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal
+from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject
 from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
@@ -40,6 +40,10 @@ class _ExecThread(QThread):
             self.finished.emit(output)
         except CancelException as e:
             self.cancelled.emit(e)
+
+
+class ProgressTracker(QObject):
+    progress = Signal(str)
 
 
 class MainWindow(QMainWindow):
@@ -235,7 +239,11 @@ class MainWindow(QMainWindow):
         lab = self._ui.comboBoxLab.currentText()
         marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
 
-        self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, directory, self._output_directory, lab, marker_diameter)
+        self._progress_tracker = ProgressTracker()
+        self._progress_tracker.progress.connect(self._update_progress)
+
+        self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, directory, self._output_directory, lab, marker_diameter,
+                                   self._progress_tracker)
         self._worker.finished.connect(self._parse_finished)
         self._worker.cancelled.connect(self._parse_cancelled)
         self._worker.start()
@@ -248,6 +256,8 @@ class MainWindow(QMainWindow):
         self._visualise_kinematic_data(self._kinematic_data)
         self._visualise_kinetic_data(self._kinetic_data)
 
+        self._progress_tracker.progress.emit("Process completed successfully")
+
         self._ui.pushButtonParseData.setEnabled(True)
         self._ui.pushButtonUpload.setEnabled(True)
 
@@ -255,6 +265,9 @@ class MainWindow(QMainWindow):
         logger.info(e)
 
         self._ui.pushButtonParseData.setEnabled(True)
+
+    def _update_progress(self, message):
+        self._ui.labelProgress.setText(message)
 
     def _upload_data(self):
         selected_trials = self._get_selected_trials()
