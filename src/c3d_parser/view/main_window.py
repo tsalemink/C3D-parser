@@ -4,7 +4,7 @@ import logging
 import numpy as np
 from collections import defaultdict
 
-from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject
+from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QTimer
 from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
@@ -67,11 +67,18 @@ class MainWindow(QMainWindow):
         self._setup_figures()
         self._make_connections()
         self._load_settings()
+        self._setup_progress_bar()
 
         self._grf_curves = GaitCurves(self._grf_canvas)
         self._torque_curves = GaitCurves(self._torque_canvas)
         self._kinematic_curves = GaitCurves(self._kinematic_canvas)
         self._kinetic_curves = GaitCurves(self._kinetic_canvas)
+
+    def _setup_progress_bar(self):
+        self._timer = QTimer(self)
+        self._timer.timeout.connect(self._animate_progress_bar)
+        self._progress_text = ""
+        self._dots = 0
 
     def _setup_combo_box(self):
         labs = [os.path.splitext(lab)[0] for lab in os.listdir(marker_maps_dir)]
@@ -241,6 +248,7 @@ class MainWindow(QMainWindow):
 
         self._progress_tracker = ProgressTracker()
         self._progress_tracker.progress.connect(self._update_progress)
+        self._start_progress_animation()
 
         self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, directory, self._output_directory, lab, marker_diameter,
                                    self._progress_tracker)
@@ -256,6 +264,7 @@ class MainWindow(QMainWindow):
         self._visualise_kinematic_data(self._kinematic_data)
         self._visualise_kinetic_data(self._kinetic_data)
 
+        self._stop_progress_animation()
         self._progress_tracker.progress.emit("Process completed successfully", "green")
 
         self._ui.pushButtonParseData.setEnabled(True)
@@ -266,8 +275,20 @@ class MainWindow(QMainWindow):
 
         self._ui.pushButtonParseData.setEnabled(True)
 
+    def _start_progress_animation(self):
+        self._timer.start(500)
+
+    def _stop_progress_animation(self):
+        self._timer.stop()
+
+    def _animate_progress_bar(self):
+        self._dots = (self._dots + 1) % 4
+        self._ui.labelProgress.setText(f"{self._progress_text}{'.' * self._dots}")
+
     def _update_progress(self, message, color):
         self._ui.labelProgress.setText(message)
+        self._progress_text = message
+        self._dots = 0
         self._ui.labelProgress.setStyleSheet(f"color: {color};")
 
     def _upload_data(self):
