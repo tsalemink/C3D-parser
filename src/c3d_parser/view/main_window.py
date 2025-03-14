@@ -43,7 +43,7 @@ class _ExecThread(QThread):
 
 
 class ProgressTracker(QObject):
-    progress = Signal(str)
+    progress = Signal(str, str)
 
 
 class MainWindow(QMainWindow):
@@ -256,7 +256,7 @@ class MainWindow(QMainWindow):
         self._visualise_kinematic_data(self._kinematic_data)
         self._visualise_kinetic_data(self._kinetic_data)
 
-        self._progress_tracker.progress.emit("Process completed successfully")
+        self._progress_tracker.progress.emit("Process completed successfully", "green")
 
         self._ui.pushButtonParseData.setEnabled(True)
         self._ui.pushButtonUpload.setEnabled(True)
@@ -266,8 +266,9 @@ class MainWindow(QMainWindow):
 
         self._ui.pushButtonParseData.setEnabled(True)
 
-    def _update_progress(self, message):
+    def _update_progress(self, message, color):
         self._ui.labelProgress.setText(message)
+        self._ui.labelProgress.setStyleSheet(f"color: {color};")
 
     def _upload_data(self):
         selected_trials = self._get_selected_trials()

@@ -50,7 +50,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     trc_file_paths = {}
     grf_file_paths = {}
 
-    progress_tracker.progress.emit("Processing C3D data")
+    progress_tracker.progress.emit("Processing C3D data", "black")
 
     for trial in dynamic_trials:
         file_path = os.path.join(input_directory, trial)
@@ -72,7 +72,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
 
     osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, height, weight, output_directory, progress_tracker)
 
-    progress_tracker.progress.emit("Running IK and ID")
+    progress_tracker.progress.emit("Running IK and ID", "black")
 
     for trial in dynamic_trials:
         ik_data, ik_output = run_ik(osim_model, trc_file_paths[trial], output_directory, marker_data_rate)
