@@ -48,8 +48,8 @@ jobs:
           function join_by { local IFS="$1"; shift; echo "$*"; }
           matrixElements=()
           if [ "${{ steps.req-assets.outputs.include_installer }}" == "true" ]; then
-            matrixElements+=('{"os":"windows-2019","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
-            matrixElements+=('{"os":"macos-13","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.9"}')
+            matrixElements+=('{"os":"windows-2019","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.11"}')
+            matrixElements+=('{"os":"macos-13","tag":"${{ steps.get-tag.outputs.tag }}","release-name":"${{ steps.get-release-name.outputs.name }}","python-version":"3.11"}')
           fi
           if [ "${#matrixElements[@]}" -eq "0" ]; then
             echo run-installer=false >> $GITHUB_OUTPUT
