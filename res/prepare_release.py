@@ -67,11 +67,6 @@ def main():
         result = subprocess.run([sys.executable, "create_installer.py", release_name], env=working_env)
         print(' == result create installer:', result.returncode, flush=True)
         os.chdir(current_directory)
-    elif platform.system() == "Darwin":
-        os.chdir(f"res/macos")
-        result = subprocess.run(["/bin/bash", "create_installer.sh", release_name], env=working_env)
-        print(' == result create installer:', result.returncode, flush=True)
-        os.chdir(current_directory)
 
     if result.returncode:
         sys.exit(result.returncode)
