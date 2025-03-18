@@ -21,6 +21,7 @@ def main():
         '-n', f'{APPLICATION_NAME}',
         '--windowed',
         '--noconfirm',
+        '--additional-hooks-dir=hooks'
     ]
 
     pyside_dir = os.path.dirname(RefMod.__file__)
