@@ -2,7 +2,7 @@ import os
 import platform
 import argparse
 
-import PySide6 as RefMod
+import PySide6
 
 import PyInstaller.__main__
 
@@ -24,7 +24,7 @@ def main():
         '--additional-hooks-dir=hooks'
     ]
 
-    pyside_dir = os.path.dirname(RefMod.__file__)
+    pyside_dir = os.path.dirname(PySide6.__file__)
 
     if platform.system() == 'Darwin':
         rcc_exe = os.path.join(pyside_dir, 'Qt', 'libexec', "rcc")
