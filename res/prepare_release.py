@@ -6,6 +6,7 @@ import os.path
 import platform
 import subprocess
 import sys
+import urllib.request
 
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -33,6 +34,12 @@ def main():
     # Always install numpy and PySide6.
     result = subprocess.run([pip, "install", "numpy", "PySide6"])
     print(' == result install extras:', result.returncode, flush=True)
+
+    opensim_wheel_url = "https://auckland.figshare.com/ndownloader/files/53096879"
+    opensim_wheel_file = "opensim-4.5-py3-none-any.whl"
+    urllib.request.urlretrieve(opensim_wheel_url, opensim_wheel_file)
+    result = subprocess.run([pip, "install", opensim_wheel_file])
+    print(' == result install OpenSim API:', result.returncode, flush=True)
 
     if local_c3d_parser is None:
         c3d_parser_url = "https://github.com/tsalemink/C3D-parser"
