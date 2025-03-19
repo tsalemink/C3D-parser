@@ -165,7 +165,8 @@ tests/data/general/
 tests/output/
 **/_output/
 
-# OpenSim outputs
+# OpenSim
 _ik_marker_errors.sto
 _ik_model_marker_locations.sto
 ik_output.mot
+opensim-4.5-py3-none-any.whl
