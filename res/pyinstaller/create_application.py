@@ -19,7 +19,9 @@ def main():
     run_command = [
         '../../src/c3d_parser/application.py',
         '-n', f'{APPLICATION_NAME}',
-        '--windowed',
+        '--debug', 'noarchive',
+        '--console',
+        # '--windowed',
         '--noconfirm',
         '--additional-hooks-dir=hooks'
     ]
