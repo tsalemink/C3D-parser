@@ -35,5 +35,5 @@ The user can select specific gait cycles and can choose to exclude them from the
 be uploaded to the database.
 
 Once the "Upload" button is pressed, the user exclusions will be considered and the final output
-files will be produced. Currently, all outputs are written to an "_output" directory in the chosen
-session directory.
+files will be produced. All outputs are written to an "_output" directory in the chosen
+session directory. Currently, no files are actually uploaded to the gait harmonisation database.
