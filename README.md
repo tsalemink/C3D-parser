@@ -14,6 +14,16 @@ After activating your Python environment and installing OpenSim you can run
 `pip install c3d-parser` to install the application. It can then be started by running the command
 `c3d_parser`.
 
+### Installing the Windows executable:
+
+The latest release of the C3D-Parser also provides a Windows installer for setting up an executable
+version of the application. Simply download and run _C3D-Parser-{release-version}.exe_ for any
+release in the GitHub repository [_Releases_](https://github.com/tsalemink/C3D-parser/releases).
+
+Please note that if you would like to inspect any debugging information while running the
+application, you will need to run the application executable from your console. Just locate the
+EXE after installation and call it: `{path-to-exe}\C3D-Parser.exe`
+
 ### Usage:
 
 To process and analyse a session of gait data, simply select the local session directory using
