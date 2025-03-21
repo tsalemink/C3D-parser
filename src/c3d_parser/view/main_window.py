@@ -24,6 +24,9 @@ DEFAULT_STYLE_SHEET = ''
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 
 
+output_direcory_name = 'c3d_parser_output'
+
+
 class _ExecThread(QThread):
     finished = Signal(tuple)
     cancelled = Signal(Exception)
@@ -219,8 +222,8 @@ class MainWindow(QMainWindow):
         directory = self._ui.lineEditInputDirectory.text()
         self._ui.listWidgetFiles.clear()
         for root, dirs, files in os.walk(directory):
-            if '_output' in dirs:
-                dirs.remove('_output')
+            if output_direcory_name in dirs:
+                dirs.remove(output_direcory_name)
             for file in files:
                 if file.lower().endswith('.c3d'):
                     path = os.path.join(root, file)
@@ -241,7 +244,7 @@ class MainWindow(QMainWindow):
             input_directory = self._ui.lineEditInputDirectory.text()
             output_directory = self._ui.lineEditOutputDirectory.text()
             session_name = os.path.basename(input_directory)
-            self._output_directory = os.path.join(output_directory, '_output', session_name)
+            self._output_directory = os.path.join(output_directory, output_direcory_name, session_name)
             if item.data(Qt.UserRole) == "Dynamic":
                 dynamic_trials.append(item.text())
             else:
