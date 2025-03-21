@@ -77,11 +77,21 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.label_3 = QLabel(self.frameTrial)
         self.label_3.setObjectName(u"label_3")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
+        self.label_3.setSizePolicy(sizePolicy2)
 
         self.horizontalLayout_4.addWidget(self.label_3)
 
         self.doubleSpinBoxMarkerDiameter = QDoubleSpinBox(self.frameTrial)
         self.doubleSpinBoxMarkerDiameter.setObjectName(u"doubleSpinBoxMarkerDiameter")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
+        sizePolicy3.setHeightForWidth(self.doubleSpinBoxMarkerDiameter.sizePolicy().hasHeightForWidth())
+        self.doubleSpinBoxMarkerDiameter.setSizePolicy(sizePolicy3)
         self.doubleSpinBoxMarkerDiameter.setValue(14.000000000000000)
 
         self.horizontalLayout_4.addWidget(self.doubleSpinBoxMarkerDiameter)
@@ -112,20 +122,54 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout.addWidget(self.label)
 
-        self.lineEditDirectory = QLineEdit(self.frameTrial)
-        self.lineEditDirectory.setObjectName(u"lineEditDirectory")
+        self.lineEditInputDirectory = QLineEdit(self.frameTrial)
+        self.lineEditInputDirectory.setObjectName(u"lineEditInputDirectory")
+        sizePolicy4 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy4.setHorizontalStretch(0)
+        sizePolicy4.setVerticalStretch(0)
+        sizePolicy4.setHeightForWidth(self.lineEditInputDirectory.sizePolicy().hasHeightForWidth())
+        self.lineEditInputDirectory.setSizePolicy(sizePolicy4)
+        self.lineEditInputDirectory.setMinimumSize(QSize(174, 0))
 
-        self.horizontalLayout.addWidget(self.lineEditDirectory)
+        self.horizontalLayout.addWidget(self.lineEditInputDirectory)
 
-        self.pushButtonDirectoryChooser = QPushButton(self.frameTrial)
-        self.pushButtonDirectoryChooser.setObjectName(u"pushButtonDirectoryChooser")
-        self.pushButtonDirectoryChooser.setStyleSheet(u"padding: 3px 8px;")
+        self.pushButtonInputDirectoryChooser = QPushButton(self.frameTrial)
+        self.pushButtonInputDirectoryChooser.setObjectName(u"pushButtonInputDirectoryChooser")
+        sizePolicy4.setHeightForWidth(self.pushButtonInputDirectoryChooser.sizePolicy().hasHeightForWidth())
+        self.pushButtonInputDirectoryChooser.setSizePolicy(sizePolicy4)
+        self.pushButtonInputDirectoryChooser.setStyleSheet(u"padding: 3px 8px;")
 
-        self.horizontalLayout.addWidget(self.pushButtonDirectoryChooser)
+        self.horizontalLayout.addWidget(self.pushButtonInputDirectoryChooser)
 
         self.horizontalLayout.setStretch(1, 1)
 
         self.verticalLayout_2.addLayout(self.horizontalLayout)
+
+        self.horizontalLayout_6 = QHBoxLayout()
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.label_5 = QLabel(self.frameTrial)
+        self.label_5.setObjectName(u"label_5")
+
+        self.horizontalLayout_6.addWidget(self.label_5)
+
+        self.lineEditOutputDirectory = QLineEdit(self.frameTrial)
+        self.lineEditOutputDirectory.setObjectName(u"lineEditOutputDirectory")
+        sizePolicy4.setHeightForWidth(self.lineEditOutputDirectory.sizePolicy().hasHeightForWidth())
+        self.lineEditOutputDirectory.setSizePolicy(sizePolicy4)
+        self.lineEditOutputDirectory.setMinimumSize(QSize(174, 0))
+
+        self.horizontalLayout_6.addWidget(self.lineEditOutputDirectory)
+
+        self.pushButtonOutputDirectoryChooser = QPushButton(self.frameTrial)
+        self.pushButtonOutputDirectoryChooser.setObjectName(u"pushButtonOutputDirectoryChooser")
+        sizePolicy4.setHeightForWidth(self.pushButtonOutputDirectoryChooser.sizePolicy().hasHeightForWidth())
+        self.pushButtonOutputDirectoryChooser.setSizePolicy(sizePolicy4)
+        self.pushButtonOutputDirectoryChooser.setStyleSheet(u"padding: 3px 8px;")
+
+        self.horizontalLayout_6.addWidget(self.pushButtonOutputDirectoryChooser)
+
+
+        self.verticalLayout_2.addLayout(self.horizontalLayout_6)
 
         self.listWidgetFiles = CustomListWidget(self.frameTrial)
         self.listWidgetFiles.setObjectName(u"listWidgetFiles")
@@ -207,11 +251,11 @@ class Ui_MainWindow(object):
         self.horizontalLayout_7.setContentsMargins(6, -1, -1, -1)
         self.labelProgress = QLabel(self.frameVisualisation)
         self.labelProgress.setObjectName(u"labelProgress")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.labelProgress.sizePolicy().hasHeightForWidth())
-        self.labelProgress.setSizePolicy(sizePolicy2)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
+        sizePolicy5.setHeightForWidth(self.labelProgress.sizePolicy().hasHeightForWidth())
+        self.labelProgress.setSizePolicy(sizePolicy5)
         self.labelProgress.setMinimumSize(QSize(0, 24))
 
         self.horizontalLayout_7.addWidget(self.labelProgress)
@@ -257,7 +301,9 @@ class Ui_MainWindow(object):
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Marker Diameter:", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"KAD Marker Diameter:", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Input:", None))
-        self.pushButtonDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
+        self.pushButtonInputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"Output:", None))
+        self.pushButtonOutputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Parse C3D Data", None))
         self.pushButtonUpload.setText(QCoreApplication.translate("MainWindow", u"Upload", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))

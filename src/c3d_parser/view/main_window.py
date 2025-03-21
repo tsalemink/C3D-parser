@@ -172,37 +172,51 @@ class MainWindow(QMainWindow):
         self._plot_torque.text(x=0, y=(y_min + 2 * step), s="Nm", ha='right', va='center')
 
     def _make_connections(self):
-        self._ui.lineEditDirectory.textChanged.connect(self._validate_directory)
+        self._ui.lineEditInputDirectory.textChanged.connect(self._validate_input_directory)
+        self._ui.lineEditOutputDirectory.textChanged.connect(self._validate_directory)
         self._ui.listWidgetFiles.itemChanged.connect(self._update_plot_visibility)
-        self._ui.pushButtonDirectoryChooser.clicked.connect(self._open_directory_chooser)
+        self._ui.pushButtonInputDirectoryChooser.clicked.connect(self._open_input_directory_chooser)
+        self._ui.pushButtonOutputDirectoryChooser.clicked.connect(self._open_output_directory_chooser)
         self._ui.pushButtonParseData.clicked.connect(self._parse_c3d_data)
         self._ui.pushButtonUpload.clicked.connect(self._upload_data)
         self._ui.actionQuit.triggered.connect(self._quit_application)
         self._ui.actionOptions.triggered.connect(self._show_options_dialog)
 
-    def _validate_directory(self):
-        directory = self._ui.lineEditDirectory.text()
-        directory_valid = len(directory) and os.path.isdir(directory)
+    def _validate_input_directory(self):
+        directory_valid = self._validate_directory()
 
         self._ui.listWidgetFiles.clear()
         self._ui.pushButtonParseData.setEnabled(False)
         self._ui.pushButtonUpload.setEnabled(False)
-        self._ui.lineEditDirectory.setStyleSheet(
-            DEFAULT_STYLE_SHEET if directory_valid else INVALID_STYLE_SHEET)
 
         if directory_valid:
             self._scan_directory()
 
-    def _open_directory_chooser(self):
+    def _validate_directory(self):
+        line_edit = self.sender()
+        directory = line_edit.text()
+
+        directory_valid = len(directory) and os.path.isdir(directory)
+        line_edit.setStyleSheet(DEFAULT_STYLE_SHEET if directory_valid else INVALID_STYLE_SHEET)
+
+        return directory_valid
+
+    def _open_input_directory_chooser(self):
+        self._open_directory_chooser(self._ui.lineEditInputDirectory)
+
+    def _open_output_directory_chooser(self):
+        self._open_directory_chooser(self._ui.lineEditOutputDirectory)
+
+    def _open_directory_chooser(self, line_edit):
         directory = QFileDialog.getExistingDirectory(
             self, 'Select Directory', self._previous_directory)
 
         if directory:
             self._previous_directory = directory
-            self._ui.lineEditDirectory.setText(directory)
+            line_edit.setText(directory)
 
     def _scan_directory(self):
-        directory = self._ui.lineEditDirectory.text()
+        directory = self._ui.lineEditInputDirectory.text()
         self._ui.listWidgetFiles.clear()
         for root, dirs, files in os.walk(directory):
             if '_output' in dirs:
@@ -224,8 +238,10 @@ class MainWindow(QMainWindow):
         dynamic_trials = []
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
-            directory = self._ui.lineEditDirectory.text()
-            self._output_directory = os.path.join(directory, '_output')
+            input_directory = self._ui.lineEditInputDirectory.text()
+            output_directory = self._ui.lineEditOutputDirectory.text()
+            session_name = os.path.basename(input_directory)
+            self._output_directory = os.path.join(output_directory, '_output', session_name)
             if item.data(Qt.UserRole) == "Dynamic":
                 dynamic_trials.append(item.text())
             else:
@@ -250,8 +266,8 @@ class MainWindow(QMainWindow):
         self._progress_tracker.progress.connect(self._update_progress)
         self._start_progress_animation()
 
-        self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, directory, self._output_directory, lab, marker_diameter,
-                                   self._progress_tracker)
+        self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, input_directory, self._output_directory, lab,
+                                   marker_diameter, self._progress_tracker)
         self._worker.finished.connect(self._parse_finished)
         self._worker.cancelled.connect(self._parse_cancelled)
         self._worker.start()
@@ -490,7 +506,8 @@ class MainWindow(QMainWindow):
         settings.setValue('pos', self.pos())
         settings.setValue('is_maximized', self.isMaximized())
         settings.setValue('lab', self._ui.comboBoxLab.currentText())
-        settings.setValue('directory', self._ui.lineEditDirectory.text())
+        settings.setValue('input_directory', self._ui.lineEditInputDirectory.text())
+        settings.setValue('output_directory', self._ui.lineEditOutputDirectory.text())
         settings.endGroup()
 
         settings.beginGroup('Options')
@@ -511,7 +528,8 @@ class MainWindow(QMainWindow):
         if settings.contains('lab'):
             self._ui.comboBoxLab.setCurrentText(settings.value('lab'))
         if settings.contains('directory'):
-            self._ui.lineEditDirectory.setText(settings.value('directory'))
+            self._ui.lineEditInputDirectory.setText(settings.value('input_directory'))
+            self._ui.lineEditOutputDirectory.setText(settings.value('output_directory'))
         settings.endGroup()
 
         settings.beginGroup('Options')
