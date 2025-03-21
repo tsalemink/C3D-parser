@@ -189,9 +189,6 @@ class MainWindow(QMainWindow):
         directory_valid = self._validate_directory()
 
         self._ui.listWidgetFiles.clear()
-        self._ui.pushButtonParseData.setEnabled(False)
-        self._ui.pushButtonUpload.setEnabled(False)
-
         if directory_valid:
             self._scan_directory()
 
@@ -200,7 +197,10 @@ class MainWindow(QMainWindow):
         directory = line_edit.text()
 
         directory_valid = len(directory) and os.path.isdir(directory)
+
         line_edit.setStyleSheet(DEFAULT_STYLE_SHEET if directory_valid else INVALID_STYLE_SHEET)
+        self._ui.pushButtonParseData.setEnabled(directory_valid)
+        self._ui.pushButtonUpload.setEnabled(False)
 
         return directory_valid
 
