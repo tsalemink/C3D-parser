@@ -99,22 +99,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
 
-        self.horizontalLayout_5 = QHBoxLayout()
-        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.label_4 = QLabel(self.frameTrial)
-        self.label_4.setObjectName(u"label_4")
-
-        self.horizontalLayout_5.addWidget(self.label_4)
-
-        self.doubleSpinBoxKADMarkerDiameter = QDoubleSpinBox(self.frameTrial)
-        self.doubleSpinBoxKADMarkerDiameter.setObjectName(u"doubleSpinBoxKADMarkerDiameter")
-        self.doubleSpinBoxKADMarkerDiameter.setValue(25.000000000000000)
-
-        self.horizontalLayout_5.addWidget(self.doubleSpinBoxKADMarkerDiameter)
-
-
-        self.verticalLayout_2.addLayout(self.horizontalLayout_5)
-
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.label = QLabel(self.frameTrial)
@@ -299,7 +283,6 @@ class Ui_MainWindow(object):
         self.actionOptions.setText(QCoreApplication.translate("MainWindow", u"Options", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Lab: ", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Marker Diameter:", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"KAD Marker Diameter:", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Input:", None))
         self.pushButtonInputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Output:", None))

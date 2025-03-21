@@ -104,24 +104,6 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <item>
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>KAD Marker Diameter:</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="doubleSpinBoxKADMarkerDiameter">
-            <property name="value">
-             <double>25.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
          <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0">
           <item>
            <widget class="QLabel" name="label">
