@@ -512,7 +512,6 @@ class MainWindow(QMainWindow):
         settings.setValue('pos', self.pos())
         settings.setValue('is_maximized', self.isMaximized())
         settings.setValue('lab', self._ui.comboBoxLab.currentText())
-        settings.setValue('input_directory', self._ui.lineEditInputDirectory.text())
         settings.setValue('output_directory', self._ui.lineEditOutputDirectory.text())
         settings.endGroup()
 
@@ -534,8 +533,6 @@ class MainWindow(QMainWindow):
                 self.showMaximized()
         if settings.contains('lab'):
             self._ui.comboBoxLab.setCurrentText(settings.value('lab'))
-        if settings.contains('input_directory'):
-            self._ui.lineEditInputDirectory.setText(settings.value('input_directory'))
         if settings.contains('output_directory'):
             self._ui.lineEditOutputDirectory.setText(settings.value('output_directory'))
         settings.endGroup()
