@@ -13,15 +13,12 @@ from c3d_parser.core.c3d_parser import parse_session, read_grf, is_dynamic, mark
 from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
+from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET
 
 
 # Configure logging.
 logger = logging.getLogger('C3D-Parser')
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-
-
-DEFAULT_STYLE_SHEET = ''
-INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'
 
 
 output_direcory_name = 'c3d_parser_output'
@@ -57,7 +54,7 @@ class MainWindow(QMainWindow):
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
 
-        self._previous_directory = ''
+        self._data_directory = ''
         self._analog_data = None
         self._subject_weight = None
         self._kinematic_data = {}
@@ -213,11 +210,15 @@ class MainWindow(QMainWindow):
         self._open_directory_chooser(self._ui.lineEditOutputDirectory)
 
     def _open_directory_chooser(self, line_edit):
+        start_directory = self._data_directory
+        current_directory = self._ui.lineEditInputDirectory.text()
+        if len(current_directory) and os.path.isdir(current_directory):
+            start_directory = current_directory
+
         directory = QFileDialog.getExistingDirectory(
-            self, 'Select Directory', self._previous_directory)
+            self, 'Select Directory', start_directory)
 
         if directory:
-            self._previous_directory = directory
             line_edit.setText(directory)
 
     def _scan_directory(self):
@@ -489,13 +490,15 @@ class MainWindow(QMainWindow):
 
     def _get_options(self):
         options = {
-            'line_width': self._line_width
+            'line_width': self._line_width,
+            'data_directory': self._data_directory
         }
 
         return options
 
     def _set_options(self, options):
         self._line_width = options['line_width']
+        self._data_directory = options['data_directory']
 
     def _update_curves(self):
         for curves in [self._grf_curves, self._torque_curves, self._kinematic_curves, self._kinetic_curves]:
@@ -515,6 +518,7 @@ class MainWindow(QMainWindow):
 
         settings.beginGroup('Options')
         settings.setValue('line_width', self._line_width)
+        settings.setValue('data_directory', self._data_directory)
         settings.endGroup()
 
     def _load_settings(self):
@@ -539,6 +543,8 @@ class MainWindow(QMainWindow):
         settings.beginGroup('Options')
         if settings.contains('line_width'):
             self._line_width = float(settings.value('line_width'))
+        if settings.contains('data_directory'):
+            self._data_directory = settings.value('data_directory')
         settings.endGroup()
 
     def _quit_application(self):

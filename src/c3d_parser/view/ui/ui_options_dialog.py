@@ -16,14 +16,15 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QAbstractButton, QApplication, QDialog, QDialogButtonBox,
-    QDoubleSpinBox, QFormLayout, QGroupBox, QLabel,
-    QSizePolicy, QVBoxLayout, QWidget)
+    QDoubleSpinBox, QFormLayout, QGroupBox, QHBoxLayout,
+    QLabel, QLineEdit, QPushButton, QSizePolicy,
+    QVBoxLayout, QWidget)
 
 class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         if not OptionsDialog.objectName():
             OptionsDialog.setObjectName(u"OptionsDialog")
-        OptionsDialog.resize(400, 200)
+        OptionsDialog.resize(450, 200)
         self.verticalLayout = QVBoxLayout(OptionsDialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.groupBox = QGroupBox(OptionsDialog)
@@ -40,6 +41,32 @@ class Ui_OptionsDialog(object):
         self.doubleSpinBoxLineWidth.setValue(1.000000000000000)
 
         self.formLayout.setWidget(0, QFormLayout.FieldRole, self.doubleSpinBoxLineWidth)
+
+        self.label = QLabel(self.groupBox)
+        self.label.setObjectName(u"label")
+
+        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.label)
+
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.lineEditDataDirectory = QLineEdit(self.groupBox)
+        self.lineEditDataDirectory.setObjectName(u"lineEditDataDirectory")
+
+        self.horizontalLayout_2.addWidget(self.lineEditDataDirectory)
+
+        self.pushButtonDataDirectoryChooser = QPushButton(self.groupBox)
+        self.pushButtonDataDirectoryChooser.setObjectName(u"pushButtonDataDirectoryChooser")
+        sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pushButtonDataDirectoryChooser.sizePolicy().hasHeightForWidth())
+        self.pushButtonDataDirectoryChooser.setSizePolicy(sizePolicy)
+        self.pushButtonDataDirectoryChooser.setStyleSheet(u"padding: 3px 8px;")
+
+        self.horizontalLayout_2.addWidget(self.pushButtonDataDirectoryChooser)
+
+
+        self.formLayout.setLayout(1, QFormLayout.FieldRole, self.horizontalLayout_2)
 
 
         self.verticalLayout.addWidget(self.groupBox)
@@ -62,6 +89,8 @@ class Ui_OptionsDialog(object):
     def retranslateUi(self, OptionsDialog):
         OptionsDialog.setWindowTitle(QCoreApplication.translate("OptionsDialog", u"Options", None))
         self.groupBox.setTitle(QCoreApplication.translate("OptionsDialog", u"Plots", None))
-        self.labelLineWidth.setText(QCoreApplication.translate("OptionsDialog", u"Line Width", None))
+        self.labelLineWidth.setText(QCoreApplication.translate("OptionsDialog", u"Line Width:", None))
+        self.label.setText(QCoreApplication.translate("OptionsDialog", u"Data Directory:", None))
+        self.pushButtonDataDirectoryChooser.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
     # retranslateUi
 
