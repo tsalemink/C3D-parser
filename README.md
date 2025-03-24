@@ -23,7 +23,7 @@ release in the GitHub repository [_Releases_](https://github.com/tsalemink/C3D-p
 ### Usage:
 
 To process and analyse a session of gait data, simply select the local session directory using
-the "Input" line-edit or associated directory chooser, then click "Parse C3D Data".
+the "Input" line-edit or associated directory chooser, then click "Parse Session".
 
 The application will create an OpenSim model using the input data and will run IK and ID. The
 results from IK and ID will be displayed in the "Kinematic" and "Kinetic" tabs respectively.

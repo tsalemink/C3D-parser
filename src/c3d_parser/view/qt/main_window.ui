@@ -200,7 +200,7 @@
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>Parse C3D Data</string>
+             <string>Parse Session</string>
             </property>
            </widget>
           </item>
