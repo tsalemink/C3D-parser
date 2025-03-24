@@ -193,16 +193,18 @@ class MainWindow(QMainWindow):
             self._scan_directory()
 
     def _validate_directory(self):
-        line_edit = self.sender()
-        directory = line_edit.text()
+        input_directory = self._ui.lineEditInputDirectory.text()
+        input_directory_valid = len(input_directory) and os.path.isdir(input_directory)
+        self._ui.lineEditInputDirectory.setStyleSheet(DEFAULT_STYLE_SHEET if input_directory_valid else INVALID_STYLE_SHEET)
 
-        directory_valid = len(directory) and os.path.isdir(directory)
+        output_directory = self._ui.lineEditOutputDirectory.text()
+        output_directory_valid = len(output_directory) and os.path.isdir(output_directory)
+        self._ui.lineEditOutputDirectory.setStyleSheet(DEFAULT_STYLE_SHEET if output_directory_valid else INVALID_STYLE_SHEET)
 
-        line_edit.setStyleSheet(DEFAULT_STYLE_SHEET if directory_valid else INVALID_STYLE_SHEET)
-        self._ui.pushButtonParseData.setEnabled(directory_valid)
+        self._ui.pushButtonParseData.setEnabled(input_directory_valid and output_directory_valid)
         self._ui.pushButtonUpload.setEnabled(False)
 
-        return directory_valid
+        return input_directory_valid
 
     def _open_input_directory_chooser(self):
         self._open_directory_chooser(self._ui.lineEditInputDirectory)
@@ -233,8 +235,6 @@ class MainWindow(QMainWindow):
                     item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                     item.setCheckState(Qt.CheckState.Checked)
                     self._ui.listWidgetFiles.addItem(item)
-
-        self._ui.pushButtonParseData.setEnabled(True)
 
     def _parse_c3d_data(self):
         static_trials = []
@@ -530,8 +530,9 @@ class MainWindow(QMainWindow):
                 self.showMaximized()
         if settings.contains('lab'):
             self._ui.comboBoxLab.setCurrentText(settings.value('lab'))
-        if settings.contains('directory'):
+        if settings.contains('input_directory'):
             self._ui.lineEditInputDirectory.setText(settings.value('input_directory'))
+        if settings.contains('output_directory'):
             self._ui.lineEditOutputDirectory.setText(settings.value('output_directory'))
         settings.endGroup()
 
