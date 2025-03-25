@@ -10,7 +10,7 @@ name = "c3d-parser"
 description = "C3D parser for gait data harmonisation."
 authors = [{name = "Timothy Salemink", email = "tim.nicolas@outlook.com" },
            {name = "Sally Jack", email = "sallyjaack@gmail.com"}]
-version = "0.1.7"
+version = "0.1.8"
 readme = "README.md"
 license = { file = "LICENSE" }
 dynamic = ["dependencies"]
