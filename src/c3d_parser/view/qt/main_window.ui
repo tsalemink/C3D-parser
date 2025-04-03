@@ -253,16 +253,6 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tabTorque">
-           <attribute name="title">
-            <string>Torque</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_8">
-            <item>
-             <layout class="QVBoxLayout" name="layoutTorquePlot"/>
-            </item>
-           </layout>
-          </widget>
           <widget class="QWidget" name="tabKinematic">
            <attribute name="title">
             <string>Kinematic</string>

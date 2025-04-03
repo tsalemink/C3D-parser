@@ -70,7 +70,6 @@ class MainWindow(QMainWindow):
         self._setup_progress_bar()
 
         self._grf_curves = GaitCurves(self._grf_canvas)
-        self._torque_curves = GaitCurves(self._torque_canvas)
         self._kinematic_curves = GaitCurves(self._kinematic_canvas)
         self._kinetic_curves = GaitCurves(self._kinetic_canvas)
 
@@ -86,7 +85,6 @@ class MainWindow(QMainWindow):
 
     def _setup_figures(self):
         self._setup_grf_figure()
-        self._setup_torque_figure()
         self._setup_kinematic_figures()
         self._setup_kinetic_figures()
 
@@ -105,16 +103,6 @@ class MainWindow(QMainWindow):
         self._update_grf_axes()
 
         self._ui.layoutGRFPlot.addWidget(self._grf_canvas)
-
-    def _setup_torque_figure(self):
-        self._torque_canvas = FigureCanvasQTAgg(Figure())
-        self._plot_torque = self._torque_canvas.figure.add_subplot(111)
-        self._plot_torque.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
-        self._plot_torque.tick_params(axis='y', which='both', labelleft=False, left=False)
-        self._torque_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.03, 0.98, 0.96], h_pad=1.4, w_pad=2.0)
-        self._update_torque_axes()
-
-        self._ui.layoutTorquePlot.addWidget(self._torque_canvas)
 
     def _setup_kinematic_figures(self):
         self._kinematic_canvas = FigureCanvasQTAgg(Figure())
@@ -159,17 +147,6 @@ class MainWindow(QMainWindow):
             plot.text(x=0, y=y_min, s=int(y_min), ha='right', va='center')
             plot.text(x=0, y=(y_min + 2 * step), s="N", ha='right', va='center')
             plot.text(x=0, y=y_max, s=int(y_max), ha='right', va='center')
-
-    def _update_torque_axes(self):
-        self._plot_torque.set_title('Torque (Vertical)', fontsize=10, pad=4)
-
-        y_min, y_max = self._plot_torque.get_ylim()
-        self._plot_torque.set_ylim(np.floor(y_min), np.ceil(y_max))
-        y_min, y_max = self._plot_torque.get_ylim()
-        step = (y_max - y_min) / 4
-
-        self._plot_torque.axhline(y=0, color='gray', linewidth=1.0, zorder=1)
-        self._plot_torque.text(x=0, y=(y_min + 2 * step), s="Nm", ha='right', va='center')
 
     def _make_connections(self):
         self._ui.lineEditInputDirectory.textChanged.connect(self._validate_input_directory)
@@ -277,10 +254,9 @@ class MainWindow(QMainWindow):
         self._worker.start()
 
     def _parse_finished(self, result):
-        grf_data, torque_data, self._kinematic_data, self._kinetic_data, self._s_t_data = result
+        grf_data, self._kinematic_data, self._kinetic_data, self._s_t_data = result
 
         self._visualise_grf_data(grf_data)
-        self._visualise_torque_data(torque_data)
         self._visualise_kinematic_data(self._kinematic_data)
         self._visualise_kinetic_data(self._kinetic_data)
 
@@ -340,23 +316,6 @@ class MainWindow(QMainWindow):
 
         self._update_grf_axes()
         self._grf_canvas.draw()
-
-    def _visualise_torque_data(self, torque_data):
-        self._plot_torque.clear()
-
-        for foot, files_dict in torque_data.items():
-            for name, data_segments in files_dict.items():
-                colour = 'r' if foot == "Left" else 'b'
-                for i, segment in enumerate(data_segments):
-                    t_segment = np.arange(segment.shape[1])
-                    line, = self._plot_torque.plot(t_segment, segment[2], color=colour, linewidth=self._line_width)
-                    line.set_picker(True)
-                    self._torque_curves.add_curve(name, f"{foot}_{i}", line)
-
-        self._plot_torque.margins(x=0)
-
-        self._update_torque_axes()
-        self._torque_canvas.draw()
 
     def _visualise_kinematic_data(self, kinematic_data):
         for plot in self._kinematic_plots:
@@ -470,7 +429,7 @@ class MainWindow(QMainWindow):
 
     def _update_plot_visibility(self, item):
         visible = item.checkState() == Qt.CheckState.Checked
-        for curves in [self._grf_curves, self._torque_curves, self._kinematic_curves, self._kinetic_curves]:
+        for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
             curves.set_file_visibility(item.text(), visible)
 
     def _get_selected_trials(self):
@@ -501,7 +460,7 @@ class MainWindow(QMainWindow):
         self._data_directory = options['data_directory']
 
     def _update_curves(self):
-        for curves in [self._grf_curves, self._torque_curves, self._kinematic_curves, self._kinetic_curves]:
+        for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
             curves.update_line_width(self._line_width)
 
     def _save_settings(self):

@@ -197,16 +197,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addLayout(self.layoutGRFPlot)
 
         self.tabWidget.addTab(self.tabGRF, "")
-        self.tabTorque = QWidget()
-        self.tabTorque.setObjectName(u"tabTorque")
-        self.verticalLayout_8 = QVBoxLayout(self.tabTorque)
-        self.verticalLayout_8.setObjectName(u"verticalLayout_8")
-        self.layoutTorquePlot = QVBoxLayout()
-        self.layoutTorquePlot.setObjectName(u"layoutTorquePlot")
-
-        self.verticalLayout_8.addLayout(self.layoutTorquePlot)
-
-        self.tabWidget.addTab(self.tabTorque, "")
         self.tabKinematic = QWidget()
         self.tabKinematic.setObjectName(u"tabKinematic")
         self.verticalLayout_6 = QVBoxLayout(self.tabKinematic)
@@ -290,7 +280,6 @@ class Ui_MainWindow(object):
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Process Data", None))
         self.pushButtonHarmonise.setText(QCoreApplication.translate("MainWindow", u"Harmonise Data", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabTorque), QCoreApplication.translate("MainWindow", u"Torque", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinematic), QCoreApplication.translate("MainWindow", u"Kinematic", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinetic), QCoreApplication.translate("MainWindow", u"Kinetic", None))
         self.labelProgress.setText("")

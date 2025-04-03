@@ -81,12 +81,11 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         kinematic_data[trial] = ik_data
         kinetic_data[trial] = id_data
 
-    normalised_grf_data = normalise_grf_data(grf_data, event_data, 'grf')
-    normalised_torque_data = normalise_grf_data(grf_data, event_data, 'torque')
+    normalised_grf_data = normalise_grf_data(grf_data, event_data)
     normalised_kinematics = normalise_kinematics(kinematic_data, event_data)
     normalised_kinetics = normalise_kinetics(kinetic_data, event_data)
 
-    return normalised_grf_data, normalised_torque_data, normalised_kinematics, normalised_kinetics, spatiotemporal_data
+    return normalised_grf_data, normalised_kinematics, normalised_kinetics, spatiotemporal_data
 
 
 def parse_static_trial(c3d_file, lab, marker_diameter, output_directory):
@@ -745,7 +744,7 @@ def calculate_angular_velocity(joint_angle, time):
     return np.gradient(joint_angle_radians, time)
 
 
-def normalise_grf_data(data, events, data_type):
+def normalise_grf_data(data, events):
     normalised_data = {"Left": {}, "Right": {}}
     for i in range(len(data)):
         file_name = list(data.keys())[i]
@@ -753,8 +752,7 @@ def normalise_grf_data(data, events, data_type):
         trial_events = list(events.values())[i]
 
         for foot, foot_events in trial_events.items():
-            column = 1 if foot == "Left" and data_type == "grf" else \
-                13 if foot == "Left" else 7 if data_type == "grf" else 16
+            column = 1 if foot == "Left" else 7
             force_data = grf_data.iloc[:, [0, *range(column, column + 3)]]
 
             start = None
