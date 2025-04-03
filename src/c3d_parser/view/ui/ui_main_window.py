@@ -187,16 +187,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.tabWidget = QTabWidget(self.frameVisualisation)
         self.tabWidget.setObjectName(u"tabWidget")
-        self.tabGRF = QWidget()
-        self.tabGRF.setObjectName(u"tabGRF")
-        self.verticalLayout_4 = QVBoxLayout(self.tabGRF)
-        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.layoutGRFPlot = QVBoxLayout()
-        self.layoutGRFPlot.setObjectName(u"layoutGRFPlot")
-
-        self.verticalLayout_4.addLayout(self.layoutGRFPlot)
-
-        self.tabWidget.addTab(self.tabGRF, "")
         self.tabKinematic = QWidget()
         self.tabKinematic.setObjectName(u"tabKinematic")
         self.verticalLayout_6 = QVBoxLayout(self.tabKinematic)
@@ -217,6 +207,16 @@ class Ui_MainWindow(object):
         self.verticalLayout_7.addLayout(self.layoutKineticPlot)
 
         self.tabWidget.addTab(self.tabKinetic, "")
+        self.tabGRF = QWidget()
+        self.tabGRF.setObjectName(u"tabGRF")
+        self.verticalLayout_4 = QVBoxLayout(self.tabGRF)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.layoutGRFPlot = QVBoxLayout()
+        self.layoutGRFPlot.setObjectName(u"layoutGRFPlot")
+
+        self.verticalLayout_4.addLayout(self.layoutGRFPlot)
+
+        self.tabWidget.addTab(self.tabGRF, "")
 
         self.verticalLayout_3.addWidget(self.tabWidget)
 
@@ -279,9 +279,9 @@ class Ui_MainWindow(object):
         self.pushButtonOutputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Process Data", None))
         self.pushButtonHarmonise.setText(QCoreApplication.translate("MainWindow", u"Harmonise Data", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinematic), QCoreApplication.translate("MainWindow", u"Kinematic", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinetic), QCoreApplication.translate("MainWindow", u"Kinetic", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))
         self.labelProgress.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))

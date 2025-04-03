@@ -243,16 +243,6 @@
           <property name="currentIndex">
            <number>0</number>
           </property>
-          <widget class="QWidget" name="tabGRF">
-           <attribute name="title">
-            <string>GRF</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <item>
-             <layout class="QVBoxLayout" name="layoutGRFPlot"/>
-            </item>
-           </layout>
-          </widget>
           <widget class="QWidget" name="tabKinematic">
            <attribute name="title">
             <string>Kinematic</string>
@@ -270,6 +260,16 @@
            <layout class="QVBoxLayout" name="verticalLayout_7">
             <item>
              <layout class="QVBoxLayout" name="layoutKineticPlot"/>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tabGRF">
+           <attribute name="title">
+            <string>GRF</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <layout class="QVBoxLayout" name="layoutGRFPlot"/>
             </item>
            </layout>
           </widget>
