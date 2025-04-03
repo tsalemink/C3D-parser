@@ -287,7 +287,7 @@ class Ui_MainWindow(object):
         self.pushButtonInputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Output:", None))
         self.pushButtonOutputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Parse Session", None))
+        self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Process Data", None))
         self.pushButtonUpload.setText(QCoreApplication.translate("MainWindow", u"Upload", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabTorque), QCoreApplication.translate("MainWindow", u"Torque", None))

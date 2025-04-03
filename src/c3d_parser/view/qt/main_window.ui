@@ -200,7 +200,7 @@
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>Parse Session</string>
+             <string>Process Data</string>
             </property>
            </widget>
           </item>
