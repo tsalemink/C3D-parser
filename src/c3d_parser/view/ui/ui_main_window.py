@@ -168,11 +168,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2.addWidget(self.pushButtonParseData)
 
-        self.pushButtonUpload = QPushButton(self.frameTrial)
-        self.pushButtonUpload.setObjectName(u"pushButtonUpload")
-        self.pushButtonUpload.setEnabled(False)
+        self.pushButtonHarmonise = QPushButton(self.frameTrial)
+        self.pushButtonHarmonise.setObjectName(u"pushButtonHarmonise")
+        self.pushButtonHarmonise.setEnabled(False)
 
-        self.horizontalLayout_2.addWidget(self.pushButtonUpload)
+        self.horizontalLayout_2.addWidget(self.pushButtonHarmonise)
 
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
@@ -288,7 +288,7 @@ class Ui_MainWindow(object):
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Output:", None))
         self.pushButtonOutputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Process Data", None))
-        self.pushButtonUpload.setText(QCoreApplication.translate("MainWindow", u"Upload", None))
+        self.pushButtonHarmonise.setText(QCoreApplication.translate("MainWindow", u"Harmonise Data", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabTorque), QCoreApplication.translate("MainWindow", u"Torque", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinematic), QCoreApplication.translate("MainWindow", u"Kinematic", None))

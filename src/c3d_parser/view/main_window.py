@@ -178,7 +178,7 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonInputDirectoryChooser.clicked.connect(self._open_input_directory_chooser)
         self._ui.pushButtonOutputDirectoryChooser.clicked.connect(self._open_output_directory_chooser)
         self._ui.pushButtonParseData.clicked.connect(self._parse_c3d_data)
-        self._ui.pushButtonUpload.clicked.connect(self._upload_data)
+        self._ui.pushButtonHarmonise.clicked.connect(self._harmonise_data)
         self._ui.actionQuit.triggered.connect(self._quit_application)
         self._ui.actionOptions.triggered.connect(self._show_options_dialog)
 
@@ -199,7 +199,7 @@ class MainWindow(QMainWindow):
         self._ui.lineEditOutputDirectory.setStyleSheet(DEFAULT_STYLE_SHEET if output_directory_valid else INVALID_STYLE_SHEET)
 
         self._ui.pushButtonParseData.setEnabled(input_directory_valid and output_directory_valid)
-        self._ui.pushButtonUpload.setEnabled(False)
+        self._ui.pushButtonHarmonise.setEnabled(False)
 
         return input_directory_valid
 
@@ -288,7 +288,7 @@ class MainWindow(QMainWindow):
         self._progress_tracker.progress.emit("Process completed successfully", "green")
 
         self._ui.pushButtonParseData.setEnabled(True)
-        self._ui.pushButtonUpload.setEnabled(True)
+        self._ui.pushButtonHarmonise.setEnabled(True)
 
     def _parse_cancelled(self, e):
         logger.info(e)
@@ -311,7 +311,7 @@ class MainWindow(QMainWindow):
         self._dots = 0
         self._ui.labelProgress.setStyleSheet(f"color: {color};")
 
-    def _upload_data(self):
+    def _harmonise_data(self):
         selected_trials = self._get_selected_trials()
         kinematic_exclusions = self._kinematic_curves.get_excluded_cycles()
         kinetic_exclusions = self._kinetic_curves.get_excluded_cycles()

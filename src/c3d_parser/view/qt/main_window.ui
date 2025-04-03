@@ -205,12 +205,12 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButtonUpload">
+           <widget class="QPushButton" name="pushButtonHarmonise">
             <property name="enabled">
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>Upload</string>
+             <string>Harmonise Data</string>
             </property>
            </widget>
           </item>
