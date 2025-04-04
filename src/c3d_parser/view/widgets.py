@@ -12,18 +12,19 @@ class CustomListWidget(QListWidget):
     def contextMenuEvent(self, event):
         item = self.itemAt(event.pos())
         if item:
-            menu = QMenu(self)
+            if (item.flags() & Qt.ItemIsEnabled):
+                menu = QMenu(self)
 
-            static_action = QAction("Static", self)
-            dynamic_action = QAction("Dynamic", self)
+                static_action = QAction("Static", self)
+                dynamic_action = QAction("Dynamic", self)
 
-            static_action.triggered.connect(lambda: self.set_item_category(item, "Static"))
-            dynamic_action.triggered.connect(lambda: self.set_item_category(item, "Dynamic"))
+                static_action.triggered.connect(lambda: self.set_item_category(item, "Static"))
+                dynamic_action.triggered.connect(lambda: self.set_item_category(item, "Dynamic"))
 
-            menu.addAction(static_action)
-            menu.addAction(dynamic_action)
+                menu.addAction(static_action)
+                menu.addAction(dynamic_action)
 
-            menu.exec_(event.globalPos())
+                menu.exec_(event.globalPos())
 
     def set_item_category(self, item, category):
         item.setData(Qt.UserRole, category)

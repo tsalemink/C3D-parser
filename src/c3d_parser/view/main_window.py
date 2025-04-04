@@ -215,18 +215,23 @@ class MainWindow(QMainWindow):
                     self._ui.listWidgetFiles.addItem(item)
 
     def _parse_c3d_data(self):
+        input_directory = self._ui.lineEditInputDirectory.text()
+        output_directory = self._ui.lineEditOutputDirectory.text()
+        session_name = os.path.basename(input_directory)
+        self._output_directory = os.path.join(output_directory, output_direcory_name, session_name)
+
         static_trials = []
         dynamic_trials = []
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
-            input_directory = self._ui.lineEditInputDirectory.text()
-            output_directory = self._ui.lineEditOutputDirectory.text()
-            session_name = os.path.basename(input_directory)
-            self._output_directory = os.path.join(output_directory, output_direcory_name, session_name)
-            if item.data(Qt.UserRole) == "Dynamic":
-                dynamic_trials.append(item.text())
+            if item.checkState() == Qt.Checked:
+                if item.data(Qt.UserRole) == "Dynamic":
+                    dynamic_trials.append(item.text())
+                else:
+                    static_trials.append(item.text())
             else:
-                static_trials.append(item.text())
+                item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
+                item.setData(Qt.UserRole, "")
 
         if len(static_trials) == 0:
             logger.error("No static trial found. You may need to classify one manually.")
