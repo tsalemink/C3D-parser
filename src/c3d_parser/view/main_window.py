@@ -160,6 +160,9 @@ class MainWindow(QMainWindow):
         self._ui.actionReloadInput.triggered.connect(self._validate_input_directory)
         self._ui.actionOptions.triggered.connect(self._show_options_dialog)
 
+        self._ui.listWidgetFiles.include_all.connect(self._include_all)
+        self._ui.listWidgetFiles.exclude_all.connect(self._exclude_all)
+
     def _validate_input_directory(self):
         directory_valid = self._validate_directory()
 
@@ -541,6 +544,14 @@ class MainWindow(QMainWindow):
         if self.sender() is None:
             self._quit_application()
 
+    def _include_all(self, file_name):
+        for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
+            curves.include_all(file_name)
+
+    def _exclude_all(self, file_name):
+        for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
+            curves.exclude_all(file_name)
+
 
 class GaitCurves(defaultdict):
 
@@ -614,6 +625,17 @@ class GaitCurves(defaultdict):
 
         self._canvas.draw()
 
+    def include_all(self, file_name):
+        for cycle, lines in self[file_name].items():
+            self._excluded_cycles.difference_update([(file_name, cycle), ])
+            colour = 'red' if "Left" in cycle else 'blue'
+            for line in lines:
+                line.set_linestyle('solid')
+                line.set_color(colour)
+                line.set_zorder(2)
+
+        self._canvas.draw()
+
     def update_line_width(self, line_width):
         for cycles in self.values():
             for lines in cycles.values():
@@ -631,6 +653,17 @@ class GaitCurves(defaultdict):
                 line.set_color(colour)
                 line.set_zorder(1)
         self._selected_curves = []
+
+        self._canvas.draw()
+
+    def exclude_all(self, file_name):
+        for cycle, lines in self[file_name].items():
+            self._excluded_cycles.update([(file_name, cycle)], )
+            colour = 'red' if "Left" in cycle else 'blue'
+            for line in lines:
+                line.set_linestyle('dotted')
+                line.set_color(colour)
+                line.set_zorder(1)
 
         self._canvas.draw()
 
