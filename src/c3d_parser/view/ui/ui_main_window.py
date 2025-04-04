@@ -33,6 +33,8 @@ class Ui_MainWindow(object):
         self.actionQuit.setObjectName(u"actionQuit")
         self.actionOptions = QAction(MainWindow)
         self.actionOptions.setObjectName(u"actionOptions")
+        self.actionReloadInput = QAction(MainWindow)
+        self.actionReloadInput.setObjectName(u"actionReloadInput")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -257,6 +259,8 @@ class Ui_MainWindow(object):
 
         self.menuBar.addAction(self.menuFile.menuAction())
         self.menuBar.addAction(self.menuView.menuAction())
+        self.menuFile.addAction(self.actionReloadInput)
+        self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
         self.menuView.addAction(self.actionOptions)
 
@@ -275,6 +279,7 @@ class Ui_MainWindow(object):
         self.actionQuit.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+Q", None))
 #endif // QT_CONFIG(shortcut)
         self.actionOptions.setText(QCoreApplication.translate("MainWindow", u"Options", None))
+        self.actionReloadInput.setText(QCoreApplication.translate("MainWindow", u"Reload Input", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Lab: ", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Marker Diameter:", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Input:", None))

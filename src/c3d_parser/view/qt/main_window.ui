@@ -338,6 +338,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionReloadInput"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -360,6 +362,11 @@
   <action name="actionOptions">
    <property name="text">
     <string>Options</string>
+   </property>
+  </action>
+  <action name="actionReloadInput">
+   <property name="text">
+    <string>Reload Input</string>
    </property>
   </action>
  </widget>

@@ -157,6 +157,7 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonParseData.clicked.connect(self._parse_c3d_data)
         self._ui.pushButtonHarmonise.clicked.connect(self._harmonise_data)
         self._ui.actionQuit.triggered.connect(self._quit_application)
+        self._ui.actionReloadInput.triggered.connect(self._validate_input_directory)
         self._ui.actionOptions.triggered.connect(self._show_options_dialog)
 
     def _validate_input_directory(self):
@@ -165,6 +166,10 @@ class MainWindow(QMainWindow):
         self._ui.listWidgetFiles.clear()
         if directory_valid:
             self._scan_directory()
+
+            self._reset_grf_plots()
+            self._reset_kinematic_plots()
+            self._reset_kinetic_plots()
 
     def _validate_directory(self):
         input_directory = self._ui.lineEditInputDirectory.text()
@@ -301,6 +306,14 @@ class MainWindow(QMainWindow):
         write_normalised_kinetics(self._kinetic_data, selected_trials, kinetic_exclusions, self._output_directory)
         write_spatiotemporal_data(self._s_t_data, selected_trials, self._output_directory)
 
+    def _reset_grf_plots(self):
+        self._plot_x.clear()
+        self._plot_y.clear()
+        self._plot_z.clear()
+
+        self._update_grf_axes()
+        self._grf_canvas.draw()
+
     def _visualise_grf_data(self, grf_data):
         self._plot_x.clear()
         self._plot_y.clear()
@@ -323,6 +336,9 @@ class MainWindow(QMainWindow):
         self._update_grf_axes()
         self._grf_canvas.draw()
 
+    def _reset_kinematic_plots(self):
+        self._visualise_kinematic_data({})
+
     def _visualise_kinematic_data(self, kinematic_data):
         for plot in self._kinematic_plots:
             plot.clear()
@@ -340,6 +356,9 @@ class MainWindow(QMainWindow):
 
         self._update_kinematic_axes()
         self._kinematic_canvas.draw()
+
+    def _reset_kinetic_plots(self):
+        self._visualise_kinetic_data({})
 
     def _visualise_kinetic_data(self, kinetic_data):
         for plot in self._kinetic_plots:
