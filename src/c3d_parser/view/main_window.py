@@ -265,6 +265,7 @@ class MainWindow(QMainWindow):
         self._visualise_kinematic_data(self._kinematic_data)
         self._visualise_kinetic_data(self._kinetic_data)
 
+        self._show_selected_trials()
         self._stop_progress_animation()
         self._progress_tracker.progress.emit("Process completed successfully", "green")
 
@@ -436,6 +437,11 @@ class MainWindow(QMainWindow):
         visible = item.checkState() == Qt.CheckState.Checked
         for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
             curves.set_file_visibility(item.text(), visible)
+
+    def _show_selected_trials(self):
+        for i in range(self._ui.listWidgetFiles.count()):
+            item = self._ui.listWidgetFiles.item(i)
+            self._update_plot_visibility(item)
 
     def _get_selected_trials(self):
         selected_trials = []
