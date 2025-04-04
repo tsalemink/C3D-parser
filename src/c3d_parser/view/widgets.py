@@ -5,8 +5,8 @@ from PySide6.QtGui import QAction
 
 
 class CustomListWidget(QListWidget):
-    include_all = Signal(str)
-    exclude_all = Signal(str)
+    include_trial = Signal(str)
+    exclude_trial = Signal(str)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -23,16 +23,16 @@ class CustomListWidget(QListWidget):
                 static_action.triggered.connect(lambda: self.set_item_category(item, "Static"))
                 dynamic_action.triggered.connect(lambda: self.set_item_category(item, "Dynamic"))
 
-                include_all_action = QAction("Include All Curves", self)
-                exclude_all_action = QAction("Exclude All Curves", self)
-                include_all_action.triggered.connect(lambda: self.include_all.emit(item.text()))
-                exclude_all_action.triggered.connect(lambda: self.exclude_all.emit(item.text()))
+                include_trial_action = QAction("Include Trial", self)
+                exclude_trial_action = QAction("Exclude Trial", self)
+                include_trial_action.triggered.connect(lambda: self.include_trial.emit(item.text()))
+                exclude_trial_action.triggered.connect(lambda: self.exclude_trial.emit(item.text()))
 
                 menu.addAction(static_action)
                 menu.addAction(dynamic_action)
                 menu.addSeparator()
-                menu.addAction(include_all_action)
-                menu.addAction(exclude_all_action)
+                menu.addAction(include_trial_action)
+                menu.addAction(exclude_trial_action)
 
                 menu.exec_(event.globalPos())
 
