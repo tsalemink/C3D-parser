@@ -164,6 +164,7 @@ cython_debug/
 tests/data/general/
 tests/output/
 **/_output/
+**/c3d_parser_output/
 
 # OpenSim
 _ik_marker_errors.sto
