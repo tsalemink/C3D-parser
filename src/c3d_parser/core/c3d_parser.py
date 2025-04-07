@@ -35,9 +35,9 @@ class CancelException(Exception):
     pass
 
 
-def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, progress_tracker):
+def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, static_data, progress_tracker):
     file_path = os.path.join(input_directory, static_trial)
-    frame, static_trc_path, height, weight = parse_static_trial(file_path, lab, marker_diameter, output_directory)
+    frame, static_trc_path, height, weight = parse_static_trial(file_path, lab, marker_diameter, output_directory, static_data)
 
     marker_data_rate = 100
 
@@ -88,7 +88,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     return normalised_grf_data, normalised_kinematics, normalised_kinetics, spatiotemporal_data
 
 
-def parse_static_trial(c3d_file, lab, marker_diameter, output_directory):
+def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_data):
     logger.info(f"Parsing static trial: {c3d_file}")
 
     c3d_file_name = os.path.basename(c3d_file)
@@ -105,7 +105,7 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory):
     set_marker_data(trc_data, frame_data)
     trc_file_path = write_trc_data(trc_data, file_name, output_directory)
 
-    height, weight, left_knee_width, right_knee_width = extract_static_data(c3d_file)
+    height, weight, left_knee_width, right_knee_width = static_data
     frame = add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marker_diameter)
 
     return frame, trc_file_path, height, weight
