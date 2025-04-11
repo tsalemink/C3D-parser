@@ -13,6 +13,7 @@ from c3d_parser.core.c3d_parser import parse_session, extract_static_data, read_
 from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
+from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
 from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET
 
 
@@ -159,6 +160,7 @@ class MainWindow(QMainWindow):
         self._ui.actionQuit.triggered.connect(self._quit_application)
         self._ui.actionReloadInput.triggered.connect(self._validate_input_directory)
         self._ui.actionOptions.triggered.connect(self._show_options_dialog)
+        self._ui.actionCustomMarkerSet.triggered.connect(self._show_marker_set_dialog)
 
         self._ui.listWidgetFiles.include_trial.connect(self._include_trial)
         self._ui.listWidgetFiles.exclude_trial.connect(self._exclude_trial)
@@ -497,6 +499,11 @@ class MainWindow(QMainWindow):
     def _set_options(self, options):
         self._line_width = options['line_width']
         self._data_directory = options['data_directory']
+
+    def _show_marker_set_dialog(self):
+        dlg = MarkerSetDialog(self)
+        if dlg.exec():
+            dlg.save()
 
     def _update_curves(self):
         for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:

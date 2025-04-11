@@ -348,8 +348,15 @@
     </property>
     <addaction name="actionOptions"/>
    </widget>
+   <widget class="QMenu" name="menuMarker">
+    <property name="title">
+     <string>Marker</string>
+    </property>
+    <addaction name="actionCustomMarkerSet"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
+   <addaction name="menuMarker"/>
   </widget>
   <action name="actionQuit">
    <property name="text">
@@ -367,6 +374,11 @@
   <action name="actionReloadInput">
    <property name="text">
     <string>Reload Input</string>
+   </property>
+  </action>
+  <action name="actionCustomMarkerSet">
+   <property name="text">
+    <string>Custom Marker Set</string>
    </property>
   </action>
  </widget>

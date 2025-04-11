@@ -35,6 +35,8 @@ class Ui_MainWindow(object):
         self.actionOptions.setObjectName(u"actionOptions")
         self.actionReloadInput = QAction(MainWindow)
         self.actionReloadInput.setObjectName(u"actionReloadInput")
+        self.actionCustomMarkerSet = QAction(MainWindow)
+        self.actionCustomMarkerSet.setObjectName(u"actionCustomMarkerSet")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -255,14 +257,18 @@ class Ui_MainWindow(object):
         self.menuFile.setObjectName(u"menuFile")
         self.menuView = QMenu(self.menuBar)
         self.menuView.setObjectName(u"menuView")
+        self.menuMarker = QMenu(self.menuBar)
+        self.menuMarker.setObjectName(u"menuMarker")
         MainWindow.setMenuBar(self.menuBar)
 
         self.menuBar.addAction(self.menuFile.menuAction())
         self.menuBar.addAction(self.menuView.menuAction())
+        self.menuBar.addAction(self.menuMarker.menuAction())
         self.menuFile.addAction(self.actionReloadInput)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
         self.menuView.addAction(self.actionOptions)
+        self.menuMarker.addAction(self.actionCustomMarkerSet)
 
         self.retranslateUi(MainWindow)
 
@@ -280,6 +286,7 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(shortcut)
         self.actionOptions.setText(QCoreApplication.translate("MainWindow", u"Options", None))
         self.actionReloadInput.setText(QCoreApplication.translate("MainWindow", u"Reload Input", None))
+        self.actionCustomMarkerSet.setText(QCoreApplication.translate("MainWindow", u"Custom Marker Set", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Lab: ", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Marker Diameter:", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Input:", None))
@@ -294,5 +301,6 @@ class Ui_MainWindow(object):
         self.labelProgress.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
+        self.menuMarker.setTitle(QCoreApplication.translate("MainWindow", u"Marker", None))
     # retranslateUi
 
