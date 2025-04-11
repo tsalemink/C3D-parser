@@ -264,8 +264,17 @@ def harmonise_markers(frame_data, lab):
     with open(map_file, 'r') as file:
         marker_mapping = json.load(file)
 
+    singular = ['C7', 'T2', 'T10', 'MAN', 'SACR']
+    marker_set = {}
+    for key, value in marker_mapping.items():
+        if key in singular:
+            marker_set[key] = value
+        else:
+            marker_set[f"L{key}"] = f"L{value}" if value is not None else None
+            marker_set[f"R{key}"] = f"R{value}" if value is not None else None
+
     # Harmonise marker labels.
-    reversed_mapping = {value: key for key, value in marker_mapping.items() if value is not None}
+    reversed_mapping = {value: key for key, value in marker_set.items() if value is not None}
     header_mapping = {header: reversed_mapping.get(header, None) for header in frame_data.columns[1:]}
     frame_data.rename(columns=header_mapping, inplace=True)
 
