@@ -37,6 +37,9 @@ class MarkerSetDialog(QtWidgets.QDialog):
             combo_box = getattr(self._ui, f"comboBox{marker}")
             combo_box.addItem('')
             combo_box.addItems(marker_names)
+            if marker in marker_names:
+                index = combo_box.findText(marker)
+                combo_box.setCurrentIndex(index)
 
     def save(self):
         file_name = f"{self._ui.lineEditName.text()}.json"
