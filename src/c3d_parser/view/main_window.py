@@ -9,8 +9,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QLi
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
-from c3d_parser.core.c3d_parser import parse_session, extract_static_data, read_grf, is_dynamic, marker_maps_dir, CancelException
-from c3d_parser.core.c3d_parser import write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
+from c3d_parser.core.c3d_parser import parse_session, extract_static_data, extract_marker_names, read_grf, is_dynamic, marker_maps_dir,\
+    CancelException, write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
 from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
@@ -501,7 +501,21 @@ class MainWindow(QMainWindow):
         self._data_directory = options['data_directory']
 
     def _show_marker_set_dialog(self):
+        static_trials = []
+        for i in range(self._ui.listWidgetFiles.count()):
+            item = self._ui.listWidgetFiles.item(i)
+            if item.checkState() == Qt.Checked:
+                if item.data(Qt.UserRole) == "Static":
+                    static_trials.append(item.text())
+
+        marker_names = []
+        if static_trials:
+            input_directory = self._ui.lineEditInputDirectory.text()
+            c3d_file = os.path.join(input_directory, static_trials[0])
+            marker_names = extract_marker_names(c3d_file)
+
         dlg = MarkerSetDialog(self)
+        dlg.set_marker_names(marker_names)
         if dlg.exec():
             dlg.save()
 

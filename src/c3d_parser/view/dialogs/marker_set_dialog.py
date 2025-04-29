@@ -32,6 +32,12 @@ class MarkerSetDialog(QtWidgets.QDialog):
         self._ui.pushButtonImport.clicked.connect(self._import_marker_map)
         self._ui.pushButtonSave.clicked.connect(self._validate_marker_set)
 
+    def set_marker_names(self, marker_names):
+        for marker in markers:
+            combo_box = getattr(self._ui, f"comboBox{marker}")
+            combo_box.addItem('')
+            combo_box.addItems(marker_names)
+
     def save(self):
         file_name = f"{self._ui.lineEditName.text()}.json"
         file_path = os.path.join(marker_maps_dir, file_name)

@@ -424,6 +424,37 @@ def rotate_grf_data(analog_data, rotation_matrix):
         analog_data.iloc[:, i:i + 3] = np.vstack(rotated_values)
 
 
+def extract_marker_names(filename):
+    with open(filename, 'rb') as handle:
+        reader = c3d.Reader(handle)
+
+    # Filter out model outputs (Angles, Forces, Moments, Powers, Scalars) from point labels.
+    point_group = reader.get('POINT')
+    model_outputs = set()
+    for param in ['ANGLES', 'FORCES', 'MOMENTS', 'POWERS', 'SCALARS']:
+        if param in point_group.param_keys():
+            model_outputs.update(point_group.get(param).string_array)
+
+    point_labels = []
+    if 'LABELS' in point_group.param_keys():
+        filtered_labels = [None if label in model_outputs else label.strip() for label in point_group.get('LABELS').string_array]
+        point_labels.extend(filtered_labels)
+    i = 2
+    while f'LABELS{i}' in point_group.param_keys():
+        filtered_labels = [None if label in model_outputs else label.strip() for label in point_group.get(f'LABELS{i}').string_array]
+        point_labels.extend(filtered_labels)
+    point_labels = list(filter(None, point_labels))
+
+    marker_names = []
+    for item in point_labels:
+        if item.startswith('L') and f'R{item[1:]}' in point_labels:
+            marker_names.append(item[1:])
+        elif not (item.startswith('L') or item.startswith('R')):
+            marker_names.append(item)
+
+    return marker_names
+
+
 def extract_data(file_path, start_frame, end_frame):
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
