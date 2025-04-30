@@ -42,31 +42,54 @@ class Ui_OptionsDialog(object):
 
         self.formLayout.setWidget(0, QFormLayout.FieldRole, self.doubleSpinBoxLineWidth)
 
-        self.label = QLabel(self.groupBox)
-        self.label.setObjectName(u"label")
+        self.labelInputDirectory = QLabel(self.groupBox)
+        self.labelInputDirectory.setObjectName(u"labelInputDirectory")
 
-        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.label)
+        self.formLayout.setWidget(1, QFormLayout.LabelRole, self.labelInputDirectory)
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.lineEditDataDirectory = QLineEdit(self.groupBox)
-        self.lineEditDataDirectory.setObjectName(u"lineEditDataDirectory")
+        self.lineEditRootInput = QLineEdit(self.groupBox)
+        self.lineEditRootInput.setObjectName(u"lineEditRootInput")
 
-        self.horizontalLayout_2.addWidget(self.lineEditDataDirectory)
+        self.horizontalLayout_2.addWidget(self.lineEditRootInput)
 
-        self.pushButtonDataDirectoryChooser = QPushButton(self.groupBox)
-        self.pushButtonDataDirectoryChooser.setObjectName(u"pushButtonDataDirectoryChooser")
+        self.pushButtonRootInputChooser = QPushButton(self.groupBox)
+        self.pushButtonRootInputChooser.setObjectName(u"pushButtonRootInputChooser")
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pushButtonDataDirectoryChooser.sizePolicy().hasHeightForWidth())
-        self.pushButtonDataDirectoryChooser.setSizePolicy(sizePolicy)
-        self.pushButtonDataDirectoryChooser.setStyleSheet(u"padding: 3px 8px;")
+        sizePolicy.setHeightForWidth(self.pushButtonRootInputChooser.sizePolicy().hasHeightForWidth())
+        self.pushButtonRootInputChooser.setSizePolicy(sizePolicy)
+        self.pushButtonRootInputChooser.setStyleSheet(u"padding: 3px 8px;")
 
-        self.horizontalLayout_2.addWidget(self.pushButtonDataDirectoryChooser)
+        self.horizontalLayout_2.addWidget(self.pushButtonRootInputChooser)
 
 
         self.formLayout.setLayout(1, QFormLayout.FieldRole, self.horizontalLayout_2)
+
+        self.labelOutputDirectory = QLabel(self.groupBox)
+        self.labelOutputDirectory.setObjectName(u"labelOutputDirectory")
+
+        self.formLayout.setWidget(2, QFormLayout.LabelRole, self.labelOutputDirectory)
+
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.lineEditRootOutput = QLineEdit(self.groupBox)
+        self.lineEditRootOutput.setObjectName(u"lineEditRootOutput")
+
+        self.horizontalLayout.addWidget(self.lineEditRootOutput)
+
+        self.pushButtonRootOutputChooser = QPushButton(self.groupBox)
+        self.pushButtonRootOutputChooser.setObjectName(u"pushButtonRootOutputChooser")
+        sizePolicy.setHeightForWidth(self.pushButtonRootOutputChooser.sizePolicy().hasHeightForWidth())
+        self.pushButtonRootOutputChooser.setSizePolicy(sizePolicy)
+        self.pushButtonRootOutputChooser.setStyleSheet(u"padding: 3px 8px;")
+
+        self.horizontalLayout.addWidget(self.pushButtonRootOutputChooser)
+
+
+        self.formLayout.setLayout(2, QFormLayout.FieldRole, self.horizontalLayout)
 
 
         self.verticalLayout.addWidget(self.groupBox)
@@ -90,7 +113,9 @@ class Ui_OptionsDialog(object):
         OptionsDialog.setWindowTitle(QCoreApplication.translate("OptionsDialog", u"Options", None))
         self.groupBox.setTitle(QCoreApplication.translate("OptionsDialog", u"Plots", None))
         self.labelLineWidth.setText(QCoreApplication.translate("OptionsDialog", u"Line Width:", None))
-        self.label.setText(QCoreApplication.translate("OptionsDialog", u"Data Directory:", None))
-        self.pushButtonDataDirectoryChooser.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
+        self.labelInputDirectory.setText(QCoreApplication.translate("OptionsDialog", u"Input Data Directory:", None))
+        self.pushButtonRootInputChooser.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
+        self.labelOutputDirectory.setText(QCoreApplication.translate("OptionsDialog", u"Output Data Directory:", None))
+        self.pushButtonRootOutputChooser.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
     # retranslateUi
 

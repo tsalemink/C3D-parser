@@ -55,7 +55,9 @@ class MainWindow(QMainWindow):
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
 
-        self._data_directory = ''
+        self._input_data_directory = ''
+        self._output_data_directory = ''
+
         self._analog_data = None
         self._subject_weight = None
         self._kinematic_data = {}
@@ -69,6 +71,7 @@ class MainWindow(QMainWindow):
         self._make_connections()
         self._load_settings()
         self._setup_progress_bar()
+        self._validate_directory()
 
         self._grf_curves = GaitCurves(self._grf_canvas)
         self._kinematic_curves = GaitCurves(self._kinematic_canvas)
@@ -191,19 +194,14 @@ class MainWindow(QMainWindow):
         return input_directory_valid
 
     def _open_input_directory_chooser(self):
-        self._open_directory_chooser(self._ui.lineEditInputDirectory)
+        self._open_directory_chooser(self._ui.lineEditInputDirectory, self._input_data_directory)
 
     def _open_output_directory_chooser(self):
-        self._open_directory_chooser(self._ui.lineEditOutputDirectory)
+        self._open_directory_chooser(self._ui.lineEditOutputDirectory, self._output_data_directory)
 
-    def _open_directory_chooser(self, line_edit):
-        start_directory = self._data_directory
-        current_directory = self._ui.lineEditInputDirectory.text()
-        if len(current_directory) and os.path.isdir(current_directory):
-            start_directory = current_directory
-
+    def _open_directory_chooser(self, line_edit, data_directory):
         directory = QFileDialog.getExistingDirectory(
-            self, 'Select Directory', start_directory)
+            self, 'Select Directory', data_directory)
 
         if directory:
             line_edit.setText(directory)
@@ -491,14 +489,16 @@ class MainWindow(QMainWindow):
     def _get_options(self):
         options = {
             'line_width': self._line_width,
-            'data_directory': self._data_directory
+            'input_data_directory': self._input_data_directory,
+            'output_data_directory': self._output_data_directory
         }
 
         return options
 
     def _set_options(self, options):
         self._line_width = options['line_width']
-        self._data_directory = options['data_directory']
+        self._input_data_directory = options['input_data_directory']
+        self._output_data_directory = options['output_data_directory']
 
     def _show_marker_set_dialog(self):
         static_trials = []
@@ -531,12 +531,12 @@ class MainWindow(QMainWindow):
         settings.setValue('pos', self.pos())
         settings.setValue('is_maximized', self.isMaximized())
         settings.setValue('lab', self._ui.comboBoxLab.currentText())
-        settings.setValue('output_directory', self._ui.lineEditOutputDirectory.text())
         settings.endGroup()
 
         settings.beginGroup('Options')
         settings.setValue('line_width', self._line_width)
-        settings.setValue('data_directory', self._data_directory)
+        settings.setValue('input_data_directory', self._input_data_directory)
+        settings.setValue('output_data_directory', self._output_data_directory)
         settings.endGroup()
 
     def _load_settings(self):
@@ -552,15 +552,15 @@ class MainWindow(QMainWindow):
                 self.showMaximized()
         if settings.contains('lab'):
             self._ui.comboBoxLab.setCurrentText(settings.value('lab'))
-        if settings.contains('output_directory'):
-            self._ui.lineEditOutputDirectory.setText(settings.value('output_directory'))
         settings.endGroup()
 
         settings.beginGroup('Options')
         if settings.contains('line_width'):
             self._line_width = float(settings.value('line_width'))
-        if settings.contains('data_directory'):
-            self._data_directory = settings.value('data_directory')
+        if settings.contains('input_data_directory'):
+            self._input_data_directory = settings.value('input_data_directory')
+        if settings.contains('output_data_directory'):
+            self._output_data_directory = settings.value('output_data_directory')
         settings.endGroup()
 
     def _quit_application(self):
