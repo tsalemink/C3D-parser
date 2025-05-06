@@ -132,6 +132,7 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, marker_data_rate):
 
     # Match events to force plates.
     identify_event_plates(frame_data, events, corners)
+    validate_foot_strikes(events)
 
     # Harmonise GRF data.
     filter_data(analog_data, data_rate)
@@ -640,6 +641,19 @@ def identify_event_plates(frame_data, events, corners):
                     break
             else:
                 events[foot][event_time] = [event, None]
+
+
+def validate_foot_strikes(events):
+    for foot in events:
+        event_list = list(events[foot].items())
+        for i in range(len(event_list)):
+            event_time, (event_type, event_plate) = event_list[i]
+            if event_type == "Foot Strike":
+                if i + 1 < len(event_list):
+                    _, (next_event_type, next_event_plate) = event_list[i + 1]
+                    if next_event_type == "Foot Off" and event_plate == next_event_plate:
+                        continue
+                events[foot][event_time] = [event_type, None]
 
 
 def point_on_plate(point, corners):
