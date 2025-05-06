@@ -856,7 +856,7 @@ def normalise_kinematics(kinematic_data, events):
                     data_segment["pelvis_list"] -= 90
 
                     normalised_data[foot][file_name].append(data_segment.values.T)
-                    start = None
+                    start = data[data['time'] <= event_time].index[-1]
                 elif event[0] == "Foot Strike":
                     start = data[data['time'] <= event_time].index[-1]
 
@@ -893,7 +893,7 @@ def normalise_kinetics(kinetic_data, events):
                         data_segment["hip_adduction_r_moment"] = -data_segment["hip_adduction_r_moment"] + 1
 
                     normalised_data[foot][file_name].append(data_segment.values.T)
-                    start = None
+                    start = data[data['time'] <= event_time].index[-1]
                 elif event[0] == "Foot Strike":
                     start = data[data['time'] <= event_time].index[-1]
 
