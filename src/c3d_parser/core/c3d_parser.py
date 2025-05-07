@@ -653,7 +653,10 @@ def validate_foot_strikes(events):
                     _, (next_event_type, next_event_plate) = event_list[i + 1]
                     if next_event_type == "Foot Off" and event_plate == next_event_plate:
                         continue
-                events[foot][event_time] = [event_type, None]
+
+                if event_plate is not None:
+                    logger.warn(f"Event at time {event_time:.3f} is invalid. Stride occurs over multiple force plates.")
+                    events[foot][event_time] = [event_type, None]
 
 
 def point_on_plate(point, corners):
