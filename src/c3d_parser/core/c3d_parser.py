@@ -711,6 +711,7 @@ def concatenate_grf_data(analog_data, events, mean_centre):
             event_type = events[foot][event][0]
             event_plate = events[foot][event][1]
             if event_plate is None:
+                start = None
                 continue
             frame = analog_data[analog_data['time'] <= event].index[-1]
             source_columns = range(event_plate * 9 + 1, event_plate * 9 + 10)
@@ -719,19 +720,12 @@ def concatenate_grf_data(analog_data, events, mean_centre):
                 while analog_data.iloc[frame, source_columns[2]] > 0:
                     frame -= 1
                 start = frame
-            elif event_type == "Foot Off":
+            elif event_type == "Foot Off" and start is not None:
                 while analog_data.iloc[frame, source_columns[2]] > 0:
                     frame += 1
                 end = frame
-
-                if start is None:
-                    start = analog_data.index[0]
                 copy_data()
                 start, end = None, None
-
-        if start:
-            end = analog_data.index[-1]
-            copy_data()
 
     # Change header order for OpenSim.
     concatenated_data = concatenated_data.iloc[:,
