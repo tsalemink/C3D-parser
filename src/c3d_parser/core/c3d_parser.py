@@ -809,6 +809,7 @@ def normalise_grf_data(data, events):
             start = None
             for event_time, (event_type, event_plate) in foot_events.items():
                 if event_plate is None:
+                    start = None
                     continue
                 frame = force_data[force_data['time'] <= event_time].index[-1]
                 if event_type == "Foot Strike":
@@ -892,8 +893,8 @@ def normalise_kinetics(kinetic_data, events):
             data = trial_data.loc[:, ['time'] + moment_names + power_names]
 
             start = None
-            for event_time, event in foot_events.items():
-                if event[0] == "Foot Strike" and start:
+            for event_time, (event_type, event_plate) in foot_events.items():
+                if event_type == "Foot Strike" and start:
                     frame = data[data['time'] >= event_time].index[0]
                     if file_name not in normalised_data[foot]:
                         normalised_data[foot][file_name] = []
@@ -904,9 +905,14 @@ def normalise_kinetics(kinetic_data, events):
                         data_segment["hip_adduction_r_moment"] = -data_segment["hip_adduction_r_moment"] + 1
 
                     normalised_data[foot][file_name].append(data_segment.values.T)
-                    start = data[data['time'] <= event_time].index[-1]
-                elif event[0] == "Foot Strike":
-                    start = data[data['time'] <= event_time].index[-1]
+                    if event_plate is not None:
+                        start = data[data['time'] <= event_time].index[-1]
+                    else:
+                        start = None
+
+                elif event_type == "Foot Strike":
+                    if event_plate is not None:
+                        start = data[data['time'] <= event_time].index[-1]
 
     return normalised_data
 
