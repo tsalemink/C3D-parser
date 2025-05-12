@@ -103,7 +103,7 @@ class MainWindow(QMainWindow):
         self._plot_x.tick_params(axis='y', which='both', labelleft=False, left=False)
         self._plot_y.tick_params(axis='y', which='both', labelleft=False, left=False)
         self._plot_z.tick_params(axis='y', which='both', labelleft=False, left=False)
-        self._grf_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.03, 0.98, 0.96], h_pad=1.4, w_pad=0.2)
+        self._grf_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=1.6, w_pad=0.2)
         self._update_grf_axes()
 
         self._ui.layoutGRFPlot.addWidget(self._grf_canvas)
@@ -117,7 +117,7 @@ class MainWindow(QMainWindow):
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
                 self._kinematic_plots.append(plot)
-        self._kinematic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.03, 0.98, 0.96], h_pad=1.4, w_pad=2.0)
+        self._kinematic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=1.6, w_pad=2.0)
         self._update_kinematic_axes()
 
         self._ui.layoutKinematicPlot.addWidget(self._kinematic_canvas)
@@ -131,7 +131,7 @@ class MainWindow(QMainWindow):
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
                 self._kinetic_plots.append(plot)
-        self._kinetic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.03, 0.98, 0.96], h_pad=1.4, w_pad=2.0)
+        self._kinetic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=1.6, w_pad=2.0)
         self._update_kinetic_axes()
 
         self._ui.layoutKineticPlot.addWidget(self._kinetic_canvas)
@@ -148,9 +148,12 @@ class MainWindow(QMainWindow):
             step = (y_max - y_min) / 4
 
             plot.axhline(y=0, color='gray', linewidth=1.0, zorder=1)
-            plot.text(x=0, y=y_min, s=int(y_min), ha='right', va='center')
-            plot.text(x=0, y=(y_min + 2 * step), s="N", ha='right', va='center')
-            plot.text(x=0, y=y_max, s=int(y_max), ha='right', va='center')
+            plot.text(x=0, y=y_min, s=int(y_min), ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=(y_min + 2 * step), s="N", ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=y_max, s=int(y_max), ha='right', va='center', fontsize=9)
+
+            plot.set_xticks([0, 20, 40, 60, 80, 100])
+            plot.tick_params(axis='x', which='both', bottom=True, labelbottom=False)
 
     def _make_connections(self):
         self._ui.lineEditInputDirectory.textChanged.connect(self._validate_input_directory)
@@ -417,11 +420,18 @@ class MainWindow(QMainWindow):
             step = (y_max - y_min) / 4
 
             plot.set_title(title, fontsize=10, pad=4)
-            plot.text(x=0, y=y_min, s=int(y_min), ha='right', va='center')
-            plot.text(x=0, y=(y_min + 1 * step), s=negative, ha='right', va='center')
-            plot.text(x=0, y=(y_min + 2 * step), s="deg", ha='right', va='center')
-            plot.text(x=0, y=(y_min + 3 * step), s=positive, ha='right', va='center')
-            plot.text(x=0, y=y_max, s=int(y_max), ha='right', va='center')
+            plot.text(x=0, y=y_min, s=int(y_min), ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=(y_min + 1 * step), s=negative, ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=(y_min + 2 * step), s="deg", ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=(y_min + 3 * step), s=positive, ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=y_max, s=int(y_max), ha='right', va='center', fontsize=9)
+
+            plot.set_xticks([0, 20, 40, 60, 80, 100])
+            plot.tick_params(axis='x', which='both', bottom=True, labelbottom=False)
+            if i in [6, 7, 8]:
+                plot.set_xticklabels(['0%', '20%', '40%', '60%', '80%', '100%'], fontsize=9)
+                plot.tick_params(axis='x', labelbottom=True)
+                plot.set_xlabel("Gait Cycle (%)", fontsize=9)
 
     def _update_kinetic_axes(self):
         plot_labels = {
@@ -455,11 +465,18 @@ class MainWindow(QMainWindow):
             step = (y_max - y_min) / 4
 
             plot.set_title(title, fontsize=10, pad=4)
-            plot.text(x=0, y=y_min, s=y_min, ha='right', va='center')
-            plot.text(x=0, y=(y_min + 1 * step), s=negative, ha='right', va='center')
-            plot.text(x=0, y=(y_min + 2 * step), s=units, ha='right', va='center')
-            plot.text(x=0, y=(y_min + 3 * step), s=positive, ha='right', va='center')
-            plot.text(x=0, y=y_max, s=y_max, ha='right', va='center')
+            plot.text(x=0, y=y_min, s=y_min, ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=(y_min + 1 * step), s=negative, ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=(y_min + 2 * step), s=units, ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=(y_min + 3 * step), s=positive, ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=y_max, s=y_max, ha='right', va='center', fontsize=9)
+
+            plot.set_xticks([0, 20, 40, 60, 80, 100])
+            plot.tick_params(axis='x', which='both', bottom=True, labelbottom=False)
+            if i in [6, 7, 8]:
+                plot.set_xticklabels(['0%', '20%', '40%', '60%', '80%', '100%'], fontsize=9)
+                plot.tick_params(axis='x', labelbottom=True)
+                plot.set_xlabel("Gait Cycle (%)", fontsize=9)
 
     def _update_plot_visibility(self, item):
         visible = item.checkState() == Qt.CheckState.Checked
