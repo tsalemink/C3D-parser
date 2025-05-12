@@ -14,12 +14,10 @@ from c3d_parser.core.c3d_parser import parse_session, extract_static_data, extra
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
 from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
-from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET
+from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET, APPLICATION_NAME
 
 
-# Configure logging.
-logger = logging.getLogger('C3D-Parser')
-logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+logger = logging.getLogger(APPLICATION_NAME)
 
 
 output_direcory_name = 'c3d_parser_output'
