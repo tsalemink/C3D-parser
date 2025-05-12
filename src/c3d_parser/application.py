@@ -4,12 +4,12 @@ import sys
 from PySide6.QtWidgets import QApplication
 
 from c3d_parser.view.main_window import MainWindow
+from c3d_parser.settings.general import set_applications_settings
 
 
 def main():
     app = QApplication(sys.argv)
-    app.setOrganizationName("Auckland Bioengineering Institute")
-    app.setApplicationName("C3D Parser")
+    set_applications_settings(app)
 
     window = MainWindow()
     window.show()
