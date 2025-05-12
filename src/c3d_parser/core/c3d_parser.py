@@ -808,27 +808,25 @@ def normalise_grf_data(data, events):
 
             start = None
             for event_time, (event_type, event_plate) in foot_events.items():
-                if event_plate is None:
-                    start = None
-                    continue
                 frame = force_data[force_data['time'] <= event_time].index[-1]
-                if event_type == "Foot Strike":
+                if event_type == "Foot Strike" and start:
                     while force_data.iloc[frame, 3] > 0:
                         frame -= 1
-                    start = frame
-                elif event_type == "Foot Off" and start:
-                    while force_data.iloc[frame, 3] > 0:
-                        frame += 1
                     if file_name not in normalised_data[foot]:
                         normalised_data[foot][file_name] = []
                     data_segment = force_data.iloc[start:frame, 1:]
+                    start = None if event_plate is None else frame
 
                     # Perform side-specific transformations.
                     if "ground_force_vy" in data_segment.columns:
                         data_segment["ground_force_vy"] = -data_segment["ground_force_vy"]
 
                     normalised_data[foot][file_name].append(data_segment.values.T)
-                    start = None
+
+                elif event_type == "Foot Strike" and event_plate is not None:
+                    while force_data.iloc[frame, 3] > 0:
+                        frame -= 1
+                    start = frame
 
     return normalised_data
 

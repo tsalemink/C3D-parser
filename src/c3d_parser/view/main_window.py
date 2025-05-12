@@ -155,6 +155,10 @@ class MainWindow(QMainWindow):
             plot.set_xticks([0, 20, 40, 60, 80, 100])
             plot.tick_params(axis='x', which='both', bottom=True, labelbottom=False)
 
+        self._plot_z.set_xticklabels(['0%', '20%', '40%', '60%', '80%', '100%'], fontsize=9)
+        self._plot_z.tick_params(axis='x', labelbottom=True)
+        self._plot_z.set_xlabel("Gait Cycle (%)", fontsize=9)
+
     def _make_connections(self):
         self._ui.lineEditInputDirectory.textChanged.connect(self._validate_input_directory)
         self._ui.lineEditOutputDirectory.textChanged.connect(self._validate_directory)
@@ -335,7 +339,7 @@ class MainWindow(QMainWindow):
             for name, data_segments in files_dict.items():
                 colour = 'r' if foot == "Left" else 'b'
                 for i, segment in enumerate(data_segments):
-                    t_segment = np.arange(segment.shape[1])
+                    t_segment = np.linspace(0, 100, segment.shape[1])
 
                     for j, plot in enumerate([self._plot_x, self._plot_y, self._plot_z]):
                         line, = plot.plot(t_segment, segment[j], color=colour, linewidth=self._line_width)
