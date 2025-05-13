@@ -17,7 +17,7 @@ def initialise_logger():
 
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO, datefmt='%d/%m/%Y - %H:%M:%S')
 
-    file_handler = logging.FileHandler(log_file, encoding='utf-8')
+    file_handler = logging.FileHandler(log_file, mode='w', encoding='utf-8')
     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y - %H:%M:%S')
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.INFO)
