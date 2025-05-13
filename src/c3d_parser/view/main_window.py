@@ -15,6 +15,7 @@ from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
 from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
 from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET, APPLICATION_NAME
+from c3d_parser.view.utils import handle_runtime_error
 
 
 logger = logging.getLogger(APPLICATION_NAME)
@@ -26,6 +27,7 @@ output_direcory_name = 'c3d_parser_output'
 class _ExecThread(QThread):
     finished = Signal(tuple)
     cancelled = Signal(Exception)
+    failed = Signal(Exception)
 
     def __init__(self, func, *args, **kwargs):
         super().__init__()
@@ -39,6 +41,8 @@ class _ExecThread(QThread):
             self.finished.emit(output)
         except CancelException as e:
             self.cancelled.emit(e)
+        except Exception as e:
+            self.failed.emit(e)
 
 
 class ProgressTracker(QObject):
@@ -227,6 +231,7 @@ class MainWindow(QMainWindow):
                     item.setCheckState(Qt.CheckState.Checked)
                     self._ui.listWidgetFiles.addItem(item)
 
+    @handle_runtime_error
     def _parse_c3d_data(self):
         input_directory = self._ui.lineEditInputDirectory.text()
         output_directory = self._ui.lineEditOutputDirectory.text()
@@ -256,8 +261,6 @@ class MainWindow(QMainWindow):
             if not ok:
                 return
 
-        self._ui.pushButtonParseData.setEnabled(False)
-
         lab = self._ui.comboBoxLab.currentText()
         marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
         c3d_file = os.path.join(input_directory, static_trial)
@@ -267,6 +270,8 @@ class MainWindow(QMainWindow):
             self._parse_cancelled(e)
             return
 
+        self._ui.pushButtonParseData.setEnabled(False)
+
         self._progress_tracker = ProgressTracker()
         self._progress_tracker.progress.connect(self._update_progress)
         self._start_progress_animation()
@@ -275,8 +280,10 @@ class MainWindow(QMainWindow):
                                    marker_diameter, static_data, self._progress_tracker)
         self._worker.finished.connect(self._parse_finished)
         self._worker.cancelled.connect(self._parse_cancelled)
+        self._worker.failed.connect(self._parse_failed)
         self._worker.start()
 
+    @handle_runtime_error
     def _parse_finished(self, result):
         grf_data, self._kinematic_data, self._kinetic_data, self._s_t_data = result
 
@@ -296,6 +303,12 @@ class MainWindow(QMainWindow):
 
         self._ui.pushButtonParseData.setEnabled(True)
 
+    @handle_runtime_error
+    def _parse_failed(self, e):
+        self._ui.pushButtonParseData.setEnabled(True)
+
+        raise e
+
     def _start_progress_animation(self):
         self._timer.start(500)
 
@@ -312,6 +325,7 @@ class MainWindow(QMainWindow):
         self._dots = 0
         self._ui.labelProgress.setStyleSheet(f"color: {color};")
 
+    @handle_runtime_error
     def _harmonise_data(self):
         selected_trials = self._get_selected_trials()
         kinematic_exclusions = self._kinematic_curves.get_excluded_cycles()
