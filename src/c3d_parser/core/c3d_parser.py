@@ -171,7 +171,7 @@ def run_ik(osim_model, trc_file_path, output_directory, marker_data_rate):
     ik_output = os.path.join(ik_directory, f"{file_name}_IK.mot")
     perform_ik(osim_model, trc_file_path, ik_output)
     ik_data = read_data(ik_output)
-    filter_data(ik_data, marker_data_rate, cut_off_frequency=8)
+    filter_data(ik_data, marker_data_rate)
 
     return ik_data, ik_output
 
@@ -185,7 +185,7 @@ def run_id(osim_model, ik_data, ik_output, grf_file_path, output_directory, mark
     id_output = os.path.join(id_directory, f"{file_name}_ID.sto")
     perform_id(osim_model, ik_output, grf_file_path, id_output)
     id_data = read_data(id_output)
-    filter_data(id_data, marker_data_rate, cut_off_frequency=8)
+    filter_data(id_data, marker_data_rate)
     calculate_joint_powers(ik_data, id_data, events)
     mass_adjust_units(id_data, subject_mass)
 
@@ -324,7 +324,7 @@ def trim_frames(frame_data):
     return trim_start, trim_end
 
 
-def filter_data(frame_data, data_rate, cut_off_frequency=6):
+def filter_data(frame_data, data_rate, cut_off_frequency=8):
     # Determine filter coefficients
     Wn = cut_off_frequency / (data_rate / 2)
     b, a = signal.butter(2, Wn)
