@@ -5,7 +5,23 @@ import logging
 from c3d_parser.settings.general import APPLICATION_NAME, get_app_directory
 
 
-logger = logging.getLogger(APPLICATION_NAME)
+class FilteredLogger:
+    def __init__(self, base_logger):
+        self.base_logger = base_logger
+        self.last_message = None
+
+    def __getattr__(self, name):
+        log_method = getattr(self.base_logger, name)
+
+        def filtered(message, *args, **kwargs):
+            if message != self.last_message:
+                log_method(message, *args, **kwargs)
+                self.last_message = message
+
+        return filtered
+
+
+logger = FilteredLogger(logging.getLogger(APPLICATION_NAME))
 
 
 def get_log_directory():
@@ -22,4 +38,4 @@ def initialise_logger():
     file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.INFO)
 
-    logger.addHandler(file_handler)
+    logger.base_logger.addHandler(file_handler)

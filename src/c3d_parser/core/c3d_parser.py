@@ -17,9 +17,7 @@ from c3d_parser.core.c3d_patch import c3d
 from c3d_parser.core.osim import perform_ik, perform_id
 from c3d_parser.view.dialogs.subject_info_dialog import SubjectInfoDialog
 from c3d_parser.settings.general import APPLICATION_NAME
-
-
-logger = logging.getLogger(APPLICATION_NAME)
+from c3d_parser.settings.logging import logger
 
 
 script_directory = os.path.dirname(os.path.abspath(__file__))

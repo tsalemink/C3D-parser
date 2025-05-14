@@ -16,9 +16,7 @@ from c3d_parser.view.dialogs.options_dialog import OptionsDialog
 from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
 from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET, APPLICATION_NAME
 from c3d_parser.view.utils import handle_runtime_error
-
-
-logger = logging.getLogger(APPLICATION_NAME)
+from c3d_parser.settings.logging import logger
 
 
 output_direcory_name = 'c3d_parser_output'

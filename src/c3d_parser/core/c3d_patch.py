@@ -4,9 +4,7 @@ import logging
 
 import numpy as np
 
-
-# Configure logging.
-logger = logging.getLogger('C3D-Parser')
+from c3d_parser.settings.logging import logger
 
 
 # Set variables required by patch functions.
