@@ -1066,7 +1066,7 @@ def calculate_distance_covered(frame_data, start_time=None, end_time=None):
     start_frame = frame_data.index[0] if start_time is None \
         else frame_data[frame_data['Time'] >= start_time].index[0]
     end_frame = frame_data.index[-1] if end_time is None \
-        else frame_data[frame_data['Time'] <= end_time].index[0]
+        else frame_data[frame_data['Time'] <= end_time].index[-1]
 
     start_pos = frame_data.loc[start_frame, ['LASI', 'RASI']].mean()
     end_pos = frame_data.loc[end_frame, ['LASI', 'RASI']].mean()
