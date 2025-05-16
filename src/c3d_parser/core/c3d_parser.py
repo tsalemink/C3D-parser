@@ -53,7 +53,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         file_path = os.path.join(input_directory, trial)
         try:
             analog_data, events, s_t_data, trc_file_path, grf_file_path = \
-                parse_dynamic_trial(file_path, lab, output_directory, marker_data_rate)
+                parse_dynamic_trial(file_path, lab, output_directory, marker_data_rate, static_data)
         except ParserError as e:
             logger.error(e)
             continue
@@ -102,13 +102,13 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_
     set_marker_data(trc_data, frame_data)
     trc_file_path = write_trc_data(trc_data, file_name, output_directory)
 
-    height, weight, left_knee_width, right_knee_width = static_data
+    height, weight, left_knee_width, right_knee_width, _, _ = static_data
     frame = add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marker_diameter)
 
     return frame, trc_file_path, height, weight
 
 
-def parse_dynamic_trial(c3d_file, lab, output_directory, marker_data_rate):
+def parse_dynamic_trial(c3d_file, lab, output_directory, marker_data_rate, static_data):
     logger.info(f"Parsing dynamic trial: {c3d_file}")
 
     c3d_file_name = os.path.basename(c3d_file)
@@ -157,7 +157,7 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, marker_data_rate):
     set_marker_data(trc_data, frame_data, rate=marker_data_rate)
     trc_file_path = write_trc_data(trc_data, file_name, output_directory)
 
-    s_t_data = calculate_spatiotemporal_data(frame_data, events)
+    s_t_data = calculate_spatiotemporal_data(frame_data, events, static_data)
 
     return analog_data, events, s_t_data, trc_file_path, grf_file_path
 
@@ -534,7 +534,14 @@ def extract_static_data(file_path):
             left_knee_width = None
             right_knee_width = None
 
-    return height, weight, left_knee_width, right_knee_width
+        if 'LLEGLENGTH' in processing_group and 'RLEGLENGTH' in processing_group:
+            left_leg_length = reader.get('PROCESSING:LLegLength').float_value
+            right_leg_length = reader.get('PROCESSING:RLegLength').float_value
+        else:
+            left_leg_length = None
+            right_leg_length = None
+
+    return height, weight, left_knee_width, right_knee_width, left_leg_length, right_leg_length
 
 
 def read_grf(file_path):
@@ -959,7 +966,7 @@ def write_normalised_data(data, column_names, selected_trials, excluded_cycles, 
                     file.write('\n\n')
 
 
-def calculate_spatiotemporal_data(frame_data, events):
+def calculate_spatiotemporal_data(frame_data, events, static_data):
     stride_lengths = []
     step_lengths = {"Left": [], "Right": []}
     step_widths = []
@@ -968,6 +975,10 @@ def calculate_spatiotemporal_data(frame_data, events):
     single_support_phase = {"Left": [], "Right": []}
     double_support_phase = {"Left": [], "Right": []}
     strike_count = 0
+
+    _, _, _, _, left_leg_length, right_leg_length = static_data
+    left_leg_length /= 1000
+    right_leg_length /= 1000
 
     time_ordered_events = defaultdict(dict)
     for foot, foot_events in events.items():
@@ -1019,10 +1030,18 @@ def calculate_spatiotemporal_data(frame_data, events):
 
     s_t_data = {}
 
+    average_leg_length = (left_leg_length + right_leg_length) / 2
+    stride_length = (sum(stride_lengths) / len(stride_lengths)) / 1000
+    left_step_length = (sum(step_lengths["Left"]) / len(step_lengths["Left"])) / 1000
+    right_step_length = (sum(step_lengths["Right"]) / len(step_lengths["Right"])) / 1000
+
     # Determine length and width averages.
-    s_t_data["Stride Length (m)"] = (sum(stride_lengths) / len(stride_lengths)) / 1000
-    s_t_data["Step Length - Left (m)"] = (sum(step_lengths["Left"]) / len(step_lengths["Left"])) / 1000
-    s_t_data["Step Length - Right (m)"] = (sum(step_lengths["Right"]) / len(step_lengths["Right"])) / 1000
+    s_t_data["Stride Length (m)"] = stride_length
+    s_t_data["Normalised Stride Length (m)"] = stride_length / average_leg_length
+    s_t_data["Step Length - Left (m)"] = left_step_length
+    s_t_data["Step Length - Right (m)"] = right_step_length
+    s_t_data["Normalised Step Length - Left (m)"] = left_step_length / left_leg_length
+    s_t_data["Normalised Step Length - Right (m)"] = right_step_length / right_leg_length
     s_t_data["Step Width (m)"] = (sum(step_widths) / len(step_widths)) / 1000
 
     # Determine phase percentages.
@@ -1049,7 +1068,9 @@ def calculate_spatiotemporal_data(frame_data, events):
 
     # Calculate gait-speed.
     total_distance = calculate_distance_covered(frame_data, start_time, end_time)
-    s_t_data["Gait Speed (m/s)"] = (total_distance / total_time) / 1000
+    gait_speed = (total_distance / total_time) / 1000
+    s_t_data["Gait Speed (m/s)"] = gait_speed
+    s_t_data["Normalised Gait Speed (m/s)"] = gait_speed / math.sqrt(9.81 * average_leg_length)
 
     # Calculate cadence.
     s_t_data["Cadence (steps/min)"] = ((strike_count - 1) / total_time) * 60
