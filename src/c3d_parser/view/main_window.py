@@ -5,7 +5,7 @@ import numpy as np
 from collections import defaultdict
 
 from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QTimer
-from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog
+from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog, QMessageBox
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
@@ -58,6 +58,7 @@ class MainWindow(QMainWindow):
         self._input_data_directory = ''
         self._output_data_directory = ''
 
+        self._static_trial = None
         self._analog_data = None
         self._subject_weight = None
         self._kinematic_data = {}
@@ -174,6 +175,7 @@ class MainWindow(QMainWindow):
 
         self._ui.listWidgetFiles.include_trial.connect(self._include_trial)
         self._ui.listWidgetFiles.exclude_trial.connect(self._exclude_trial)
+        self._ui.listWidgetFiles.category_changed.connect(self._update_subject_info)
 
     def _validate_input_directory(self):
         directory_valid = self._validate_directory()
@@ -229,6 +231,39 @@ class MainWindow(QMainWindow):
                     item.setCheckState(Qt.CheckState.Checked)
                     self._ui.listWidgetFiles.addItem(item)
 
+        self._update_subject_info()
+
+    def _update_subject_info(self):
+        static_trials = []
+        for i in range(self._ui.listWidgetFiles.count()):
+            item = self._ui.listWidgetFiles.item(i)
+            if item.data(Qt.UserRole) == "Static":
+                static_trials.append(item.text())
+
+        if static_trials:
+            static_trial = static_trials[0]
+            if static_trial != self._static_trial:
+                self._set_subject_info(static_trial)
+                self._static_trial = static_trial
+
+    def _set_subject_info(self, static_trial):
+        input_directory = self._ui.lineEditInputDirectory.text()
+        c3d_file = os.path.join(input_directory, static_trial)
+        static_data = list(extract_static_data(c3d_file))
+
+        if static_data[0] is not None:
+            self._ui.doubleSpinBoxHeight.setValue(static_data[0] / 1000)
+        if static_data[1] is not None:
+            self._ui.doubleSpinBoxWeight.setValue(static_data[1])
+        if static_data[2] is not None:
+            self._ui.doubleSpinBoxLeftKneeWidth.setValue(static_data[2] / 1000)
+        if static_data[3] is not None:
+            self._ui.doubleSpinBoxRightKneeWidth.setValue(static_data[3] / 1000)
+        if static_data[4] is not None:
+            self._ui.doubleSpinBoxLeftLegLength.setValue(static_data[4] / 1000)
+        if static_data[5] is not None:
+            self._ui.doubleSpinBoxRightLegLength.setValue(static_data[5] / 1000)
+
     @handle_runtime_error
     def _parse_c3d_data(self):
         input_directory = self._ui.lineEditInputDirectory.text()
@@ -261,12 +296,20 @@ class MainWindow(QMainWindow):
 
         lab = self._ui.comboBoxLab.currentText()
         marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
-        c3d_file = os.path.join(input_directory, static_trial)
-        try:
-            static_data = list(extract_static_data(c3d_file))
-        except CancelException as e:
-            self._parse_cancelled(e)
+
+        static_data = {
+            'Height': self._ui.doubleSpinBoxHeight.value() * 1000,
+            'Weight': self._ui.doubleSpinBoxWeight.value(),
+            'Left Knee Width': self._ui.doubleSpinBoxLeftKneeWidth.value() * 1000,
+            'Right Knee Width': self._ui.doubleSpinBoxRightKneeWidth.value() * 1000,
+            'Left Leg Length': self._ui.doubleSpinBoxLeftLegLength.value() * 1000,
+            'Right Leg Length': self._ui.doubleSpinBoxRightLegLength.value() * 1000,
+        }
+        missing = [key for key, value in static_data.items() if value == 0.0]
+        if missing:
+            QMessageBox.warning(self, "Warning", "Subject measurements missing:\n- " + "\n- ".join(missing))
             return
+        static_data = list(static_data.values())
 
         self._ui.pushButtonParseData.setEnabled(False)
 

@@ -7,6 +7,7 @@ from PySide6.QtGui import QAction
 class CustomListWidget(QListWidget):
     include_trial = Signal(str)
     exclude_trial = Signal(str)
+    category_changed = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -39,6 +40,7 @@ class CustomListWidget(QListWidget):
     def set_item_category(self, item, category):
         item.setData(Qt.UserRole, category)
         self.viewport().update()
+        self.category_changed.emit()
 
 
 class CustomDelegate(QStyledItemDelegate):

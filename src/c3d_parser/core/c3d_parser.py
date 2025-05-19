@@ -15,7 +15,6 @@ from opensim_model_creator.Create_Model import create_model
 
 from c3d_parser.core.c3d_patch import c3d
 from c3d_parser.core.osim import perform_ik, perform_id
-from c3d_parser.view.dialogs.subject_info_dialog import SubjectInfoDialog
 from c3d_parser.settings.general import APPLICATION_NAME
 from c3d_parser.settings.logging import logger
 
@@ -513,33 +512,24 @@ def extract_static_data(file_path):
         reader = c3d.Reader(handle)
 
         if 'PROCESSING' not in reader:
-            raise ParserError("No processing section found in static trial.")
+            logger.warn("No processing section found in static trial.")
+            return None, None, None, None, None, None
+
         processing_group = reader.get('PROCESSING')
+        height = weight = left_knee_width = right_knee_width = left_leg_length = right_leg_length = None
 
-        if 'BODYMASS' in processing_group and 'HEIGHT' in processing_group:
+        if 'HEIGHT' in processing_group:
             height = reader.get('PROCESSING:Height').float_value
+        if 'BODYMASS' in processing_group:
             weight = reader.get('PROCESSING:Bodymass').float_value
-        else:
-            dlg = SubjectInfoDialog()
-            if dlg.exec():
-                height = dlg.subject_height()
-                weight = dlg.subject_weight()
-            else:
-                raise CancelException("Processing cancelled.")
-
-        if 'LKNEEWIDTH' in processing_group and 'RKNEEWIDTH' in processing_group:
+        if 'LKNEEWIDTH' in processing_group:
             left_knee_width = reader.get('PROCESSING:LKneeWidth').float_value
+        if 'RKNEEWIDTH' in processing_group:
             right_knee_width = reader.get('PROCESSING:RKneeWidth').float_value
-        else:
-            left_knee_width = None
-            right_knee_width = None
-
-        if 'LLEGLENGTH' in processing_group and 'RLEGLENGTH' in processing_group:
+        if 'LLEGLENGTH' in processing_group:
             left_leg_length = reader.get('PROCESSING:LLegLength').float_value
+        if 'RLEGLENGTH' in processing_group:
             right_leg_length = reader.get('PROCESSING:RLegLength').float_value
-        else:
-            left_leg_length = None
-            right_leg_length = None
 
     return height, weight, left_knee_width, right_knee_width, left_leg_length, right_leg_length
 
