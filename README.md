@@ -33,7 +33,11 @@ session directory using the "Input" line-edit or associated directory chooser, a
 directory to output the results. Each trial in the session will be automatically classified as
 "Static" or "Dynamic", but you can override these classifications by right-clicking on the item
 in question. You can exclude specific trials from the analysis by using the check-boxes provided.
-Once you are ready, click "Process Data" to begin.
+
+Finally, the application also requires a collection of subject information for the processing step,
+including height, weight, knee-widths and leg-lengths. This information will be automatically
+filled using the metadata contained in your static C3D file, but you should check these values to
+make sure they are accurate. Once you are ready, click "Process Data" to begin.
 
 The application will create an OpenSim model using the input data and will run IK and ID. The
 results from IK and ID will be displayed in the "Kinematic" and "Kinetic" tabs respectively.
