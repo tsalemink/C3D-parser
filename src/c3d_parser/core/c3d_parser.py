@@ -1187,6 +1187,6 @@ def create_osim_model(static_trc, dynamic_trc, static_marker_data, height, weigh
     static_marker_data = static_marker_data.drop("Time").to_dict()
     create_model(static_trc, dynamic_trc, output_directory, static_marker_data, weight, height, testing=True,
                  progress_tracker=progress_tracker)
-    model_path = os.path.join(output_directory, "Models", "Final_Bone_Model.osim")
+    model_path = os.path.join(output_directory, "Models", "Optimised_Knee_Axes.osim")
 
     return model_path
