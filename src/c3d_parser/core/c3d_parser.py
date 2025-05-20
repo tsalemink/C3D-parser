@@ -776,7 +776,7 @@ def mass_adjust_units(kinetic_data, subject_mass):
 
 def calculate_joint_powers(kinematic_data, kinetic_data, events):
     time = kinematic_data['time'].values
-    for joint in ['hip_flexion', 'knee_angle', 'ankle_angle']:
+    for joint in ['hip_flexion', 'knee_flexion', 'ankle_angle']:
         for leg in ['l', 'r']:
             joint_angle = kinematic_data[f'{joint}_{leg}'].values
             joint_moment = kinetic_data[f'{joint}_{leg}_moment'].values
@@ -835,7 +835,7 @@ def normalise_kinematics(kinematic_data, events):
         for foot, foot_events in trial_events.items():
             pelvis_kinematics = ['pelvis_tilt', 'pelvis_list', 'pelvis_rotation']
             other_kinematics = ['hip_flexion', 'hip_adduction', 'hip_rotation',
-                                'knee_angle', 'ankle_angle', 'subtalar_angle']
+                                'knee_flexion', 'ankle_angle', 'subtalar_angle']
             for j, name in enumerate(other_kinematics):
                 other_kinematics[j] = f"{name}_{foot[0].lower()}"
             data = trial_data.loc[:, ['time'] + pelvis_kinematics + other_kinematics]
@@ -853,10 +853,10 @@ def normalise_kinematics(kinematic_data, events):
                         data_segment["pelvis_rotation"] = -data_segment["pelvis_rotation"]
                         data_segment["hip_adduction_l"] = -data_segment["hip_adduction_l"]
                         data_segment["hip_rotation_l"] = -data_segment["hip_rotation_l"]
-                        data_segment["knee_angle_l"] = -data_segment["knee_angle_l"]
+                        data_segment["knee_flexion_l"] = -data_segment["knee_flexion_l"]
                     if foot == "Right":
                         data_segment["pelvis_list"] = -(data_segment["pelvis_list"] - 180)
-                        data_segment["knee_angle_r"] = -data_segment["knee_angle_r"]
+                        data_segment["knee_flexion_r"] = -data_segment["knee_flexion_r"]
                     data_segment["pelvis_list"] -= 90
 
                     normalised_data[foot][file_name].append(data_segment.values.T)
@@ -876,8 +876,8 @@ def normalise_kinetics(kinetic_data, events):
 
         for foot, foot_events in trial_events.items():
             moment_names = ['hip_flexion', 'hip_adduction', 'hip_rotation',
-                            'knee_angle', 'ankle_angle', 'subtalar_angle']
-            power_names = ['hip_flexion', 'knee_angle', 'ankle_angle']
+                            'knee_flexion', 'ankle_angle', 'subtalar_angle']
+            power_names = ['hip_flexion', 'knee_flexion', 'ankle_angle']
             for i, name in enumerate(moment_names):
                 moment_names[i] = f"{name}_{foot[0].lower()}_moment"
             for i, name in enumerate(power_names):
@@ -916,7 +916,7 @@ def write_normalised_kinematics(kinematic_data, selected_trials, excluded_cycles
     output_file = os.path.join(normalised_directory, f"combined_kinematics.csv")
     columns = ["pelvis_list", "pelvis_rotation", "pelvis_tilt",
                "hip_adduction", "hip_rotation", "hip_flexion",
-               "knee_angle", "ankle_angle", "subtalar_angle"]
+               "knee_flexion", "ankle_angle", "subtalar_angle"]
     write_normalised_data(kinematic_data, columns, selected_trials, excluded_cycles, output_file)
 
 
@@ -924,8 +924,8 @@ def write_normalised_kinetics(kinetic_data, selected_trials, excluded_cycles, ou
     normalised_directory = os.path.join(output_directory, 'normalised')
     output_file = os.path.join(normalised_directory, f"combined_kinetics.csv")
     columns = ["hip_adduction_moment", "hip_rotation_moment", "hip_flexion_moment",
-               "knee_angle_moment", "ankle_angle_moment", "subtalar_angle_moment",
-               "hip_flexion_power", "knee_angle_power", "ankle_angle_power"]
+               "knee_flexion_moment", "ankle_angle_moment", "subtalar_angle_moment",
+               "hip_flexion_power", "knee_flexion_power", "ankle_angle_power"]
     write_normalised_data(kinetic_data, columns, selected_trials, excluded_cycles, output_file)
 
 
