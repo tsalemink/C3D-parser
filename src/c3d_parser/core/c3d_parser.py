@@ -1185,6 +1185,9 @@ def create_osim_model(static_trc, dynamic_trc, static_marker_data, height, weigh
     height /= 1000
 
     static_marker_data = static_marker_data.drop("Time").to_dict()
+    rotation_matrix = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])
+    static_marker_data = {k: np.dot(rotation_matrix, v) for k, v in static_marker_data.items()}
+
     create_model(static_trc, dynamic_trc, output_directory, static_marker_data, weight, height, testing=True,
                  progress_tracker=progress_tracker)
     model_path = os.path.join(output_directory, "Models", "Optimised_Knee_Axes.osim")
