@@ -252,17 +252,17 @@ class MainWindow(QMainWindow):
         static_data = list(extract_static_data(c3d_file))
 
         if static_data[0] is not None:
-            self._ui.doubleSpinBoxHeight.setValue(static_data[0] / 1000)
+            self._ui.doubleSpinBoxHeight.setValue(static_data[0])
         if static_data[1] is not None:
             self._ui.doubleSpinBoxWeight.setValue(static_data[1])
         if static_data[2] is not None:
-            self._ui.doubleSpinBoxLeftKneeWidth.setValue(static_data[2] / 1000)
+            self._ui.doubleSpinBoxLeftKneeWidth.setValue(static_data[2])
         if static_data[3] is not None:
-            self._ui.doubleSpinBoxRightKneeWidth.setValue(static_data[3] / 1000)
+            self._ui.doubleSpinBoxRightKneeWidth.setValue(static_data[3])
         if static_data[4] is not None:
-            self._ui.doubleSpinBoxLeftLegLength.setValue(static_data[4] / 1000)
+            self._ui.doubleSpinBoxLeftLegLength.setValue(static_data[4])
         if static_data[5] is not None:
-            self._ui.doubleSpinBoxRightLegLength.setValue(static_data[5] / 1000)
+            self._ui.doubleSpinBoxRightLegLength.setValue(static_data[5])
 
     @handle_runtime_error
     def _parse_c3d_data(self):
@@ -298,12 +298,12 @@ class MainWindow(QMainWindow):
         marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
 
         static_data = {
-            'Height': self._ui.doubleSpinBoxHeight.value() * 1000,
+            'Height': self._ui.doubleSpinBoxHeight.value(),
             'Weight': self._ui.doubleSpinBoxWeight.value(),
-            'Left Knee Width': self._ui.doubleSpinBoxLeftKneeWidth.value() * 1000,
-            'Right Knee Width': self._ui.doubleSpinBoxRightKneeWidth.value() * 1000,
-            'Left Leg Length': self._ui.doubleSpinBoxLeftLegLength.value() * 1000,
-            'Right Leg Length': self._ui.doubleSpinBoxRightLegLength.value() * 1000,
+            'Left Knee Width': self._ui.doubleSpinBoxLeftKneeWidth.value(),
+            'Right Knee Width': self._ui.doubleSpinBoxRightKneeWidth.value(),
+            'Left Leg Length': self._ui.doubleSpinBoxLeftLegLength.value(),
+            'Right Leg Length': self._ui.doubleSpinBoxRightLegLength.value(),
         }
         missing = [key for key, value in static_data.items() if value == 0.0]
         if missing:

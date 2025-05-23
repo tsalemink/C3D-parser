@@ -144,7 +144,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.label_4 = QLabel(self.frameTrial)
         self.label_4.setObjectName(u"label_4")
-        self.label_4.setMinimumSize(QSize(124, 0))
+        self.label_4.setMinimumSize(QSize(127, 0))
 
         self.horizontalLayout_5.addWidget(self.label_4)
 
@@ -152,8 +152,9 @@ class Ui_MainWindow(object):
         self.doubleSpinBoxHeight.setObjectName(u"doubleSpinBoxHeight")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxHeight.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxHeight.setSizePolicy(sizePolicy1)
-        self.doubleSpinBoxHeight.setDecimals(3)
-        self.doubleSpinBoxHeight.setSingleStep(0.100000000000000)
+        self.doubleSpinBoxHeight.setDecimals(0)
+        self.doubleSpinBoxHeight.setMaximum(9999.000000000000000)
+        self.doubleSpinBoxHeight.setSingleStep(1.000000000000000)
 
         self.horizontalLayout_5.addWidget(self.doubleSpinBoxHeight)
 
@@ -164,7 +165,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
         self.label_6 = QLabel(self.frameTrial)
         self.label_6.setObjectName(u"label_6")
-        self.label_6.setMinimumSize(QSize(124, 0))
+        self.label_6.setMinimumSize(QSize(127, 0))
 
         self.horizontalLayout_8.addWidget(self.label_6)
 
@@ -183,7 +184,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
         self.label_7 = QLabel(self.frameTrial)
         self.label_7.setObjectName(u"label_7")
-        self.label_7.setMinimumSize(QSize(124, 0))
+        self.label_7.setMinimumSize(QSize(127, 0))
 
         self.horizontalLayout_9.addWidget(self.label_7)
 
@@ -191,8 +192,9 @@ class Ui_MainWindow(object):
         self.doubleSpinBoxLeftKneeWidth.setObjectName(u"doubleSpinBoxLeftKneeWidth")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxLeftKneeWidth.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxLeftKneeWidth.setSizePolicy(sizePolicy1)
-        self.doubleSpinBoxLeftKneeWidth.setDecimals(3)
-        self.doubleSpinBoxLeftKneeWidth.setSingleStep(0.100000000000000)
+        self.doubleSpinBoxLeftKneeWidth.setDecimals(0)
+        self.doubleSpinBoxLeftKneeWidth.setMaximum(999.000000000000000)
+        self.doubleSpinBoxLeftKneeWidth.setSingleStep(1.000000000000000)
 
         self.horizontalLayout_9.addWidget(self.doubleSpinBoxLeftKneeWidth)
 
@@ -203,7 +205,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
         self.label_8 = QLabel(self.frameTrial)
         self.label_8.setObjectName(u"label_8")
-        self.label_8.setMinimumSize(QSize(124, 0))
+        self.label_8.setMinimumSize(QSize(127, 0))
 
         self.horizontalLayout_10.addWidget(self.label_8)
 
@@ -211,8 +213,9 @@ class Ui_MainWindow(object):
         self.doubleSpinBoxRightKneeWidth.setObjectName(u"doubleSpinBoxRightKneeWidth")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxRightKneeWidth.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxRightKneeWidth.setSizePolicy(sizePolicy1)
-        self.doubleSpinBoxRightKneeWidth.setDecimals(3)
-        self.doubleSpinBoxRightKneeWidth.setSingleStep(0.100000000000000)
+        self.doubleSpinBoxRightKneeWidth.setDecimals(0)
+        self.doubleSpinBoxRightKneeWidth.setMaximum(999.000000000000000)
+        self.doubleSpinBoxRightKneeWidth.setSingleStep(1.000000000000000)
 
         self.horizontalLayout_10.addWidget(self.doubleSpinBoxRightKneeWidth)
 
@@ -223,7 +226,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
         self.label_9 = QLabel(self.frameTrial)
         self.label_9.setObjectName(u"label_9")
-        self.label_9.setMinimumSize(QSize(124, 0))
+        self.label_9.setMinimumSize(QSize(127, 0))
 
         self.horizontalLayout_11.addWidget(self.label_9)
 
@@ -231,8 +234,9 @@ class Ui_MainWindow(object):
         self.doubleSpinBoxLeftLegLength.setObjectName(u"doubleSpinBoxLeftLegLength")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxLeftLegLength.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxLeftLegLength.setSizePolicy(sizePolicy1)
-        self.doubleSpinBoxLeftLegLength.setDecimals(3)
-        self.doubleSpinBoxLeftLegLength.setSingleStep(0.100000000000000)
+        self.doubleSpinBoxLeftLegLength.setDecimals(0)
+        self.doubleSpinBoxLeftLegLength.setMaximum(9999.000000000000000)
+        self.doubleSpinBoxLeftLegLength.setSingleStep(1.000000000000000)
 
         self.horizontalLayout_11.addWidget(self.doubleSpinBoxLeftLegLength)
 
@@ -243,7 +247,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
         self.label_10 = QLabel(self.frameTrial)
         self.label_10.setObjectName(u"label_10")
-        self.label_10.setMinimumSize(QSize(124, 0))
+        self.label_10.setMinimumSize(QSize(127, 0))
 
         self.horizontalLayout_12.addWidget(self.label_10)
 
@@ -251,8 +255,9 @@ class Ui_MainWindow(object):
         self.doubleSpinBoxRightLegLength.setObjectName(u"doubleSpinBoxRightLegLength")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxRightLegLength.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxRightLegLength.setSizePolicy(sizePolicy1)
-        self.doubleSpinBoxRightLegLength.setDecimals(3)
-        self.doubleSpinBoxRightLegLength.setSingleStep(0.100000000000000)
+        self.doubleSpinBoxRightLegLength.setDecimals(0)
+        self.doubleSpinBoxRightLegLength.setMaximum(9999.000000000000000)
+        self.doubleSpinBoxRightLegLength.setSingleStep(1.000000000000000)
 
         self.horizontalLayout_12.addWidget(self.doubleSpinBoxRightLegLength)
 
@@ -268,7 +273,7 @@ class Ui_MainWindow(object):
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
         self.label_3.setSizePolicy(sizePolicy3)
-        self.label_3.setMinimumSize(QSize(124, 0))
+        self.label_3.setMinimumSize(QSize(127, 0))
 
         self.horizontalLayout_4.addWidget(self.label_3)
 
@@ -412,12 +417,12 @@ class Ui_MainWindow(object):
         self.pushButtonInputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Output:", None))
         self.pushButtonOutputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Height (m):", None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Height (mm):", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Weight (kg):", None))
-        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Left Knee Width (m):", None))
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Right Knee Width (m):", None))
-        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Left Leg Length (m):", None))
-        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Right Leg Length (m):", None))
+        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Left Knee Width (mm):", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Right Knee Width (mm):", None))
+        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Left Leg Length (mm):", None))
+        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Right Leg Length (mm):", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Marker Diameter (mm):", None))
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Process Data", None))
         self.pushButtonHarmonise.setText(QCoreApplication.translate("MainWindow", u"Harmonise Data", None))

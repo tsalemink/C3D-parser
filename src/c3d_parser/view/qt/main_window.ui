@@ -180,12 +180,12 @@
            <widget class="QLabel" name="label_4">
             <property name="minimumSize">
              <size>
-              <width>124</width>
+              <width>127</width>
               <height>0</height>
              </size>
             </property>
             <property name="text">
-             <string>Height (m):</string>
+             <string>Height (mm):</string>
             </property>
            </widget>
           </item>
@@ -198,10 +198,13 @@
              </sizepolicy>
             </property>
             <property name="decimals">
-             <number>3</number>
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <double>9999.000000000000000</double>
             </property>
             <property name="singleStep">
-             <double>0.100000000000000</double>
+             <double>1.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -213,7 +216,7 @@
            <widget class="QLabel" name="label_6">
             <property name="minimumSize">
              <size>
-              <width>124</width>
+              <width>127</width>
               <height>0</height>
              </size>
             </property>
@@ -243,12 +246,12 @@
            <widget class="QLabel" name="label_7">
             <property name="minimumSize">
              <size>
-              <width>124</width>
+              <width>127</width>
               <height>0</height>
              </size>
             </property>
             <property name="text">
-             <string>Left Knee Width (m):</string>
+             <string>Left Knee Width (mm):</string>
             </property>
            </widget>
           </item>
@@ -261,10 +264,13 @@
              </sizepolicy>
             </property>
             <property name="decimals">
-             <number>3</number>
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <double>999.000000000000000</double>
             </property>
             <property name="singleStep">
-             <double>0.100000000000000</double>
+             <double>1.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -276,12 +282,12 @@
            <widget class="QLabel" name="label_8">
             <property name="minimumSize">
              <size>
-              <width>124</width>
+              <width>127</width>
               <height>0</height>
              </size>
             </property>
             <property name="text">
-             <string>Right Knee Width (m):</string>
+             <string>Right Knee Width (mm):</string>
             </property>
            </widget>
           </item>
@@ -294,10 +300,13 @@
              </sizepolicy>
             </property>
             <property name="decimals">
-             <number>3</number>
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <double>999.000000000000000</double>
             </property>
             <property name="singleStep">
-             <double>0.100000000000000</double>
+             <double>1.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -309,12 +318,12 @@
            <widget class="QLabel" name="label_9">
             <property name="minimumSize">
              <size>
-              <width>124</width>
+              <width>127</width>
               <height>0</height>
              </size>
             </property>
             <property name="text">
-             <string>Left Leg Length (m):</string>
+             <string>Left Leg Length (mm):</string>
             </property>
            </widget>
           </item>
@@ -327,10 +336,13 @@
              </sizepolicy>
             </property>
             <property name="decimals">
-             <number>3</number>
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <double>9999.000000000000000</double>
             </property>
             <property name="singleStep">
-             <double>0.100000000000000</double>
+             <double>1.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -342,12 +354,12 @@
            <widget class="QLabel" name="label_10">
             <property name="minimumSize">
              <size>
-              <width>124</width>
+              <width>127</width>
               <height>0</height>
              </size>
             </property>
             <property name="text">
-             <string>Right Leg Length (m):</string>
+             <string>Right Leg Length (mm):</string>
             </property>
            </widget>
           </item>
@@ -360,10 +372,13 @@
              </sizepolicy>
             </property>
             <property name="decimals">
-             <number>3</number>
+             <number>0</number>
+            </property>
+            <property name="maximum">
+             <double>9999.000000000000000</double>
             </property>
             <property name="singleStep">
-             <double>0.100000000000000</double>
+             <double>1.000000000000000</double>
             </property>
            </widget>
           </item>
@@ -381,7 +396,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>124</width>
+              <width>127</width>
               <height>0</height>
              </size>
             </property>
