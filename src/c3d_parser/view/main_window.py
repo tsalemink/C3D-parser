@@ -518,7 +518,7 @@ class MainWindow(QMainWindow):
         self._kinetic_plots[7].set_ylim(-3.0, 3.0)      # Total Knee
         self._kinetic_plots[8].set_ylim(-1.0, 3.0)      # Ankle Dorsiflexor
         self._kinetic_plots[9].set_ylim(-0.5, 0.5)      # Subtalar Inverter
-        self._kinetic_plots[10].set_ylim(-1.0, 3.0)     # Total Ankle
+        self._kinetic_plots[10].set_ylim(-2.0, 5.0)     # Total Ankle
 
         for i, plot in enumerate(self._kinetic_plots):
             plot.set_xlim(0, 100)
