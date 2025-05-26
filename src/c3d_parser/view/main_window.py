@@ -516,7 +516,7 @@ class MainWindow(QMainWindow):
         self._kinetic_plots[5].set_ylim(-1.0, 1.0)      # Knee Abductor
         self._kinetic_plots[6].set_ylim(-0.5, 0.5)      # Knee Rotation
         self._kinetic_plots[7].set_ylim(-3.0, 3.0)      # Total Knee
-        self._kinetic_plots[8].set_ylim(-1.5, 0.5)      # Ankle Dorsiflexor
+        self._kinetic_plots[8].set_ylim(-1.0, 3.0)      # Ankle Dorsiflexor
         self._kinetic_plots[9].set_ylim(-0.5, 0.5)      # Subtalar Inverter
         self._kinetic_plots[10].set_ylim(-1.0, 3.0)     # Total Ankle
 

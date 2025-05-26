@@ -904,6 +904,7 @@ def normalise_kinetics(kinetic_data, events):
                         data_segment["hip_adduction_r_moment"] = -data_segment["hip_adduction_r_moment"] + 1
                         data_segment["knee_adduction_r_moment"] = -data_segment["knee_adduction_r_moment"]
                         data_segment["knee_rotation_r_moment"] = -data_segment["knee_rotation_r_moment"]
+                    data_segment[f"ankle_angle_{side}_moment"] = -data_segment[f"ankle_angle_{side}_moment"]
 
                     normalised_data[foot][file_name].append(data_segment.values.T)
                     if event_plate is not None:
