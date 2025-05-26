@@ -875,14 +875,21 @@ def normalise_kinetics(kinetic_data, events):
         trial_events = list(events.values())[i]
 
         for foot, foot_events in trial_events.items():
-            moment_names = ['hip_flexion', 'hip_adduction', 'hip_rotation',
-                            'knee_flexion', 'ankle_angle', 'subtalar_angle']
-            power_names = ['hip_flexion', 'knee_flexion', 'ankle_angle']
-            for i, name in enumerate(moment_names):
-                moment_names[i] = f"{name}_{foot[0].lower()}_moment"
-            for i, name in enumerate(power_names):
-                power_names[i] = f"{name}_{foot[0].lower()}_power"
-            data = trial_data.loc[:, ['time'] + moment_names + power_names]
+            side = foot[0].lower()
+            names = [
+                f'hip_flexion_{side}_moment',
+                f'hip_adduction_{side}_moment',
+                f'hip_rotation_{side}_moment',
+                f'hip_flexion_{side}_power',
+                f'knee_flexion_{side}_moment',
+                f'knee_adduction_{side}_moment',
+                f'knee_rotation_{side}_moment',
+                f'knee_flexion_{side}_power',
+                f'ankle_angle_{side}_moment',
+                f'subtalar_angle_{side}_moment',
+                f'ankle_angle_{side}_power'
+            ]
+            data = trial_data.loc[:, ['time'] + names]
 
             start = None
             for event_time, (event_type, event_plate) in foot_events.items():
@@ -895,6 +902,8 @@ def normalise_kinetics(kinetic_data, events):
                     # Perform side-specific transformations.
                     if foot == "Right":
                         data_segment["hip_adduction_r_moment"] = -data_segment["hip_adduction_r_moment"] + 1
+                        data_segment["knee_adduction_r_moment"] = -data_segment["knee_adduction_r_moment"]
+                        data_segment["knee_rotation_r_moment"] = -data_segment["knee_rotation_r_moment"]
 
                     normalised_data[foot][file_name].append(data_segment.values.T)
                     if event_plate is not None:
