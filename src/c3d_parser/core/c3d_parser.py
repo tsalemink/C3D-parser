@@ -851,12 +851,8 @@ def normalise_kinematics(kinematic_data, events):
                     # Perform side-specific transformations.
                     if foot == "Left":
                         data_segment["pelvis_rotation"] = -data_segment["pelvis_rotation"]
-                        data_segment["hip_adduction_l"] = -data_segment["hip_adduction_l"]
-                        data_segment["hip_rotation_l"] = -data_segment["hip_rotation_l"]
-                        data_segment["knee_flexion_l"] = -data_segment["knee_flexion_l"]
                     if foot == "Right":
                         data_segment["pelvis_list"] = -(data_segment["pelvis_list"] - 180)
-                        data_segment["knee_flexion_r"] = -data_segment["knee_flexion_r"]
                     data_segment["pelvis_list"] -= 90
 
                     normalised_data[foot][file_name].append(data_segment.values.T)
