@@ -14,6 +14,7 @@ from c3d_parser.core.c3d_parser import parse_session, extract_static_data, extra
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
 from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
+from c3d_parser.view.dialogs.about_dialog import AboutDialog
 from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET, APPLICATION_NAME
 from c3d_parser.view.utils import handle_runtime_error
 from c3d_parser.settings.logging import logger
@@ -175,6 +176,7 @@ class MainWindow(QMainWindow):
         self._ui.actionReloadInput.triggered.connect(self._validate_input_directory)
         self._ui.actionOptions.triggered.connect(self._show_options_dialog)
         self._ui.actionCustomMarkerSet.triggered.connect(self._show_marker_set_dialog)
+        self._ui.actionAbout.triggered.connect(self._show_about_dialog)
 
         self._ui.listWidgetFiles.include_trial.connect(self._include_trial)
         self._ui.listWidgetFiles.exclude_trial.connect(self._exclude_trial)
@@ -599,6 +601,11 @@ class MainWindow(QMainWindow):
         dlg.set_marker_names(marker_names)
         if dlg.exec():
             dlg.save()
+
+    def _show_about_dialog(self):
+        dlg = AboutDialog(self)
+        dlg.setModal(True)
+        dlg.exec()
 
     def _update_curves(self):
         for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:

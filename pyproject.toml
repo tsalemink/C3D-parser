@@ -10,10 +10,9 @@ name = "c3d-parser"
 description = "C3D parser for gait data harmonisation."
 authors = [{name = "Timothy Salemink", email = "tim.nicolas@outlook.com" },
            {name = "Sally Jack", email = "sallyjaack@gmail.com"}]
-version = "0.1.11"
 readme = "README.md"
 license = { file = "LICENSE" }
-dynamic = ["dependencies"]
+dynamic = ["version", "dependencies"]
 
 [tool.setuptools]
 include-package-data = true
@@ -22,6 +21,7 @@ include-package-data = true
 c3d_parser = ["core/marker_maps/**/*", "core/osim_resources/**/*"]
 
 [tool.setuptools.dynamic]
+version = {attr = "c3d_parser.__version__"}
 dependencies = {file = ["requirements.txt"]}
 
 [project.urls]

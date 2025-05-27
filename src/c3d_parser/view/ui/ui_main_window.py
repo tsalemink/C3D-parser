@@ -37,6 +37,8 @@ class Ui_MainWindow(object):
         self.actionReloadInput.setObjectName(u"actionReloadInput")
         self.actionCustomMarkerSet = QAction(MainWindow)
         self.actionCustomMarkerSet.setObjectName(u"actionCustomMarkerSet")
+        self.actionAbout = QAction(MainWindow)
+        self.actionAbout.setObjectName(u"actionAbout")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -384,16 +386,20 @@ class Ui_MainWindow(object):
         self.menuView.setObjectName(u"menuView")
         self.menuMarker = QMenu(self.menuBar)
         self.menuMarker.setObjectName(u"menuMarker")
+        self.menuHelp = QMenu(self.menuBar)
+        self.menuHelp.setObjectName(u"menuHelp")
         MainWindow.setMenuBar(self.menuBar)
 
         self.menuBar.addAction(self.menuFile.menuAction())
         self.menuBar.addAction(self.menuView.menuAction())
         self.menuBar.addAction(self.menuMarker.menuAction())
+        self.menuBar.addAction(self.menuHelp.menuAction())
         self.menuFile.addAction(self.actionReloadInput)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
         self.menuView.addAction(self.actionOptions)
         self.menuMarker.addAction(self.actionCustomMarkerSet)
+        self.menuHelp.addAction(self.actionAbout)
 
         self.retranslateUi(MainWindow)
 
@@ -412,6 +418,7 @@ class Ui_MainWindow(object):
         self.actionOptions.setText(QCoreApplication.translate("MainWindow", u"Options", None))
         self.actionReloadInput.setText(QCoreApplication.translate("MainWindow", u"Reload Input", None))
         self.actionCustomMarkerSet.setText(QCoreApplication.translate("MainWindow", u"Custom Marker Set", None))
+        self.actionAbout.setText(QCoreApplication.translate("MainWindow", u"About", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"Lab: ", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"Input:", None))
         self.pushButtonInputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
@@ -433,5 +440,6 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
         self.menuMarker.setTitle(QCoreApplication.translate("MainWindow", u"Marker", None))
+        self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
     # retranslateUi
 
