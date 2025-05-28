@@ -40,6 +40,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     grf_data = {}
     event_data = {}
     spatiotemporal_data = {}
+    foot_progression_data = {}
     kinematic_data = {}
     kinetic_data = {}
 
@@ -51,7 +52,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     for trial in dynamic_trials:
         file_path = os.path.join(input_directory, trial)
         try:
-            analog_data, events, s_t_data, trc_file_path, grf_file_path = \
+            analog_data, events, foot_progression, s_t_data, trc_file_path, grf_file_path = \
                 parse_dynamic_trial(file_path, lab, output_directory, marker_data_rate, static_data)
         except ParserError as e:
             logger.error(e)
@@ -60,6 +61,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         grf_data[trial] = analog_data
         event_data[trial] = events
         spatiotemporal_data[trial] = s_t_data
+        foot_progression_data[trial] = foot_progression
 
         trc_file_paths[trial] = trc_file_path
         grf_file_paths[trial] = grf_file_path
@@ -72,6 +74,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
 
     for trial in dynamic_trials:
         ik_data, ik_output = run_ik(osim_model, trc_file_paths[trial], output_directory, marker_data_rate)
+        ik_data = pd.concat([ik_data, foot_progression_data[trial]], axis=1)
         id_data = run_id(osim_model, ik_data, ik_output, grf_file_paths[trial], output_directory, marker_data_rate, events, weight)
 
         kinematic_data[trial] = ik_data
@@ -156,9 +159,12 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, marker_data_rate, stati
     set_marker_data(trc_data, frame_data, rate=marker_data_rate)
     trc_file_path = write_trc_data(trc_data, file_name, output_directory)
 
+    foot_progression = calculate_foot_progression_angles(frame_data)
+    resample_data(foot_progression, trc_data['DataRate'], marker_data_rate)
+
     s_t_data = calculate_spatiotemporal_data(frame_data, events, static_data)
 
-    return analog_data, events, s_t_data, trc_file_path, grf_file_path
+    return analog_data, events, foot_progression, s_t_data, trc_file_path, grf_file_path
 
 
 def run_ik(osim_model, trc_file_path, output_directory, marker_data_rate):
@@ -833,12 +839,20 @@ def normalise_kinematics(kinematic_data, events):
         trial_events = list(events.values())[i]
 
         for foot, foot_events in trial_events.items():
-            pelvis_kinematics = ['pelvis_tilt', 'pelvis_list', 'pelvis_rotation']
-            other_kinematics = ['hip_flexion', 'hip_adduction', 'hip_rotation',
-                                'knee_flexion', 'ankle_angle', 'subtalar_angle']
-            for j, name in enumerate(other_kinematics):
-                other_kinematics[j] = f"{name}_{foot[0].lower()}"
-            data = trial_data.loc[:, ['time'] + pelvis_kinematics + other_kinematics]
+            side = foot[0].lower()
+            names = [
+                f'pelvis_tilt',
+                f'pelvis_list',
+                f'pelvis_rotation',
+                f'hip_flexion_{side}',
+                f'hip_adduction_{side}',
+                f'hip_rotation_{side}',
+                f'knee_flexion_{side}',
+                f'ankle_angle_{side}',
+                f'subtalar_angle_{side}',
+                f'foot_progression_{side}'
+            ]
+            data = trial_data.loc[:, ['time'] + names]
 
             start = None
             for event_time, event in foot_events.items():
@@ -1103,6 +1117,29 @@ def calculate_walking_direction(frame_data):
     walking_direction /= np.linalg.norm(walking_direction)
 
     return walking_direction
+
+
+def calculate_foot_progression_angles(frame_data):
+    walking_direction = calculate_walking_direction(frame_data)
+    walking_angle = np.arctan2(walking_direction[1], walking_direction[0])
+
+    foot_progression = pd.DataFrame()
+    for foot in ['Left', 'Right']:
+        side = foot[0]
+        heel_xy = np.stack(frame_data[f"{side}HEE"].values)[:, :2]
+        toe_xy = np.stack(frame_data[f"{side}TOE"].values)[:, :2]
+
+        foot_vectors = toe_xy - heel_xy
+        foot_unit_vectors = foot_vectors / np.linalg.norm(foot_vectors, axis=1, keepdims=True)
+        foot_angles = np.arctan2(foot_unit_vectors[:, 1], foot_unit_vectors[:, 0])
+        angles = np.degrees(foot_angles - walking_angle)
+
+        if foot == 'Right':
+            angles = -angles
+
+        foot_progression[f'foot_progression_{side.lower()}'] = angles
+
+    return foot_progression
 
 
 def calculate_foot_progression(frame_data, time_ordered_events):

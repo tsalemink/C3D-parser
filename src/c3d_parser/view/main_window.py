@@ -114,8 +114,8 @@ class MainWindow(QMainWindow):
         self._kinematic_canvas = FigureCanvasQTAgg(Figure())
         self._kinematic_plots = []
         for i in range(3):
-            for j in range(3):
-                plot = self._kinematic_canvas.figure.add_subplot(3, 3, i * 3 + j + 1)
+            for j in range(4 if i == 2 else 3):
+                plot = self._kinematic_canvas.figure.add_subplot(3, 4, i * 4 + j + 1)
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
                 self._kinematic_plots.append(plot)
@@ -462,7 +462,8 @@ class MainWindow(QMainWindow):
             5: ('Hip Internal (+) / External (-) Rotation', 'Int', 'Ext'),
             6: ('Knee Flexion (-) / Extension (+)', 'Flex', 'Ext'),
             7: ('Ankle Dorsiflexion (+) / Plantarflexion (-)', 'Dor', 'Pla'),
-            8: ('Subtalar Inversion (+) / Eversion (-)', 'Inv', 'Eve')
+            8: ('Subtalar Inversion (+) / Eversion (-)', 'Inv', 'Eve'),
+            9: ('Foot Progression', 'Ext', 'Int')
         }
 
         for i, plot in enumerate(self._kinematic_plots):
@@ -473,6 +474,8 @@ class MainWindow(QMainWindow):
                 plot.set_ylim(-15, 75)
             elif i in [7, 8]:
                 plot.set_ylim(-50, 30)
+            elif i == 9:
+                plot.set_ylim(-30, 60)
             else:
                 plot.set_ylim(-30, 30)
             plot.axhline(y=0, color='gray', linewidth=1.0, zorder=1)
@@ -490,7 +493,7 @@ class MainWindow(QMainWindow):
 
             plot.set_xticks([0, 20, 40, 60, 80, 100])
             plot.tick_params(axis='x', which='both', bottom=True, labelbottom=False)
-            if i in [6, 7, 8]:
+            if i in [6, 7, 8, 9]:
                 plot.set_xticklabels(['0%', '20%', '40%', '60%', '80%', '100%'], fontsize=9)
                 plot.tick_params(axis='x', labelbottom=True)
                 plot.set_xlabel("Gait Cycle (%)", fontsize=9)
