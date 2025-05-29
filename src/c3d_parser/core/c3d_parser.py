@@ -909,11 +909,9 @@ def normalise_kinetics(kinetic_data, events):
                         normalised_data[foot][file_name] = []
                     data_segment = data.iloc[start:frame, 1:]
 
-                    # Perform side-specific transformations.
-                    if foot == "Right":
-                        data_segment["hip_adduction_r_moment"] = -data_segment["hip_adduction_r_moment"] + 1
-                        data_segment["knee_adduction_r_moment"] = -data_segment["knee_adduction_r_moment"]
-                        data_segment["knee_rotation_r_moment"] = -data_segment["knee_rotation_r_moment"]
+                    # Perform sign transformations.
+                    data_segment[f"knee_adduction_{side}_moment"] = -data_segment[f"knee_adduction_{side}_moment"]
+                    data_segment[f"knee_rotation_{side}_moment"] = -data_segment[f"knee_rotation_{side}_moment"]
                     data_segment[f"ankle_angle_{side}_moment"] = -data_segment[f"ankle_angle_{side}_moment"]
 
                     normalised_data[foot][file_name].append(data_segment.values.T)
