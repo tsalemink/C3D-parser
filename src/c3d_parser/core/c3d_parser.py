@@ -944,8 +944,9 @@ def write_normalised_kinetics(kinetic_data, selected_trials, excluded_cycles, ou
     normalised_directory = os.path.join(output_directory, 'normalised')
     output_file = os.path.join(normalised_directory, f"combined_kinetics.csv")
     columns = ["hip_adduction_moment", "hip_rotation_moment", "hip_flexion_moment",
-               "knee_flexion_moment", "ankle_angle_moment", "subtalar_angle_moment",
-               "hip_flexion_power", "knee_flexion_power", "ankle_angle_power"]
+               "knee_flexion_moment", 'knee_adduction_moment', 'knee_rotation_moment',
+               "ankle_angle_moment", "subtalar_angle_moment", "hip_flexion_power",
+               "knee_flexion_power", "ankle_angle_power"]
     write_normalised_data(kinetic_data, columns, selected_trials, excluded_cycles, output_file)
 
 
