@@ -934,19 +934,20 @@ def write_normalised_kinematics(kinematic_data, selected_trials, excluded_cycles
     if not os.path.exists(normalised_directory):
         os.makedirs(normalised_directory)
     output_file = os.path.join(normalised_directory, f"combined_kinematics.csv")
-    columns = ["pelvis_list", "pelvis_rotation", "pelvis_tilt",
-               "hip_adduction", "hip_rotation", "hip_flexion",
-               "knee_flexion", "ankle_angle", "subtalar_angle"]
+    columns = ['pelvis_tilt', 'pelvis_list', 'pelvis_rotation',
+               'hip_flexion', 'hip_adduction', 'hip_rotation',
+               'knee_flexion', 'ankle_angle', 'subtalar_angle',
+               'foot_progression']
     write_normalised_data(kinematic_data, columns, selected_trials, excluded_cycles, output_file)
 
 
 def write_normalised_kinetics(kinetic_data, selected_trials, excluded_cycles, output_directory):
     normalised_directory = os.path.join(output_directory, 'normalised')
     output_file = os.path.join(normalised_directory, f"combined_kinetics.csv")
-    columns = ["hip_adduction_moment", "hip_rotation_moment", "hip_flexion_moment",
-               "knee_flexion_moment", 'knee_adduction_moment', 'knee_rotation_moment',
-               "ankle_angle_moment", "subtalar_angle_moment", "hip_flexion_power",
-               "knee_flexion_power", "ankle_angle_power"]
+    columns = ['hip_flexion_moment', 'hip_adduction_moment', 'hip_rotation_moment',
+               'hip_flexion_power', 'knee_flexion_moment', 'knee_adduction_moment',
+               'knee_rotation_moment', 'knee_flexion_power', 'ankle_angle_moment',
+               'subtalar_angle_moment', 'ankle_angle_power']
     write_normalised_data(kinetic_data, columns, selected_trials, excluded_cycles, output_file)
 
 
