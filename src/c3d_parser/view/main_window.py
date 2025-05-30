@@ -463,7 +463,7 @@ class MainWindow(QMainWindow):
             6: ('Knee Flexion (-) / Extension (+)', 'Flex', 'Ext'),
             7: ('Ankle Dorsiflexion (+) / Plantarflexion (-)', 'Dor', 'Pla'),
             8: ('Subtalar Inversion (+) / Eversion (-)', 'Inv', 'Eve'),
-            9: ('Foot Progression', 'Ext', 'Int')
+            9: ('Foot Progression', 'Int', 'Ext')
         }
 
         for i, plot in enumerate(self._kinematic_plots):
@@ -475,7 +475,7 @@ class MainWindow(QMainWindow):
             elif i in [7, 8]:
                 plot.set_ylim(-50, 30)
             elif i == 9:
-                plot.set_ylim(-30, 60)
+                plot.set_ylim(-60, 30)
             else:
                 plot.set_ylim(-30, 30)
             plot.axhline(y=0, color='gray', linewidth=1.0, zorder=1)

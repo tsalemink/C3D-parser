@@ -1134,7 +1134,7 @@ def calculate_foot_progression_angles(frame_data):
         foot_angles = np.arctan2(foot_unit_vectors[:, 1], foot_unit_vectors[:, 0])
         angles = np.degrees(foot_angles - walking_angle)
 
-        if foot == 'Right':
+        if foot == 'Left':
             angles = -angles
 
         foot_progression[f'foot_progression_{side.lower()}'] = angles
