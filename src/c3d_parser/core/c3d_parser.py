@@ -951,7 +951,7 @@ def write_normalised_kinetics(kinetic_data, selected_trials, excluded_cycles, ou
 
 def write_normalised_data(data, column_names, selected_trials, excluded_cycles, output_file):
     with open(output_file, 'w') as file:
-        file.write(','.join(["Frame"] + column_names) + '\n\n\n')
+        file.write(','.join(["Side", "Frame"] + column_names) + '\n\n\n')
 
         for foot, files_dict in data.items():
             for file_name, data_segments in files_dict.items():
@@ -969,10 +969,11 @@ def write_normalised_data(data, column_names, selected_trials, excluded_cycles, 
                     normalised_segment = np.zeros((segment.shape[0], 100))
                     for j in range(segment.shape[0]):
                         normalised_segment[j] = np.interp(x_new, x_original, segment[j])
+                    normalised_segment = normalised_segment.round(6)
 
                     for x in range(1, 101):
-                        row_data = [x] + normalised_segment[:, x - 1].tolist()
-                        file.write(','.join(f'{value:.6f}' for value in row_data) + '\n')
+                        row_data = [foot if x == 1 else "", x] + normalised_segment[:, x - 1].tolist()
+                        file.write(','.join(str(value) for value in row_data) + '\n')
                     file.write('\n\n')
 
 
