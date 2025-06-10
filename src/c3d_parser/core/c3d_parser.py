@@ -965,13 +965,13 @@ def write_normalised_data(data, column_names, selected_trials, excluded_cycles, 
                         continue
 
                     x_original = np.linspace(0, 1, segment.shape[1])
-                    x_new = np.linspace(0, 1, 100)
-                    normalised_segment = np.zeros((segment.shape[0], 100))
+                    x_new = np.linspace(0, 1, 101)
+                    normalised_segment = np.zeros((segment.shape[0], 101))
                     for j in range(segment.shape[0]):
                         normalised_segment[j] = np.interp(x_new, x_original, segment[j])
                     normalised_segment = normalised_segment.round(6)
 
-                    for x in range(1, 101):
+                    for x in range(1, 102):
                         row_data = [foot if x == 1 else "", x] + normalised_segment[:, x - 1].tolist()
                         file.write(','.join(str(value) for value in row_data) + '\n')
                     file.write('\n\n')
