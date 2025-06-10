@@ -170,7 +170,7 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, marker_data_rate, stati
 def run_ik(osim_model, trc_file_path, output_directory, marker_data_rate):
     # Perform inverse kinematics.
     file_name = os.path.splitext(os.path.basename(trc_file_path))[0]
-    ik_directory = os.path.join(output_directory, 'IK')
+    ik_directory = os.path.join(output_directory, 'ik')
     if not os.path.exists(ik_directory):
         os.makedirs(ik_directory)
     ik_output = os.path.join(ik_directory, f"{file_name}_IK.mot")
@@ -184,7 +184,7 @@ def run_ik(osim_model, trc_file_path, output_directory, marker_data_rate):
 def run_id(osim_model, ik_data, ik_output, grf_file_path, output_directory, marker_data_rate, events, subject_mass):
     # Perform inverse dynamics.
     file_name = os.path.basename(grf_file_path).replace("_grf.mot", "")
-    id_directory = os.path.join(output_directory, 'ID')
+    id_directory = os.path.join(output_directory, 'id')
     if not os.path.exists(id_directory):
         os.makedirs(id_directory)
     id_output = os.path.join(id_directory, f"{file_name}_ID.sto")
