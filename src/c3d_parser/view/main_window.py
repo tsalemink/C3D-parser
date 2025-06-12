@@ -208,17 +208,20 @@ class MainWindow(QMainWindow):
         return input_directory_valid
 
     def _open_input_directory_chooser(self):
-        self._open_directory_chooser(self._ui.lineEditInputDirectory, self._input_data_directory)
+        line_edits = [self._ui.lineEditInputDirectory, self._ui.lineEditOutputDirectory]
+        self._open_directory_chooser(line_edits, self._input_data_directory)
 
     def _open_output_directory_chooser(self):
-        self._open_directory_chooser(self._ui.lineEditOutputDirectory, self._output_data_directory)
+        line_edits = [self._ui.lineEditOutputDirectory]
+        self._open_directory_chooser(line_edits, self._output_data_directory)
 
-    def _open_directory_chooser(self, line_edit, data_directory):
+    def _open_directory_chooser(self, line_edits, data_directory):
         directory = QFileDialog.getExistingDirectory(
             self, 'Select Directory', data_directory)
 
         if directory:
-            line_edit.setText(directory)
+            for line_edit in line_edits:
+                line_edit.setText(directory)
 
     def _scan_directory(self):
         directory = self._ui.lineEditInputDirectory.text()
