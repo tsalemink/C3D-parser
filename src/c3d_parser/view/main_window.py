@@ -503,14 +503,14 @@ class MainWindow(QMainWindow):
             0: ('Hip Extensor Moment', 'Nm/kg', 'Ext', 'Flx'),
             1: ('Hip Abductor Moment', 'Nm/kg', 'Abd', 'Add'),
             2: ('Hip Rotation Moment', 'Nm/kg', 'Int', 'Ext'),
-            3: ('Total Hip Power', 'W/kg', 'Gen', 'Abs'),
+            3: ('Hip Power (Sagittal)', 'W/kg', 'Gen', 'Abs'),
             4: ('Knee Extensor Moment', 'Nm/kg', 'Ext', 'Flx'),
             5: ('Knee Abductor Moment', 'Nm/kg', 'Abd', 'Add'),
             6: ('Knee Rotation Moment', 'Nm/kg', 'Int', 'Ext'),
-            7: ('Total Knee Power', 'W/kg', 'Gen', 'Abs'),
+            7: ('Knee Power (Sagittal)', 'W/kg', 'Gen', 'Abs'),
             8: ('Ankle Dorsiflexor Moment', 'Nm/kg', 'Dor', 'Pla'),
             9: ('Subtalar Inverter Moment', 'Nm/kg', 'Inv', 'Eve'),
-            10: ('Total Ankle Power', 'W/kg', 'Gen', 'Abs')
+            10: ('Ankle Power (Sagittal)', 'W/kg', 'Gen', 'Abs')
         }
 
         self._kinetic_plots[0].set_ylim(-2.0, 3.0)      # Hip Extensor
