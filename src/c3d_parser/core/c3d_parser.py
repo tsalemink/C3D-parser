@@ -32,7 +32,7 @@ class CancelException(Exception):
 
 
 def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, static_data, progress_tracker):
-    file_path = os.path.join(input_directory, static_trial)
+    file_path = os.path.normpath(os.path.join(input_directory, static_trial))
     frame, static_trc_path, height, weight = parse_static_trial(file_path, lab, marker_diameter, output_directory, static_data)
 
     marker_data_rate = 100
@@ -50,7 +50,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     progress_tracker.progress.emit("Processing C3D data", "black")
 
     for trial in dynamic_trials:
-        file_path = os.path.join(input_directory, trial)
+        file_path = os.path.normpath(os.path.join(input_directory, trial))
         try:
             analog_data, events, foot_progression, s_t_data, trc_file_path, grf_file_path = \
                 parse_dynamic_trial(file_path, lab, output_directory, marker_data_rate, static_data)
