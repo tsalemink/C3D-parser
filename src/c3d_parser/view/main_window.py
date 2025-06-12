@@ -105,7 +105,7 @@ class MainWindow(QMainWindow):
         self._plot_x.tick_params(axis='y', which='both', labelleft=False, left=False)
         self._plot_y.tick_params(axis='y', which='both', labelleft=False, left=False)
         self._plot_z.tick_params(axis='y', which='both', labelleft=False, left=False)
-        self._grf_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=1.6, w_pad=0.2)
+        self._grf_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=2.0, w_pad=0.2)
         self._update_grf_axes()
 
         self._ui.layoutGRFPlot.addWidget(self._grf_canvas)
@@ -119,7 +119,7 @@ class MainWindow(QMainWindow):
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
                 self._kinematic_plots.append(plot)
-        self._kinematic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=1.6, w_pad=2.0)
+        self._kinematic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=2.0, w_pad=2.0)
         self._update_kinematic_axes()
 
         self._ui.layoutKinematicPlot.addWidget(self._kinematic_canvas)
@@ -136,15 +136,15 @@ class MainWindow(QMainWindow):
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
                 self._kinetic_plots.append(plot)
-        self._kinetic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=1.6, w_pad=2.0)
+        self._kinetic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=2.0, w_pad=2.0)
         self._update_kinetic_axes()
 
         self._ui.layoutKineticPlot.addWidget(self._kinetic_canvas)
 
     def _update_grf_axes(self):
-        self._plot_x.set_title(f'GRF (Anterior - Posterior)', fontsize=10, pad=4)
-        self._plot_y.set_title(f'GRF (Medial - Lateral)', fontsize=10, pad=4)
-        self._plot_z.set_title(f'GRF (Vertical)', fontsize=10, pad=4)
+        self._plot_x.set_title(f'GRF (Anterior - Posterior)', fontsize=10, pad=6)
+        self._plot_y.set_title(f'GRF (Medial - Lateral)', fontsize=10, pad=6)
+        self._plot_z.set_title(f'GRF (Vertical)', fontsize=10, pad=6)
 
         for plot in [self._plot_x, self._plot_y, self._plot_z]:
             y_min, y_max = plot.get_ylim()
@@ -484,7 +484,7 @@ class MainWindow(QMainWindow):
             y_min, y_max = plot.get_ylim()
             step = (y_max - y_min) / 4
 
-            plot.set_title(title, fontsize=10, pad=4)
+            plot.set_title(title, fontsize=10, pad=6)
             plot.text(x=0, y=y_min, s=int(y_min), ha='right', va='center', fontsize=9)
             plot.text(x=0, y=(y_min + 1 * step), s=negative, ha='right', va='center', fontsize=9)
             plot.text(x=0, y=(y_min + 2 * step), s="deg", ha='right', va='center', fontsize=9)
@@ -533,7 +533,7 @@ class MainWindow(QMainWindow):
             y_min, y_max = plot.get_ylim()
             step = (y_max - y_min) / 4
 
-            plot.set_title(title, fontsize=10, pad=4)
+            plot.set_title(title, fontsize=10, pad=6)
             plot.text(x=0, y=y_min, s=y_min, ha='right', va='center', fontsize=9)
             plot.text(x=0, y=(y_min + 1 * step), s=negative, ha='right', va='center', fontsize=9)
             plot.text(x=0, y=(y_min + 2 * step), s=units, ha='right', va='center', fontsize=9)
