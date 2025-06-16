@@ -1,5 +1,6 @@
 
 import os
+import re
 import math
 import json
 import logging
@@ -152,7 +153,8 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, marker_data_rate, stati
     grf_directory = os.path.join(output_directory, 'grf')
     if not os.path.exists(grf_directory):
         os.makedirs(grf_directory)
-    grf_file_path = os.path.join(grf_directory, f"{file_name}_grf.mot")
+    grf_file_name = re.sub(r' +', '_', file_name)
+    grf_file_path = os.path.join(grf_directory, f"{grf_file_name}_grf.mot")
     write_grf(analog_data, grf_file_path)
 
     # Write harmonised TRC data.
