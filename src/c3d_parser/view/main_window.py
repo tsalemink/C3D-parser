@@ -279,6 +279,14 @@ class MainWindow(QMainWindow):
         session_name = os.path.basename(input_directory)
         self._output_directory = os.path.join(output_directory, output_direcory_name, session_name)
 
+        if os.path.exists(self._output_directory):
+            reply = QMessageBox.warning(self, "Warning",
+                                        "The selected output directory already contains results. "
+                                        "Do you wish to overwrite these files?",
+                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+            if reply != QMessageBox.Yes:
+                return
+
         static_trials = []
         dynamic_trials = []
         for i in range(self._ui.listWidgetFiles.count()):
