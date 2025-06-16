@@ -16,7 +16,6 @@ from opensim_model_creator.Create_Model import create_model
 
 from c3d_parser.core.c3d_patch import c3d
 from c3d_parser.core.osim import perform_ik, perform_id
-from c3d_parser.settings.general import APPLICATION_NAME
 from c3d_parser.settings.logging import logger
 
 
@@ -404,6 +403,7 @@ def get_static_rotation(frame_data):
             rotation_matrix = Rotation.from_euler('z', angle).as_matrix()
 
             return rotation_matrix
+    raise ParserError("ASIS markers not found. Cannot determine static trial rotation.")
 
 
 def rotate_trc_data(frame_data, rotation_matrix):
@@ -1202,8 +1202,8 @@ def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marke
     This function takes a pandas.DataFrame of TRC data, extracts a single frame from the data
     and adds the medial knee markers if they are missing. It returns the frame as a pandas.Series.
 
-    The ``padding`` argument should include skin-padding as well as the thickness of the base
-    plate used to attach the markers.
+    The ``padding`` argument should include skin-padding as well as the thickness of the
+    baseplate used to attach the markers.
     """
     frame = frame_data.iloc[len(frame_data) // 2].copy()
 

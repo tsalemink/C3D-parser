@@ -1,6 +1,5 @@
 
 import os
-import logging
 import numpy as np
 from collections import defaultdict
 
@@ -9,13 +8,13 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QLi
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
-from c3d_parser.core.c3d_parser import parse_session, extract_static_data, extract_marker_names, read_grf, is_dynamic, marker_maps_dir,\
+from c3d_parser.core.c3d_parser import parse_session, extract_static_data, extract_marker_names, is_dynamic, marker_maps_dir,\
     CancelException, write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
 from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
 from c3d_parser.view.dialogs.about_dialog import AboutDialog
-from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET, APPLICATION_NAME
+from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET
 from c3d_parser.view.utils import handle_runtime_error
 from c3d_parser.settings.logging import logger
 
@@ -153,9 +152,9 @@ class MainWindow(QMainWindow):
             step = (y_max - y_min) / 4
 
             plot.axhline(y=0, color='gray', linewidth=1.0, zorder=1)
-            plot.text(x=0, y=y_min, s=int(y_min), ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=y_min, s=f"{int(y_min)}", ha='right', va='center', fontsize=9)
             plot.text(x=0, y=(y_min + 2 * step), s="N", ha='right', va='center', fontsize=9)
-            plot.text(x=0, y=y_max, s=int(y_max), ha='right', va='center', fontsize=9)
+            plot.text(x=0, y=y_max, s=f"{int(y_max)}", ha='right', va='center', fontsize=9)
 
             plot.set_xticks([0, 20, 40, 60, 80, 100])
             plot.tick_params(axis='x', which='both', bottom=True, labelbottom=False)
@@ -234,7 +233,7 @@ class MainWindow(QMainWindow):
                     path = os.path.join(root, file)
                     category = "Dynamic" if is_dynamic(path) else "Static"
                     item = QListWidgetItem(os.path.relpath(path, directory))
-                    item.setData(Qt.UserRole, category)
+                    item.setData(Qt.ItemDataRole.UserRole, category)
                     item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
                     item.setCheckState(Qt.CheckState.Checked)
                     self._ui.listWidgetFiles.addItem(item)
@@ -245,7 +244,7 @@ class MainWindow(QMainWindow):
         static_trials = []
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
-            if item.data(Qt.UserRole) == "Static":
+            if item.data(Qt.ItemDataRole.UserRole) == "Static":
                 static_trials.append(item.text())
 
         if static_trials:
@@ -283,29 +282,30 @@ class MainWindow(QMainWindow):
             reply = QMessageBox.warning(self, "Warning",
                                         "The selected output directory already contains results. "
                                         "Do you wish to overwrite these files?",
-                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-            if reply != QMessageBox.Yes:
+                                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                        QMessageBox.StandardButton.No)
+            if reply != QMessageBox.StandardButton.Yes:
                 return
 
         static_trials = []
         dynamic_trials = []
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
-            if item.checkState() == Qt.Checked:
-                if item.data(Qt.UserRole) == "Dynamic":
+            if item.checkState() == Qt.CheckState.Checked:
+                if item.data(Qt.ItemDataRole.UserRole) == "Dynamic":
                     dynamic_trials.append(item.text())
                 else:
                     static_trials.append(item.text())
             else:
-                item.setFlags(item.flags() & ~Qt.ItemIsEnabled)
-                item.setData(Qt.UserRole, "")
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+                item.setData(Qt.ItemDataRole.UserRole, "")
 
         if len(static_trials) == 0:
             logger.error("No static trial found. You may need to classify one manually.")
             return
-        if len(static_trials) == 1:
+        elif len(static_trials) == 1:
             static_trial = static_trials[0]
-        if len(static_trials) > 1:
+        else:
             static_trial, ok = QInputDialog.getItem(None, "Select Static Trial", "Please select one static trial:", static_trials, 0, False)
             if not ok:
                 return
@@ -572,7 +572,7 @@ class MainWindow(QMainWindow):
         selected_trials = []
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
-            if item.checkState() == Qt.Checked:
+            if item.checkState() == Qt.CheckState.Checked:
                 selected_trials.append(item.text())
         return selected_trials
 
@@ -601,8 +601,8 @@ class MainWindow(QMainWindow):
         static_trials = []
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
-            if item.checkState() == Qt.Checked:
-                if item.data(Qt.UserRole) == "Static":
+            if item.checkState() == Qt.CheckState.Checked:
+                if item.data(Qt.ItemDataRole.UserRole) == "Static":
                     static_trials.append(item.text())
 
         marker_names = []
