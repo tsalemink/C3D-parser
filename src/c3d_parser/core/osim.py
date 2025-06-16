@@ -10,11 +10,6 @@ EXTERNAL_LOADS_TEMPLATE = ET.parse(os.path.join(osim_resources, 'external_loads_
 IK_TASK_SET = os.path.join(osim_resources, 'ik_task_set.xml')
 
 
-# TODO: Implement.
-def scale_model():
-    pass
-
-
 def perform_ik(osim_file, trc_file, output_file):
     model = osim.Model(osim_file)
     model.initSystem()
