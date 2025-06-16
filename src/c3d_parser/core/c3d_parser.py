@@ -76,7 +76,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     for trial in dynamic_trials:
         ik_data, ik_output = run_ik(osim_model, trc_file_paths[trial], output_directory, marker_data_rate)
         ik_data = pd.concat([ik_data, foot_progression_data[trial]], axis=1)
-        id_data = run_id(osim_model, ik_data, ik_output, grf_file_paths[trial], output_directory, marker_data_rate, events, weight)
+        id_data = run_id(osim_model, ik_data, ik_output, grf_file_paths[trial], output_directory, marker_data_rate, event_data[trial], weight)
 
         kinematic_data[trial] = ik_data
         kinetic_data[trial] = id_data
