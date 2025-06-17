@@ -857,11 +857,12 @@ def normalise_kinematics(kinematic_data, events):
             data = trial_data.loc[:, ['time'] + names]
 
             start = None
+            stride_number = 0
             for event_time, event in foot_events.items():
                 if event[0] == "Foot Strike" and start:
                     frame = data[data['time'] >= event_time].index[0]
                     if file_name not in normalised_data[foot]:
-                        normalised_data[foot][file_name] = []
+                        normalised_data[foot][file_name] = {}
                     data_segment = data.iloc[start:frame, 1:]
 
                     # Perform side-specific transformations.
@@ -871,10 +872,12 @@ def normalise_kinematics(kinematic_data, events):
                         data_segment["pelvis_list"] = -(data_segment["pelvis_list"] - 180)
                     data_segment["pelvis_list"] -= 90
 
-                    normalised_data[foot][file_name].append(data_segment.values.T)
+                    normalised_data[foot][file_name][stride_number] = data_segment.values.T
                     start = data[data['time'] <= event_time].index[-1]
                 elif event[0] == "Foot Strike":
                     start = data[data['time'] <= event_time].index[-1]
+                if event[0] == "Foot Strike":
+                    stride_number += 1
 
     return normalised_data
 
@@ -904,11 +907,12 @@ def normalise_kinetics(kinetic_data, events):
             data = trial_data.loc[:, ['time'] + names]
 
             start = None
+            stride_number = 0
             for event_time, (event_type, event_plate) in foot_events.items():
                 if event_type == "Foot Strike" and start:
                     frame = data[data['time'] >= event_time].index[0]
                     if file_name not in normalised_data[foot]:
-                        normalised_data[foot][file_name] = []
+                        normalised_data[foot][file_name] = {}
                     data_segment = data.iloc[start:frame, 1:]
 
                     # Perform sign transformations.
@@ -916,7 +920,7 @@ def normalise_kinetics(kinetic_data, events):
                     data_segment[f"knee_rotation_{side}_moment"] = -data_segment[f"knee_rotation_{side}_moment"]
                     data_segment[f"ankle_angle_{side}_moment"] = -data_segment[f"ankle_angle_{side}_moment"]
 
-                    normalised_data[foot][file_name].append(data_segment.values.T)
+                    normalised_data[foot][file_name][stride_number] = data_segment.values.T
                     if event_plate is not None:
                         start = data[data['time'] <= event_time].index[-1]
                     else:
@@ -925,6 +929,8 @@ def normalise_kinetics(kinetic_data, events):
                 elif event_type == "Foot Strike":
                     if event_plate is not None:
                         start = data[data['time'] <= event_time].index[-1]
+                if event_type == "Foot Strike":
+                    stride_number += 1
 
     return normalised_data
 
@@ -953,30 +959,31 @@ def write_normalised_kinetics(kinetic_data, selected_trials, excluded_cycles, ou
 
 def write_normalised_data(data, column_names, selected_trials, excluded_cycles, output_file):
     with open(output_file, 'w') as file:
-        file.write(','.join(["Trial", "Side", "Frame"] + column_names) + '\n\n\n')
+        file.write(','.join(["Trial", "Side", "Cycle-Number", "Frame"] + column_names) + '\n\n\n')
 
         for foot, files_dict in data.items():
-            for file_name, data_segments in files_dict.items():
+            for file_name, cycles in files_dict.items():
                 if file_name not in selected_trials:
                     continue
 
-                for i, segment in enumerate(data_segments):
-                    cycle = f"{foot}_{i}"
+                for cycle_number, cycle_data in cycles.items():
+                    cycle = f"{foot}_{cycle_number}"
                     cycle_identifier = (file_name, cycle)
                     if cycle_identifier in excluded_cycles:
                         continue
 
-                    x_original = np.linspace(0, 1, segment.shape[1])
+                    x_original = np.linspace(0, 1, cycle_data.shape[1])
                     x_new = np.linspace(0, 1, 101)
-                    normalised_segment = np.zeros((segment.shape[0], 101))
-                    for j in range(segment.shape[0]):
-                        normalised_segment[j] = np.interp(x_new, x_original, segment[j])
+                    normalised_segment = np.zeros((cycle_data.shape[0], 101))
+                    for j in range(cycle_data.shape[0]):
+                        normalised_segment[j] = np.interp(x_new, x_original, cycle_data[j])
                     normalised_segment = normalised_segment.round(6)
 
                     for x in range(1, 102):
                         trial = file_name if x == 1 else ""
                         side = foot if x == 1 else ""
-                        row_data = [trial, side, x] + normalised_segment[:, x - 1].tolist()
+                        stride = cycle_number if x == 1 else ""
+                        row_data = [trial, side, stride, x] + normalised_segment[:, x - 1].tolist()
                         file.write(','.join(str(value) for value in row_data) + '\n')
                     file.write('\n\n')
 

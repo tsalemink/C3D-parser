@@ -429,15 +429,15 @@ class MainWindow(QMainWindow):
             plot.clear()
 
         for foot, files_dict in kinematic_data.items():
-            for name, data_segments in files_dict.items():
-                colour = 'r' if foot == "Left" else 'b'
-                for i, segment in enumerate(data_segments):
-                    t_segment = np.linspace(0, 100, segment.shape[1])
+            colour = 'r' if foot == "Left" else 'b'
+            for name, cycles in files_dict.items():
+                for cycle_number, cycle_data in cycles.items():
+                    t_segment = np.linspace(0, 100, cycle_data.shape[1])
 
                     for j, plot in enumerate(self._kinematic_plots):
-                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=self._line_width)
+                        line, = plot.plot(t_segment, cycle_data[j], color=colour, linewidth=self._line_width)
                         line.set_picker(True)
-                        self._kinematic_curves.add_curve(name, f"{foot}_{i}", line)
+                        self._kinematic_curves.add_curve(name, f"{foot}_{cycle_number}", line)
 
         self._update_kinematic_axes()
         self._kinematic_canvas.draw()
@@ -450,15 +450,15 @@ class MainWindow(QMainWindow):
             plot.clear()
 
         for foot, files_dict in kinetic_data.items():
-            for name, data_segments in files_dict.items():
-                colour = 'r' if foot == "Left" else 'b'
-                for i, segment in enumerate(data_segments):
-                    t_segment = np.linspace(0, 100, segment.shape[1])
+            colour = 'r' if foot == "Left" else 'b'
+            for name, cycles in files_dict.items():
+                for cycle_number, cycle_data in cycles.items():
+                    t_segment = np.linspace(0, 100, cycle_data.shape[1])
 
                     for j, plot in enumerate(self._kinetic_plots):
-                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=self._line_width)
+                        line, = plot.plot(t_segment, cycle_data[j], color=colour, linewidth=self._line_width)
                         line.set_picker(True)
-                        self._kinetic_curves.add_curve(name, f"{foot}_{i}", line)
+                        self._kinetic_curves.add_curve(name, f"{foot}_{cycle_number}", line)
 
         self._update_kinetic_axes()
         self._kinetic_canvas.draw()
