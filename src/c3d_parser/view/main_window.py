@@ -763,6 +763,7 @@ class GaitCurves(defaultdict):
                 line.set_linestyle('solid')
                 line.set_color(colour)
                 line.set_zorder(2)
+        self._selected_curves = []
 
         self._canvas.draw()
 
