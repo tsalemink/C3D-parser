@@ -705,6 +705,7 @@ class GaitCurves(defaultdict):
         for cycle, lines in cycles.items():
             for line in lines:
                 line.set_visible(visible)
+                line.set_picker(visible)
 
         self._canvas.draw()
 
