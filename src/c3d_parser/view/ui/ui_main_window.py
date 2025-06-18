@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.5.1
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -45,22 +45,23 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.splitter = QSplitter(self.centralwidget)
         self.splitter.setObjectName(u"splitter")
-        self.splitter.setOrientation(Qt.Horizontal)
+        self.splitter.setOrientation(Qt.Orientation.Horizontal)
         self.frameTrial = QFrame(self.splitter)
         self.frameTrial.setObjectName(u"frameTrial")
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.frameTrial.sizePolicy().hasHeightForWidth())
         self.frameTrial.setSizePolicy(sizePolicy)
         self.frameTrial.setMinimumSize(QSize(0, 0))
-        self.frameTrial.setFrameShape(QFrame.StyledPanel)
-        self.frameTrial.setFrameShadow(QFrame.Raised)
+        self.frameTrial.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frameTrial.setFrameShadow(QFrame.Shadow.Raised)
         self.verticalLayout_2 = QVBoxLayout(self.frameTrial)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setContentsMargins(0, 5, 0, 5)
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalLayout_3.setContentsMargins(5, -1, 5, -1)
         self.label_2 = QLabel(self.frameTrial)
         self.label_2.setObjectName(u"label_2")
 
@@ -68,7 +69,7 @@ class Ui_MainWindow(object):
 
         self.comboBoxLab = QComboBox(self.frameTrial)
         self.comboBoxLab.setObjectName(u"comboBoxLab")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.comboBoxLab.sizePolicy().hasHeightForWidth())
@@ -81,6 +82,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout = QHBoxLayout()
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(5, -1, 5, -1)
         self.label = QLabel(self.frameTrial)
         self.label.setObjectName(u"label")
         self.label.setMinimumSize(QSize(41, 0))
@@ -97,7 +99,7 @@ class Ui_MainWindow(object):
 
         self.pushButtonInputDirectoryChooser = QPushButton(self.frameTrial)
         self.pushButtonInputDirectoryChooser.setObjectName(u"pushButtonInputDirectoryChooser")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.pushButtonInputDirectoryChooser.sizePolicy().hasHeightForWidth())
@@ -112,6 +114,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_6 = QHBoxLayout()
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.horizontalLayout_6.setContentsMargins(5, -1, 5, -1)
         self.label_5 = QLabel(self.frameTrial)
         self.label_5.setObjectName(u"label_5")
         self.label_5.setMinimumSize(QSize(41, 0))
@@ -144,9 +147,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.horizontalLayout_5.setContentsMargins(5, -1, 5, -1)
         self.label_4 = QLabel(self.frameTrial)
         self.label_4.setObjectName(u"label_4")
-        self.label_4.setMinimumSize(QSize(127, 0))
+        self.label_4.setMinimumSize(QSize(128, 0))
 
         self.horizontalLayout_5.addWidget(self.label_4)
 
@@ -165,9 +169,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_8 = QHBoxLayout()
         self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
+        self.horizontalLayout_8.setContentsMargins(5, -1, 5, -1)
         self.label_6 = QLabel(self.frameTrial)
         self.label_6.setObjectName(u"label_6")
-        self.label_6.setMinimumSize(QSize(127, 0))
+        self.label_6.setMinimumSize(QSize(128, 0))
 
         self.horizontalLayout_8.addWidget(self.label_6)
 
@@ -175,6 +180,7 @@ class Ui_MainWindow(object):
         self.doubleSpinBoxWeight.setObjectName(u"doubleSpinBoxWeight")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxWeight.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxWeight.setSizePolicy(sizePolicy1)
+        self.doubleSpinBoxWeight.setMinimumSize(QSize(0, 0))
         self.doubleSpinBoxWeight.setMaximum(999.990000000000009)
 
         self.horizontalLayout_8.addWidget(self.doubleSpinBoxWeight)
@@ -184,9 +190,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.horizontalLayout_9.setContentsMargins(5, -1, 5, -1)
         self.label_7 = QLabel(self.frameTrial)
         self.label_7.setObjectName(u"label_7")
-        self.label_7.setMinimumSize(QSize(127, 0))
+        self.label_7.setMinimumSize(QSize(128, 0))
 
         self.horizontalLayout_9.addWidget(self.label_7)
 
@@ -205,9 +212,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_10 = QHBoxLayout()
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.horizontalLayout_10.setContentsMargins(5, -1, 5, -1)
         self.label_8 = QLabel(self.frameTrial)
         self.label_8.setObjectName(u"label_8")
-        self.label_8.setMinimumSize(QSize(127, 0))
+        self.label_8.setMinimumSize(QSize(128, 0))
 
         self.horizontalLayout_10.addWidget(self.label_8)
 
@@ -226,9 +234,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_11 = QHBoxLayout()
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
+        self.horizontalLayout_11.setContentsMargins(5, -1, 5, -1)
         self.label_9 = QLabel(self.frameTrial)
         self.label_9.setObjectName(u"label_9")
-        self.label_9.setMinimumSize(QSize(127, 0))
+        self.label_9.setMinimumSize(QSize(128, 0))
 
         self.horizontalLayout_11.addWidget(self.label_9)
 
@@ -247,9 +256,10 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_12 = QHBoxLayout()
         self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
+        self.horizontalLayout_12.setContentsMargins(5, -1, 5, -1)
         self.label_10 = QLabel(self.frameTrial)
         self.label_10.setObjectName(u"label_10")
-        self.label_10.setMinimumSize(QSize(127, 0))
+        self.label_10.setMinimumSize(QSize(128, 0))
 
         self.horizontalLayout_12.addWidget(self.label_10)
 
@@ -268,14 +278,15 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setContentsMargins(5, -1, 5, -1)
         self.label_3 = QLabel(self.frameTrial)
         self.label_3.setObjectName(u"label_3")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
         self.label_3.setSizePolicy(sizePolicy3)
-        self.label_3.setMinimumSize(QSize(127, 0))
+        self.label_3.setMinimumSize(QSize(128, 0))
 
         self.horizontalLayout_4.addWidget(self.label_3)
 
@@ -292,6 +303,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.horizontalLayout_2.setContentsMargins(5, -1, 5, -1)
         self.pushButtonParseData = QPushButton(self.frameTrial)
         self.pushButtonParseData.setObjectName(u"pushButtonParseData")
         self.pushButtonParseData.setEnabled(False)
@@ -310,13 +322,13 @@ class Ui_MainWindow(object):
         self.splitter.addWidget(self.frameTrial)
         self.frameVisualisation = QFrame(self.splitter)
         self.frameVisualisation.setObjectName(u"frameVisualisation")
-        sizePolicy4 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy4 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy4.setHorizontalStretch(1)
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.frameVisualisation.sizePolicy().hasHeightForWidth())
         self.frameVisualisation.setSizePolicy(sizePolicy4)
-        self.frameVisualisation.setFrameShape(QFrame.StyledPanel)
-        self.frameVisualisation.setFrameShadow(QFrame.Raised)
+        self.frameVisualisation.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frameVisualisation.setFrameShadow(QFrame.Shadow.Raised)
         self.verticalLayout_3 = QVBoxLayout(self.frameVisualisation)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
@@ -360,7 +372,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_7.setContentsMargins(6, -1, -1, -1)
         self.labelProgress = QLabel(self.frameVisualisation)
         self.labelProgress.setObjectName(u"labelProgress")
-        sizePolicy5 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         sizePolicy5.setHorizontalStretch(0)
         sizePolicy5.setVerticalStretch(0)
         sizePolicy5.setHeightForWidth(self.labelProgress.sizePolicy().hasHeightForWidth())
@@ -379,7 +391,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menuBar = QMenuBar(MainWindow)
         self.menuBar.setObjectName(u"menuBar")
-        self.menuBar.setGeometry(QRect(0, 0, 1500, 22))
+        self.menuBar.setGeometry(QRect(0, 0, 1500, 33))
         self.menuFile = QMenu(self.menuBar)
         self.menuFile.setObjectName(u"menuFile")
         self.menuView = QMenu(self.menuBar)

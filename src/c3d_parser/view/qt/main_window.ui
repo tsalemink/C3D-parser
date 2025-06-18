@@ -18,7 +18,7 @@
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Orientation::Horizontal</enum>
       </property>
       <widget class="QFrame" name="frameTrial">
        <property name="sizePolicy">
@@ -34,26 +34,32 @@
         </size>
        </property>
        <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+        <enum>QFrame::Shape::StyledPanel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
+        <enum>QFrame::Shadow::Raised</enum>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <property name="leftMargin">
          <number>0</number>
         </property>
         <property name="topMargin">
-         <number>0</number>
+         <number>5</number>
         </property>
         <property name="rightMargin">
          <number>0</number>
         </property>
         <property name="bottomMargin">
-         <number>0</number>
+         <number>5</number>
         </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_2">
             <property name="text">
@@ -75,6 +81,12 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QLabel" name="label">
             <property name="minimumSize">
@@ -124,6 +136,12 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_5">
             <property name="minimumSize">
@@ -176,11 +194,17 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_4">
             <property name="minimumSize">
              <size>
-              <width>127</width>
+              <width>128</width>
               <height>0</height>
              </size>
             </property>
@@ -212,11 +236,17 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_6">
             <property name="minimumSize">
              <size>
-              <width>127</width>
+              <width>128</width>
               <height>0</height>
              </size>
             </property>
@@ -233,6 +263,12 @@
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
             <property name="maximum">
              <double>999.990000000000009</double>
             </property>
@@ -242,11 +278,17 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_7">
             <property name="minimumSize">
              <size>
-              <width>127</width>
+              <width>128</width>
               <height>0</height>
              </size>
             </property>
@@ -278,11 +320,17 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_8">
             <property name="minimumSize">
              <size>
-              <width>127</width>
+              <width>128</width>
               <height>0</height>
              </size>
             </property>
@@ -314,11 +362,17 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_9">
             <property name="minimumSize">
              <size>
-              <width>127</width>
+              <width>128</width>
               <height>0</height>
              </size>
             </property>
@@ -350,11 +404,17 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_12">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_10">
             <property name="minimumSize">
              <size>
-              <width>127</width>
+              <width>128</width>
               <height>0</height>
              </size>
             </property>
@@ -386,6 +446,12 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QLabel" name="label_3">
             <property name="sizePolicy">
@@ -396,7 +462,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>127</width>
+              <width>128</width>
               <height>0</height>
              </size>
             </property>
@@ -422,6 +488,12 @@
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
           <item>
            <widget class="QPushButton" name="pushButtonParseData">
             <property name="enabled">
@@ -454,10 +526,10 @@
         </sizepolicy>
        </property>
        <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
+        <enum>QFrame::Shape::StyledPanel</enum>
        </property>
        <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
+        <enum>QFrame::Shadow::Raised</enum>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <property name="leftMargin">
@@ -547,7 +619,7 @@
      <x>0</x>
      <y>0</y>
      <width>1500</width>
-     <height>22</height>
+     <height>33</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
