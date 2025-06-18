@@ -989,18 +989,16 @@ def write_normalised_data(data, column_names, selected_trials, excluded_cycles, 
 
 
 def calculate_spatiotemporal_data(frame_data, events, static_data):
-    stride_lengths = []
-    step_lengths = {"Left": [], "Right": []}
-    step_widths = []
-    stance_phases = {"Left": [], "Right": []}
-    swing_phases = {"Left": [], "Right": []}
-    single_support_phase = {"Left": [], "Right": []}
-    double_support_phase = {"Left": [], "Right": []}
+    stride_lengths = {"Left": {}, "Right": {}}
+    step_lengths = {"Left": {}, "Right": {}}
+    step_widths = {"Left": {}, "Right": {}}
+    phases = {"Left": {}, "Right": {}}
     strike_count = 0
 
     _, _, _, _, left_leg_length, right_leg_length = static_data
     left_leg_length /= 1000
     right_leg_length /= 1000
+    leg_lengths = {"Left": left_leg_length, "Right": right_leg_length}
 
     time_ordered_events = defaultdict(dict)
     for foot, foot_events in events.items():
@@ -1010,8 +1008,10 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     opposite_side = {"Left": "Right", "Right": "Left"}
     strike_position = {"Left": None, "Right": None}
     foot_events = {"Left": None, "Right": None}
+    stride_numbers = {"Left": 0, "Right": 0}
     for event_time in sorted(time_ordered_events):
         for foot, (event_type, event_plate) in time_ordered_events[event_time].items():
+            opposite_foot = opposite_side[foot]
             if event_type == "Foot Strike":
                 strike_count += 1
                 event_index = frame_data[frame_data['Time'] <= event_time].index[-1]
@@ -1020,65 +1020,84 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                 # Calculate length of stride.
                 if strike_position[foot] is not None:
                     stride_length = heel_coordinates[0] - strike_position[foot][0]
-                    stride_lengths.append(stride_length)
+                    stride_lengths[foot][stride_numbers[foot]] = stride_length / 1000
                 strike_position[foot] = heel_coordinates
 
                 # Calculate length and width of step.
                 if strike_position[opposite_side[foot]] is not None:
-                    previous_coordinates = strike_position[opposite_side[foot]]
+                    previous_coordinates = strike_position[opposite_foot]
 
                     step_length = heel_coordinates[0] - previous_coordinates[0]
-                    step_lengths[foot].append(step_length)
+                    step_lengths[opposite_foot][stride_numbers[opposite_foot]] = step_length / 1000
 
                     step_width = heel_coordinates[1] - previous_coordinates[1]
-                    step_widths.append(step_width)
+                    step_widths[opposite_foot][stride_numbers[opposite_foot]] = step_width / 1000
+
+            if stride_numbers[foot] not in phases[foot]:
+                phases[foot][stride_numbers[foot]] = {}
 
             # Calculate stance and swing phases.
             if foot_events[foot] is not None:
                 time_interval = event_time - foot_events[foot]
                 if event_type == "Foot Strike":
-                    swing_phases[foot].append(time_interval)
+                    phases[foot][stride_numbers[foot]]["Swing"] = time_interval
                 elif event_type == "Foot Off":
-                    stance_phases[foot].append(time_interval)
+                    phases[foot][stride_numbers[foot]]["Stance"] = time_interval
             foot_events[foot] = event_time
 
+            if stride_numbers[opposite_foot] not in phases[opposite_foot]:
+                phases[opposite_foot][stride_numbers[opposite_foot]] = {}
+
             # Calculate single and double support phases.
-            if foot_events[opposite_side[foot]] is not None:
-                time_interval = event_time - foot_events[opposite_side[foot]]
+            if foot_events[opposite_foot] is not None:
+                time_interval = event_time - foot_events[opposite_foot]
                 if event_type == "Foot Strike":
-                    single_support_phase[foot].append(time_interval)
+                    phases[opposite_foot][stride_numbers[opposite_foot]]["Single-Support"] = time_interval
                 elif event_type == "Foot Off":
-                    double_support_phase[foot].append(time_interval)
+                    phases[opposite_foot][stride_numbers[opposite_foot]]["Double-Support"] = time_interval
+
+            if event_type == "Foot Strike":
+                stride_numbers[foot] += 1
 
     s_t_data = {}
 
-    average_leg_length = (left_leg_length + right_leg_length) / 2
-    stride_length = (sum(stride_lengths) / len(stride_lengths)) / 1000
-    left_step_length = (sum(step_lengths["Left"]) / len(step_lengths["Left"])) / 1000
-    right_step_length = (sum(step_lengths["Right"]) / len(step_lengths["Right"])) / 1000
+    # Calculate normalised lengths.
+    normalised_stride_lengths = {side: {k: v / leg_lengths[side] for k, v in stride_lengths[side].items()}
+                                 for side in stride_lengths}
+    normalised_step_lengths = {side: {k: v / leg_lengths[side] for k, v in step_lengths[side].items()}
+                               for side in step_lengths}
 
-    # Determine length and width averages.
-    s_t_data["Stride Length (m)"] = stride_length
-    s_t_data["Normalised Stride Length (m)"] = stride_length / average_leg_length
-    s_t_data["Step Length - Left (m)"] = left_step_length
-    s_t_data["Step Length - Right (m)"] = right_step_length
-    s_t_data["Normalised Step Length - Left (m)"] = left_step_length / left_leg_length
-    s_t_data["Normalised Step Length - Right (m)"] = right_step_length / right_leg_length
-    s_t_data["Step Width (m)"] = (sum(step_widths) / len(step_widths)) / 1000
+    # Assign lengths and widths.
+    s_t_data["Stride Length (m)"] = stride_lengths
+    s_t_data["Normalised Stride Length (m)"] = normalised_stride_lengths
+    s_t_data["Step Length (m)"] = step_lengths
+    s_t_data["Normalised Step Length (m)"] = normalised_step_lengths
+    s_t_data["Step Width (m)"] = step_widths
 
     # Determine phase percentages.
-    stance_time = sum(stance_phases["Left"] + stance_phases["Right"])
-    swing_time = sum(swing_phases["Left"] + swing_phases["Right"])
-    total_gait_cycle_time = stance_time + swing_time
-    s_t_data["Stance Phase %"] = (stance_time / total_gait_cycle_time) * 100
-    s_t_data["Swing Phase %"] = (swing_time / total_gait_cycle_time) * 100
+    stance_phases = {"Left": {}, "Right": {}}
+    swing_phases = {"Left": {}, "Right": {}}
+    single_support_phases = {"Left": {}, "Right": {}}
+    double_support_phases = {"Left": {}, "Right": {}}
+    for side, cycles in phases.items():
+        for cycle_number, cycle in cycles.items():
+            if "Stance" in cycle and "Swing" in cycle:
+                total_time = cycle["Stance"] + cycle["Swing"]
+                stance_phases[side][cycle_number] = (cycle["Stance"] / total_time) * 100
+                swing_phases[side][cycle_number] = (cycle["Swing"] / total_time) * 100
 
-    single_support_time = sum(single_support_phase["Left"] + single_support_phase["Right"])
-    double_support_time = sum(double_support_phase["Left"] + double_support_phase["Right"])
-    total_gait_cycle_time = single_support_time + double_support_time
-    s_t_data["Single Support Phase %"] = (single_support_time / total_gait_cycle_time) * 100
-    s_t_data["Double Support Phase %"] = (double_support_time / total_gait_cycle_time) * 100
+            if "Single-Support" in cycle and "Double-Support" in cycle:
+                total_time = cycle["Single-Support"] + cycle["Double-Support"]
+                single_support_phases[side][cycle_number] = (cycle["Single-Support"] / total_time) * 100
+                double_support_phases[side][cycle_number] = (cycle["Double-Support"] / total_time) * 100
 
+    # Assign phase percentages.
+    s_t_data["Stance Phase %"] = stance_phases
+    s_t_data["Swing Phase %"] = swing_phases
+    s_t_data["Single Support Phase %"] = single_support_phases
+    s_t_data["Double Support Phase %"] = double_support_phases
+
+    average_leg_length = (left_leg_length + right_leg_length) / 2
     start_time, end_time = None, None
     for event_time in sorted(time_ordered_events):
         for event_type, _ in time_ordered_events[event_time].values():
@@ -1088,21 +1107,25 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                 end_time = event_time
     total_time = end_time - start_time
 
-    # Calculate gait-speed.
+    # Calculate gait-speed and cadence.
     total_distance = calculate_distance_covered(frame_data, start_time, end_time)
     gait_speed = (total_distance / total_time) / 1000
-    s_t_data["Gait Speed (m/s)"] = gait_speed
-    s_t_data["Normalised Gait Speed (m/s)"] = gait_speed / math.sqrt(9.81 * average_leg_length)
-
-    # Calculate cadence.
-    s_t_data["Cadence (steps/min)"] = ((strike_count - 1) / total_time) * 60
+    normalised_gait_speed = gait_speed / math.sqrt(9.81 * average_leg_length)
+    cadence = ((strike_count - 1) / total_time) * 60
 
     # Calculate foot progression.
-    left_foot, right_foot = calculate_foot_progression(frame_data, time_ordered_events)
-    s_t_data["Foot Progression - Left (deg)"] = left_foot
-    s_t_data["Foot Progression - Right (deg)"] = right_foot
+    foot_angles = calculate_foot_progression(frame_data, time_ordered_events)
+    s_t_data["Foot Progression (deg)"] = foot_angles
 
-    return s_t_data
+    data_frame = convert_to_data_frame(s_t_data)
+
+    # Calculate averages and other trial-specific measurements.
+    data_frame.loc['average'] = data_frame.mean()
+    data_frame.loc['average', ["Gait Speed (m/s)", "Normalised Gait Speed (m/s)", "Cadence (steps/min)"]] = [
+        gait_speed, normalised_gait_speed, cadence
+    ]
+
+    return data_frame
 
 
 def calculate_distance_covered(frame_data, start_time=None, end_time=None):
@@ -1157,8 +1180,9 @@ def calculate_foot_progression_angles(frame_data):
 def calculate_foot_progression(frame_data, time_ordered_events):
     walking_direction = calculate_walking_direction(frame_data)
 
-    foot_angles = {"Left": [], "Right": []}
+    foot_angles = {"Left": {}, "Right": {}}
     foot_events = {"Left": None, "Right": None}
+    stride_numbers = {"Left": 0, "Right": 0}
     for event_time in sorted(time_ordered_events):
         for foot, (event_type, event_plate) in time_ordered_events[event_time].items():
             if foot_events[foot] is not None:
@@ -1176,13 +1200,14 @@ def calculate_foot_progression(frame_data, time_ordered_events):
                     if foot == 'Right':
                         angle = -angle
 
-                    foot_angles[foot].append(normalise_angle(angle))
+                    foot_angles[foot][stride_numbers[foot]] = normalise_angle(angle)
+
+            if event_type == "Foot Strike":
+                stride_numbers[foot] += 1
+
             foot_events[foot] = event_time
 
-    left_progression = sum(foot_angles["Left"]) / len(foot_angles["Left"])
-    right_progression = sum(foot_angles["Right"]) / len(foot_angles["Right"])
-
-    return left_progression, right_progression
+    return foot_angles
 
 
 def normalise_angle(angle):
@@ -1197,11 +1222,23 @@ def write_spatiotemporal_data(data, selected_trials, output_directory):
     normalised_directory = os.path.join(output_directory, 'normalised')
     output_file = os.path.join(normalised_directory, f"spattemp.csv")
 
-    data_frame = pd.DataFrame(data)
-    valid_trials = [trial for trial in selected_trials if trial in data_frame.columns]
-    data_frame = data_frame[valid_trials]
-    data_frame['Average'] = data_frame.mean(axis=1)
-    data_frame.round(3).to_csv(output_file)
+    combined_data_frame = pd.concat(
+        [df.rename(index=lambda idx: f"{trial} {idx}") for trial, df in data.items() if trial in selected_trials])
+    combined_data_frame.round(3).to_csv(output_file)
+
+
+def convert_to_data_frame(s_t_data):
+    row_dict = {}
+    for measurement, data_both_side in s_t_data.items():
+        for side, data_one_side in data_both_side.items():
+            for cycle_number, value in data_one_side.items():
+                row_label = f"({side}-{cycle_number})"
+                if row_label not in row_dict:
+                    row_dict[row_label] = {}
+                row_dict[row_label][measurement] = value
+    data_frame = pd.DataFrame.from_dict(row_dict, orient='index')
+
+    return data_frame
 
 
 def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marker_diameter=14):
