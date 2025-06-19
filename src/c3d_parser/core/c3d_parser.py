@@ -500,7 +500,7 @@ def extract_data(file_path, start_frame, end_frame):
             foot = contexts[i].strip()
             label = labels[i].strip()
             event_time = times[i][1]
-            if start < event_time and event_time < stop:
+            if start < event_time < stop:
                 events[foot][event_time] = label
 
         for foot in events.keys():
