@@ -1045,7 +1045,7 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                     step_length = heel_coordinates[0] - previous_coordinates[0]
                     step_lengths[opposite_foot][stride_numbers[opposite_foot]] = step_length / 1000
 
-                    step_width = heel_coordinates[1] - previous_coordinates[1]
+                    step_width = abs(heel_coordinates[1] - previous_coordinates[1])
                     step_widths[opposite_foot][stride_numbers[opposite_foot]] = step_width / 1000
 
             if stride_number not in phases[foot]:
