@@ -500,11 +500,33 @@ def extract_data(file_path, start_frame, end_frame):
             foot = contexts[i].strip()
             label = labels[i].strip()
             event_time = times[i][1]
-            if start < event_time < stop:
-                events[foot][event_time] = label
+            events[foot][event_time] = label
 
         for foot in events.keys():
             events[foot] = dict(sorted(events[foot].items()))
+
+        # Annotate stride numbers.
+        annotated_events = {'Left': {}, 'Right': {}}
+        stride_numbers = {"Left": 0, "Right": 0}
+        for foot, event in events.items():
+            for event_time, event_type in event.items():
+                if event_type == "Foot Strike":
+                    stride_numbers[foot] += 1
+                stride_number = stride_numbers[foot]
+
+                if stride_number not in annotated_events[foot]:
+                    annotated_events[foot][stride_number] = {}
+                annotated_events[foot][stride_number][event_time] = event_type
+
+        # Remove events outside the trimmed frame range.
+        trimmed_events = {'Left': {}, 'Right': {}}
+        for foot, events in annotated_events.items():
+            for stride_number, stride_events in events.items():
+                for event_time, event_type in stride_events.items():
+                    if start < event_time < stop:
+                        if stride_number not in trimmed_events[foot]:
+                            trimmed_events[foot][stride_number] = {}
+                        trimmed_events[foot][stride_number][event_time] = event_type
 
         # Get number of force plates.
         plate_count = reader.get('FORCE_PLATFORM:USED').int8_value
@@ -512,7 +534,7 @@ def extract_data(file_path, start_frame, end_frame):
         # Rotate GRF data to align with global CS.
         corners = reader.get('FORCE_PLATFORM:CORNERS').float_array
 
-    return analog_data, reader.analog_rate, events, plate_count, corners
+    return analog_data, reader.analog_rate, trimmed_events, plate_count, corners
 
 
 def extract_static_data(file_path):
@@ -633,32 +655,29 @@ def zero_grf_data(analog_data, plate_count):
 
 
 def identify_event_plates(frame_data, events, corners):
-    for foot in events:
-        for event_time, event in events[foot].items():
-            event_index = frame_data[frame_data['Time'] <= event_time].index[-1]
-            heel_coordinates = frame_data.at[event_index, foot[0] + 'HEE']
-            for plate in range(len(corners)):
-                if point_on_plate(heel_coordinates, corners[plate]):
-                    events[foot][event_time] = [event, plate]
-                    break
-            else:
-                events[foot][event_time] = [event, None]
+    for foot, foot_events in events.items():
+        for stride_number, stride_events in foot_events.items():
+            for event_time, event_type in stride_events.items():
+
+                event_index = frame_data[frame_data['Time'] <= event_time].index[-1]
+                heel_coordinates = frame_data.at[event_index, foot[0] + 'HEE']
+                for plate in range(len(corners)):
+                    if point_on_plate(heel_coordinates, corners[plate]):
+                        events[foot][stride_number][event_time] = [event_type, plate]
+                        break
+                    else:
+                        events[foot][stride_number][event_time] = [event_type, None]
 
 
 def validate_foot_strikes(events):
-    for foot in events:
-        event_list = list(events[foot].items())
-        for i in range(len(event_list)):
-            event_time, (event_type, event_plate) = event_list[i]
-            if event_type == "Foot Strike":
-                if i + 1 < len(event_list):
-                    _, (next_event_type, next_event_plate) = event_list[i + 1]
-                    if next_event_type == "Foot Off" and event_plate == next_event_plate:
-                        continue
-
-                if event_plate is not None:
-                    logger.warn(f"Event at time {event_time:.3f} is invalid. Stride occurs over multiple force plates.")
-                    events[foot][event_time] = [event_type, None]
+    for foot, foot_events in events.items():
+        for stride_number, stride_events in foot_events.items():
+            if len(stride_events) == 2:
+                strike, off = stride_events.values()
+                if strike[1] != off[1]:
+                    logger.warn(f"Stride ({foot} {stride_number}) is invalid. "
+                                f"Stride occurs over multiple force plates.")
+                    strike[1] = off[1] = None
 
 
 def point_on_plate(point, corners):
@@ -707,28 +726,24 @@ def concatenate_grf_data(analog_data, events, mean_centre):
         data = analog_data.iloc[frames, source_columns].values
         concatenated_data.iloc[frames, target_columns] = data
 
-    for i in range(len(events)):
-        foot = list(events)[i]
+    for foot, foot_events in events.items():
+        i = 0 if foot == "Left" else 1
         target_columns = range(i * 9 + 1, i * 9 + 10)
 
-        start, end = None, None
-        for event in events[foot]:
-            event_type = events[foot][event][0]
-            event_plate = events[foot][event][1]
-            if event_plate is None:
-                start = None
-                continue
-            frame = analog_data[analog_data['time'] <= event].index[-1]
-            source_columns = range(event_plate * 9 + 1, event_plate * 9 + 10)
+        for stride_number, stride_events in foot_events.items():
+            if len(stride_events) == 2:
+                (start_time, (_, strike_plate)), (end_time, (_, off_plate)) = stride_events.items()
+                if strike_plate is None or off_plate is None or strike_plate != off_plate:
+                    continue
+                source_columns = range(strike_plate * 9 + 1, strike_plate * 9 + 10)
 
-            if event_type == "Foot Strike":
-                while analog_data.iloc[frame, source_columns[2]] > 0:
-                    frame -= 1
-                start = frame
-            elif event_type == "Foot Off" and start is not None:
-                while analog_data.iloc[frame, source_columns[2]] > 0:
-                    frame += 1
-                end = frame
+                start = analog_data[analog_data['time'] <= start_time].index[-1]
+                while analog_data.iloc[start, source_columns[2]] > 0:
+                    start -= 1
+                end = analog_data[analog_data['time'] <= end_time].index[-1]
+                while analog_data.iloc[end, source_columns[2]] > 0:
+                    end += 1
+
                 copy_data()
                 start, end = None, None
 
@@ -809,7 +824,8 @@ def normalise_grf_data(data, events):
             force_data = grf_data.iloc[:, [0, *range(column, column + 3)]]
 
             start = None
-            for event_time, (event_type, event_plate) in foot_events.items():
+            for stride_number, stride_events in foot_events.items():
+                (event_time, (event_type, event_plate)), *_ = stride_events.items()
                 frame = force_data[force_data['time'] <= event_time].index[-1]
                 if event_type == "Foot Strike" and start:
                     while force_data.iloc[frame, 3] > 0:
@@ -857,9 +873,9 @@ def normalise_kinematics(kinematic_data, events):
             data = trial_data.loc[:, ['time'] + names]
 
             start = None
-            stride_number = 0
-            for event_time, event in foot_events.items():
-                if event[0] == "Foot Strike" and start:
+            for stride_number, stride_events in foot_events.items():
+                (event_time, (event_type, event_plate)), *_ = stride_events.items()
+                if event_type == "Foot Strike" and start:
                     frame = data[data['time'] >= event_time].index[0]
                     if file_name not in normalised_data[foot]:
                         normalised_data[foot][file_name] = {}
@@ -872,12 +888,10 @@ def normalise_kinematics(kinematic_data, events):
                         data_segment["pelvis_list"] = -(data_segment["pelvis_list"] - 180)
                     data_segment["pelvis_list"] -= 90
 
-                    normalised_data[foot][file_name][stride_number] = data_segment.values.T
+                    normalised_data[foot][file_name][stride_number - 1] = data_segment.values.T
                     start = data[data['time'] <= event_time].index[-1]
-                elif event[0] == "Foot Strike":
+                elif event_type == "Foot Strike":
                     start = data[data['time'] <= event_time].index[-1]
-                if event[0] == "Foot Strike":
-                    stride_number += 1
 
     return normalised_data
 
@@ -907,8 +921,9 @@ def normalise_kinetics(kinetic_data, events):
             data = trial_data.loc[:, ['time'] + names]
 
             start = None
-            stride_number = 0
-            for event_time, (event_type, event_plate) in foot_events.items():
+            for stride_number, stride_events in foot_events.items():
+                (event_time, (event_type, event_plate)), *_ = stride_events.items()
+
                 if event_type == "Foot Strike" and start:
                     frame = data[data['time'] >= event_time].index[0]
                     if file_name not in normalised_data[foot]:
@@ -920,7 +935,7 @@ def normalise_kinetics(kinetic_data, events):
                     data_segment[f"knee_rotation_{side}_moment"] = -data_segment[f"knee_rotation_{side}_moment"]
                     data_segment[f"ankle_angle_{side}_moment"] = -data_segment[f"ankle_angle_{side}_moment"]
 
-                    normalised_data[foot][file_name][stride_number] = data_segment.values.T
+                    normalised_data[foot][file_name][stride_number - 1] = data_segment.values.T
                     if event_plate is not None:
                         start = data[data['time'] <= event_time].index[-1]
                     else:
@@ -929,8 +944,6 @@ def normalise_kinetics(kinetic_data, events):
                 elif event_type == "Foot Strike":
                     if event_plate is not None:
                         start = data[data['time'] <= event_time].index[-1]
-                if event_type == "Foot Strike":
-                    stride_number += 1
 
     return normalised_data
 
@@ -1002,15 +1015,17 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
 
     time_ordered_events = defaultdict(dict)
     for foot, foot_events in events.items():
-        for time, event in foot_events.items():
-            time_ordered_events[time][foot] = event
+        for stride_number, stride_events in foot_events.items():
+            for event_time, (event_type, event_plate) in stride_events.items():
+                time_ordered_events[event_time][foot] = [event_type, stride_number]
 
     opposite_side = {"Left": "Right", "Right": "Left"}
     strike_position = {"Left": None, "Right": None}
     foot_events = {"Left": None, "Right": None}
     stride_numbers = {"Left": 0, "Right": 0}
     for event_time in sorted(time_ordered_events):
-        for foot, (event_type, event_plate) in time_ordered_events[event_time].items():
+        for foot, (event_type, stride_number) in time_ordered_events[event_time].items():
+            stride_numbers[foot] = stride_number
             opposite_foot = opposite_side[foot]
             if event_type == "Foot Strike":
                 strike_count += 1
@@ -1020,7 +1035,7 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                 # Calculate length of stride.
                 if strike_position[foot] is not None:
                     stride_length = heel_coordinates[0] - strike_position[foot][0]
-                    stride_lengths[foot][stride_numbers[foot]] = stride_length / 1000
+                    stride_lengths[foot][stride_number - 1] = stride_length / 1000
                 strike_position[foot] = heel_coordinates
 
                 # Calculate length and width of step.
@@ -1033,16 +1048,16 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                     step_width = heel_coordinates[1] - previous_coordinates[1]
                     step_widths[opposite_foot][stride_numbers[opposite_foot]] = step_width / 1000
 
-            if stride_numbers[foot] not in phases[foot]:
-                phases[foot][stride_numbers[foot]] = {}
+            if stride_number not in phases[foot]:
+                phases[foot][stride_number] = {}
 
             # Calculate stance and swing phases.
             if foot_events[foot] is not None:
                 time_interval = event_time - foot_events[foot]
                 if event_type == "Foot Strike":
-                    phases[foot][stride_numbers[foot]]["Swing"] = time_interval
+                    phases[foot][stride_number - 1]["Swing"] = time_interval
                 elif event_type == "Foot Off":
-                    phases[foot][stride_numbers[foot]]["Stance"] = time_interval
+                    phases[foot][stride_number]["Stance"] = time_interval
             foot_events[foot] = event_time
 
             if stride_numbers[opposite_foot] not in phases[opposite_foot]:
@@ -1055,9 +1070,6 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                     phases[opposite_foot][stride_numbers[opposite_foot]]["Single-Support"] = time_interval
                 elif event_type == "Foot Off":
                     phases[opposite_foot][stride_numbers[opposite_foot]]["Double-Support"] = time_interval
-
-            if event_type == "Foot Strike":
-                stride_numbers[foot] += 1
 
     s_t_data = {}
 
@@ -1182,9 +1194,8 @@ def calculate_foot_progression(frame_data, time_ordered_events):
 
     foot_angles = {"Left": {}, "Right": {}}
     foot_events = {"Left": None, "Right": None}
-    stride_numbers = {"Left": 0, "Right": 0}
     for event_time in sorted(time_ordered_events):
-        for foot, (event_type, event_plate) in time_ordered_events[event_time].items():
+        for foot, (event_type, stride_number) in time_ordered_events[event_time].items():
             if foot_events[foot] is not None:
                 if event_type == "Foot Off":
                     mid_stance_time = (foot_events[foot] + event_time) / 2
@@ -1200,10 +1211,7 @@ def calculate_foot_progression(frame_data, time_ordered_events):
                     if foot == 'Right':
                         angle = -angle
 
-                    foot_angles[foot][stride_numbers[foot]] = normalise_angle(angle)
-
-            if event_type == "Foot Strike":
-                stride_numbers[foot] += 1
+                    foot_angles[foot][stride_number] = normalise_angle(angle)
 
             foot_events[foot] = event_time
 
