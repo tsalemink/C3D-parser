@@ -1040,7 +1040,7 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
 
                 # Calculate length of stride.
                 if strike_position[foot] is not None:
-                    stride_length = heel_coordinates[0] - strike_position[foot][0]
+                    stride_length = heel_coordinates[0] - strike_position[foot][0]  # type: ignore
                     stride_lengths[foot][stride_number - 1] = stride_length / 1000
                 strike_position[foot] = heel_coordinates
 
@@ -1048,10 +1048,10 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                 if strike_position[opposite_side[foot]] is not None:
                     previous_coordinates = strike_position[opposite_foot]
 
-                    step_length = heel_coordinates[0] - previous_coordinates[0]
+                    step_length = heel_coordinates[0] - previous_coordinates[0]     # type: ignore
                     step_lengths[opposite_foot][stride_numbers[opposite_foot]] = step_length / 1000
 
-                    step_width = abs(heel_coordinates[1] - previous_coordinates[1])
+                    step_width = abs(heel_coordinates[1] - previous_coordinates[1])     # type: ignore
                     step_widths[opposite_foot][stride_numbers[opposite_foot]] = step_width / 1000
 
             if stride_number not in phases[foot]:
@@ -1204,7 +1204,7 @@ def calculate_foot_progression(frame_data, time_ordered_events):
         for foot, (event_type, stride_number) in time_ordered_events[event_time].items():
             if foot_events[foot] is not None:
                 if event_type == "Foot Off":
-                    mid_stance_time = (foot_events[foot] + event_time) / 2
+                    mid_stance_time = (foot_events[foot] + event_time) / 2  # type: ignore
                     frame = frame_data[frame_data['Time'] >= mid_stance_time].index[0]
                     heel_position = frame_data.loc[frame, f"{foot[0]}HEE"]
                     toe_position = frame_data.loc[frame, f"{foot[0]}TOE"]
