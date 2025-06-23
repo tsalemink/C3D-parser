@@ -1054,10 +1054,9 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                     step_width = abs(heel_coordinates[1] - previous_coordinates[1])     # type: ignore
                     step_widths[opposite_foot][stride_numbers[opposite_foot]] = step_width / 1000
 
+            # Calculate stance and swing phases.
             if stride_number not in phases[foot]:
                 phases[foot][stride_number] = {}
-
-            # Calculate stance and swing phases.
             if foot_events[foot] is not None:
                 time_interval = event_time - foot_events[foot]
                 if event_type == "Foot Strike":
@@ -1066,10 +1065,9 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                     phases[foot][stride_number]["Stance"] = time_interval
             foot_events[foot] = event_time
 
+            # Calculate single and double support phases.
             if stride_numbers[opposite_foot] not in phases[opposite_foot]:
                 phases[opposite_foot][stride_numbers[opposite_foot]] = {}
-
-            # Calculate single and double support phases.
             if foot_events[opposite_foot] is not None:
                 time_interval = event_time - foot_events[opposite_foot]
                 if event_type == "Foot Strike":
