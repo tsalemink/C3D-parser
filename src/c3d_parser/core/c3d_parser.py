@@ -679,6 +679,10 @@ def validate_foot_strikes(events):
                                 f"Stride occurs over multiple force plates.")
                     strike[1] = off[1] = None
 
+            if len(stride_events) > 2:
+                logger.warn(f"Stride ({foot} {stride_number}) is invalid. "
+                            f"Additional events detected in stride.")
+
 
 def point_on_plate(point, corners):
     x_coordinates = [corner[0] for corner in corners]
