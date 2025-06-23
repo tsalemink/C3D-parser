@@ -735,8 +735,10 @@ def concatenate_grf_data(analog_data, events, mean_centre):
         target_columns = range(i * 9 + 1, i * 9 + 10)
 
         for stride_number, stride_events in foot_events.items():
-            if len(stride_events) == 2:
-                (start_time, (_, strike_plate)), (end_time, (_, off_plate)) = stride_events.items()
+            if len(stride_events) >= 2:
+                stride_items = list(stride_events.items())
+                start_time, (_, strike_plate) = stride_items[0]
+                end_time, (_, off_plate) = stride_items[1]
                 if strike_plate is None or off_plate is None or strike_plate != off_plate:
                     continue
                 source_columns = range(strike_plate * 9 + 1, strike_plate * 9 + 10)
