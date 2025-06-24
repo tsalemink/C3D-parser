@@ -328,6 +328,10 @@ def trim_frames(frame_data):
             break
         trim_end = frame - 1
 
+    if incomplete_frames:
+        logger.warn(f"Some frames are missing required markers. "
+                    f"Trimming trial from frame {trim_start} to frame {trim_end}.")
+
     frame_list = frame_data.index.to_list()
     complete_frames = frame_list[frame_list.index(trim_start):frame_list.index(trim_end) + 1]
     drop_frames = frame_data.index.difference(complete_frames)
@@ -483,7 +487,7 @@ def extract_data(file_path, start_frame, end_frame):
         # Extract analog data
         time_increment = 1 / reader.analog_rate
         start = (start_frame - 1) / reader.point_rate
-        stop = (end_frame) / reader.point_rate - (time_increment / 2)
+        stop = end_frame / reader.point_rate - (time_increment / 2)
         times = np.arange(start, stop, time_increment).tolist()
         analog_data = {'time': times}
 
@@ -538,6 +542,9 @@ def extract_data(file_path, start_frame, end_frame):
                         if stride_number not in trimmed_events[foot]:
                             trimmed_events[foot][stride_number] = {}
                         trimmed_events[foot][stride_number][event_time] = event_type
+                    else:
+                        logger.warn(f"Event at {event_time}s is outside the trial's valid range "
+                                    f"of time stamps ({start}s - {stop}s).")
 
         # Get number of force plates.
         plate_count = reader.get('FORCE_PLATFORM:USED').int8_value
