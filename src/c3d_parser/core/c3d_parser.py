@@ -263,10 +263,16 @@ def write_trc_data(trc_data, file_name, output_directory):
     return trc_file_path
 
 
-def harmonise_markers(frame_data, lab):
+def get_marker_map(lab):
     map_file = os.path.join(marker_maps_dir, f"{lab}.json")
     with open(map_file, 'r') as file:
         marker_mapping = json.load(file)
+
+    return marker_mapping
+
+
+def get_marker_set(lab):
+    marker_mapping = get_marker_map(lab)
 
     singular = ['C7', 'T2', 'T10', 'MAN', 'SACR']
     marker_set = {}
@@ -276,6 +282,11 @@ def harmonise_markers(frame_data, lab):
         else:
             marker_set[f"L{key}"] = f"L{value}" if value is not None else None
             marker_set[f"R{key}"] = f"R{value}" if value is not None else None
+
+    return marker_set
+
+def harmonise_markers(frame_data, lab):
+    marker_set = get_marker_set(lab)
 
     # Harmonise marker labels.
     reversed_mapping = {value: key for key, value in marker_set.items() if value is not None}
