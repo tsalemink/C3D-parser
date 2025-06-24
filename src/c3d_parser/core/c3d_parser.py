@@ -688,18 +688,40 @@ def identify_event_plates(frame_data, events, corners):
 
 
 def validate_foot_strikes(events):
+    invalid_strides = {'Left': set(), 'Right': set()}
+    time_ordered_strikes = {}
     for foot, foot_events in events.items():
         for stride_number, stride_events in foot_events.items():
+            for event_time, (event_type, event_plate) in stride_events.items():
+                if event_type == "Foot Strike":
+                    time_ordered_strikes[event_time] = (foot, stride_number, event_plate)
+
             if len(stride_events) == 2:
                 strike, off = stride_events.values()
                 if strike[1] != off[1]:
                     logger.warn(f"Stride ({foot} {stride_number}) is invalid. "
                                 f"Stride occurs over multiple force plates.")
-                    strike[1] = off[1] = None
+                    invalid_strides[foot].add(stride_number)
 
             if len(stride_events) > 2:
                 logger.warn(f"Stride ({foot} {stride_number}) is invalid. "
                             f"Additional events detected in stride.")
+
+    time_ordered_strikes = dict(sorted(time_ordered_strikes.items()))
+    previous_strike = (None, None, None)
+    for event_time, (foot, stride_number, event_plate) in time_ordered_strikes.items():
+        previous_foot, previous_stride, previous_plate = previous_strike
+        if event_plate == previous_plate and previous_plate is not None:
+            logger.warn(f"Strides ({previous_foot} {previous_stride}) and ({foot} {stride_number}) "
+                        f"are invalid. Consecutive strides occur on the same force plate.")
+            invalid_strides[previous_foot].add(previous_stride)
+            invalid_strides[foot].add(stride_number)
+        previous_strike = (foot, stride_number, event_plate)
+
+    for foot, strides in invalid_strides.items():
+        for stride_number in strides:
+            for event in events[foot][stride_number].values():
+                event[1] = None
 
 
 def point_on_plate(point, corners):
