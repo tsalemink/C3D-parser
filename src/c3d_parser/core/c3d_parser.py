@@ -668,7 +668,7 @@ def zero_grf_data(analog_data, plate_count):
     for i in range(plate_count):
         start = 1 + (6 * i)
         columns = list(range(start, start + 6))
-        mask = analog_data.iloc[:, columns[2]] > -10
+        mask = analog_data.iloc[:, columns[2]] > 0
         analog_data.iloc[mask, columns] = 0
 
 
