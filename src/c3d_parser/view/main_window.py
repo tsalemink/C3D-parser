@@ -405,15 +405,15 @@ class MainWindow(QMainWindow):
         self._plot_z.clear()
 
         for foot, files_dict in grf_data.items():
-            for name, data_segments in files_dict.items():
-                colour = 'r' if foot == "Left" else 'b'
-                for i, segment in enumerate(data_segments):
-                    t_segment = np.linspace(0, 100, segment.shape[1])
+            colour = 'r' if foot == "Left" else 'b'
+            for name, cycles in files_dict.items():
+                for cycle_number, cycle_data in cycles.items():
+                    t_segment = np.linspace(0, 100, cycle_data.shape[1])
 
                     for j, plot in enumerate([self._plot_x, self._plot_y, self._plot_z]):
-                        line, = plot.plot(t_segment, segment[j], color=colour, linewidth=self._line_width)
+                        line, = plot.plot(t_segment, cycle_data[j], color=colour, linewidth=self._line_width)
                         line.set_picker(True)
-                        self._grf_curves.add_curve(name, f"{foot}_{i}", line)
+                        self._grf_curves.add_curve(name, f"{foot}_{cycle_number}", line)
 
         for plot in [self._plot_x, self._plot_y, self._plot_z]:
             plot.margins(x=0)

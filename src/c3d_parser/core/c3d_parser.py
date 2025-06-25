@@ -877,7 +877,7 @@ def normalise_grf_data(data, events):
                     while force_data.iloc[frame, 3] > 0:
                         frame -= 1
                     if file_name not in normalised_data[foot]:
-                        normalised_data[foot][file_name] = []
+                        normalised_data[foot][file_name] = {}
                     data_segment = force_data.iloc[start:frame, 1:]
                     start = None if event_plate is None else frame
 
@@ -885,7 +885,7 @@ def normalise_grf_data(data, events):
                     if "ground_force_vy" in data_segment.columns:
                         data_segment["ground_force_vy"] = -data_segment["ground_force_vy"]
 
-                    normalised_data[foot][file_name].append(data_segment.values.T)
+                    normalised_data[foot][file_name][stride_number - 1] = data_segment.values.T
 
                 elif event_type == "Foot Strike" and event_plate is not None:
                     while force_data.iloc[frame, 3] > 0:
