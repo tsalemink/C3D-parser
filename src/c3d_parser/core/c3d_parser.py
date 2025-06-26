@@ -1329,8 +1329,8 @@ def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marke
     """
     frame = frame_data.iloc[len(frame_data) // 2].copy()
 
-    medial_padding = 16
-    lateral_padding = 14
+    medial_padding = 6
+    lateral_padding = 4
 
     for side in ['L', 'R']:
         medial_label = f'{side}KNEM'
