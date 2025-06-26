@@ -718,7 +718,15 @@ def validate_foot_strikes(events):
     previous_strike = (None, None, None)
     for event_time, (foot, stride_number, event_plate) in time_ordered_strikes.items():
         previous_foot, previous_stride, previous_plate = previous_strike
-        if event_plate == previous_plate and previous_plate is not None:
+
+        off_plate = None
+        if previous_foot is not None:
+            for event in events[previous_foot][previous_stride].values():
+                if event[0] == "Foot Off":
+                    off_plate = event[1]
+                    break
+
+        if event_plate == off_plate and off_plate is not None:
             logger.warn(f"Strides ({previous_foot} {previous_stride}) and ({foot} {stride_number}) "
                         f"are invalid. Consecutive strides occur on the same force plate.")
             invalid_strides[previous_foot].add(previous_stride)
@@ -796,6 +804,17 @@ def concatenate_grf_data(analog_data, events, mean_centre):
                 end = analog_data[analog_data['time'] <= end_time].index[-1]
                 while analog_data.iloc[end, source_columns[2]] > 0:
                     end += 1
+
+                new_start_time = analog_data.iloc[start]['time']
+                new_end_time = analog_data.iloc[end]['time']
+                if new_start_time < start_time - 0.2:
+                    logger.warn(f"Interference detected on force plate at the beginning of "
+                                f"stride ({foot} {stride_number}).")
+                    start = analog_data[analog_data['time'] <= start_time].index[-1]
+                if end_time + 0.2 < new_end_time:
+                    logger.warn(f"Interference detected on force plate at the end of stride "
+                                f"({foot} {stride_number}).")
+                    end = analog_data[analog_data['time'] <= end_time].index[-1]
 
                 copy_data()
                 start, end = None, None
