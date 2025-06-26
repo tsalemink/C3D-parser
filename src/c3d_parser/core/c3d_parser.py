@@ -673,18 +673,25 @@ def zero_grf_data(analog_data, plate_count):
 
 
 def identify_event_plates(frame_data, events, corners):
+
+    def identify_plate(coordinates):
+        for plate in range(len(corners)):
+            if point_on_plate(coordinates, corners[plate]):
+                events[foot][stride_number][event_time] = [event_type, plate]
+                break
+            else:
+                events[foot][stride_number][event_time] = [event_type, None]
+
     for foot, foot_events in events.items():
         for stride_number, stride_events in foot_events.items():
             for event_time, event_type in stride_events.items():
-
                 event_index = frame_data[frame_data['Time'] <= event_time].index[-1]
-                heel_coordinates = frame_data.at[event_index, foot[0] + 'HEE']
-                for plate in range(len(corners)):
-                    if point_on_plate(heel_coordinates, corners[plate]):
-                        events[foot][stride_number][event_time] = [event_type, plate]
-                        break
-                    else:
-                        events[foot][stride_number][event_time] = [event_type, None]
+                if event_type == "Foot Strike":
+                    heel_coordinates = frame_data.at[event_index, foot[0] + 'HEE']
+                    identify_plate(heel_coordinates)
+                else:
+                    toe_coordinates = frame_data.at[event_index, foot[0] + 'TOE']
+                    identify_plate(toe_coordinates)
 
 
 def validate_foot_strikes(events):
