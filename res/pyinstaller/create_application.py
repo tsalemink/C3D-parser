@@ -23,7 +23,8 @@ def main():
         '--console',
         # '--windowed',
         '--noconfirm',
-        '--additional-hooks-dir=hooks'
+        '--additional-hooks-dir=hooks',
+        '--hidden-import=scipy._cyutility',
     ]
 
     pyside_dir = os.path.dirname(PySide6.__file__)
