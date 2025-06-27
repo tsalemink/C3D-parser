@@ -201,7 +201,7 @@ class Ui_MainWindow(object):
         self.doubleSpinBoxLeftKneeWidth.setObjectName(u"doubleSpinBoxLeftKneeWidth")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxLeftKneeWidth.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxLeftKneeWidth.setSizePolicy(sizePolicy1)
-        self.doubleSpinBoxLeftKneeWidth.setDecimals(0)
+        self.doubleSpinBoxLeftKneeWidth.setDecimals(1)
         self.doubleSpinBoxLeftKneeWidth.setMaximum(999.000000000000000)
         self.doubleSpinBoxLeftKneeWidth.setSingleStep(1.000000000000000)
 
@@ -223,7 +223,7 @@ class Ui_MainWindow(object):
         self.doubleSpinBoxRightKneeWidth.setObjectName(u"doubleSpinBoxRightKneeWidth")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxRightKneeWidth.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxRightKneeWidth.setSizePolicy(sizePolicy1)
-        self.doubleSpinBoxRightKneeWidth.setDecimals(0)
+        self.doubleSpinBoxRightKneeWidth.setDecimals(1)
         self.doubleSpinBoxRightKneeWidth.setMaximum(999.000000000000000)
         self.doubleSpinBoxRightKneeWidth.setSingleStep(1.000000000000000)
 
