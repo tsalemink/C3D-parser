@@ -713,6 +713,7 @@ def validate_foot_strikes(events):
             if len(stride_events) > 2:
                 logger.warn(f"Stride ({foot} {stride_number}) is invalid. "
                             f"Additional events detected in stride.")
+                invalid_strides[foot].add(stride_number)
 
     time_ordered_strikes = dict(sorted(time_ordered_strikes.items()))
     previous_strike = (None, None, None)
