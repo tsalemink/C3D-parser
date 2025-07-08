@@ -67,7 +67,7 @@ class MainWindow(QMainWindow):
 
         self._line_width = 1.0
 
-        self._setup_combo_box()
+        self._setup_combo_boxes()
         self._setup_figures()
         self._make_connections()
         self._load_settings()
@@ -84,9 +84,12 @@ class MainWindow(QMainWindow):
         self._progress_text = ""
         self._dots = 0
 
-    def _setup_combo_box(self):
+    def _setup_combo_boxes(self):
         labs = [os.path.splitext(lab)[0] for lab in os.listdir(marker_maps_dir)]
         self._ui.comboBoxLab.addItems(labs)
+
+        # Force Qt to use placeholder text until sex selected.
+        self._ui.comboBoxSex.setCurrentIndex(-1)
 
     def _setup_figures(self):
         self._setup_grf_figure()
@@ -314,6 +317,8 @@ class MainWindow(QMainWindow):
         marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
 
         static_data = {
+            "Sex": self._ui.comboBoxSex.currentText(),
+            "Age": self._ui.spinBoxAge.value(),
             'Height': self._ui.doubleSpinBoxHeight.value(),
             'Weight': self._ui.doubleSpinBoxWeight.value(),
             'Left Knee Width': self._ui.doubleSpinBoxLeftKneeWidth.value(),
@@ -321,7 +326,7 @@ class MainWindow(QMainWindow):
             'Left Leg Length': self._ui.doubleSpinBoxLeftLegLength.value(),
             'Right Leg Length': self._ui.doubleSpinBoxRightLegLength.value(),
         }
-        missing = [key for key, value in static_data.items() if value == 0.0]
+        missing = [key for key, value in static_data.items() if not value]
         if missing:
             QMessageBox.warning(self, "Warning", "Subject measurements missing:\n- " + "\n- ".join(missing))
             return

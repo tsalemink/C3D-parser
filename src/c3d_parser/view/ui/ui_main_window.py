@@ -19,8 +19,8 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
 from PySide6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox, QFrame,
     QHBoxLayout, QLabel, QLineEdit, QListWidgetItem,
     QMainWindow, QMenu, QMenuBar, QPushButton,
-    QSizePolicy, QSplitter, QTabWidget, QVBoxLayout,
-    QWidget)
+    QSizePolicy, QSpinBox, QSplitter, QTabWidget,
+    QVBoxLayout, QWidget)
 
 from c3d_parser.view.widgets import CustomListWidget
 
@@ -144,6 +144,42 @@ class Ui_MainWindow(object):
         self.listWidgetFiles.setObjectName(u"listWidgetFiles")
 
         self.verticalLayout_2.addWidget(self.listWidgetFiles)
+
+        self.horizontalLayout_14 = QHBoxLayout()
+        self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
+        self.horizontalLayout_14.setContentsMargins(5, -1, 5, -1)
+        self.label_12 = QLabel(self.frameTrial)
+        self.label_12.setObjectName(u"label_12")
+        self.label_12.setMinimumSize(QSize(128, 0))
+
+        self.horizontalLayout_14.addWidget(self.label_12)
+
+        self.comboBoxSex = QComboBox(self.frameTrial)
+        self.comboBoxSex.addItem("")
+        self.comboBoxSex.addItem("")
+        self.comboBoxSex.setObjectName(u"comboBoxSex")
+
+        self.horizontalLayout_14.addWidget(self.comboBoxSex)
+
+
+        self.verticalLayout_2.addLayout(self.horizontalLayout_14)
+
+        self.horizontalLayout_13 = QHBoxLayout()
+        self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
+        self.horizontalLayout_13.setContentsMargins(5, -1, 5, -1)
+        self.label_11 = QLabel(self.frameTrial)
+        self.label_11.setObjectName(u"label_11")
+        self.label_11.setMinimumSize(QSize(128, 0))
+
+        self.horizontalLayout_13.addWidget(self.label_11)
+
+        self.spinBoxAge = QSpinBox(self.frameTrial)
+        self.spinBoxAge.setObjectName(u"spinBoxAge")
+
+        self.horizontalLayout_13.addWidget(self.spinBoxAge)
+
+
+        self.verticalLayout_2.addLayout(self.horizontalLayout_13)
 
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
@@ -436,6 +472,13 @@ class Ui_MainWindow(object):
         self.pushButtonInputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Output:", None))
         self.pushButtonOutputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
+        self.label_12.setText(QCoreApplication.translate("MainWindow", u"Sex:", None))
+        self.comboBoxSex.setItemText(0, QCoreApplication.translate("MainWindow", u"Female", None))
+        self.comboBoxSex.setItemText(1, QCoreApplication.translate("MainWindow", u"Male", None))
+
+        self.comboBoxSex.setCurrentText("")
+        self.comboBoxSex.setPlaceholderText(QCoreApplication.translate("MainWindow", u"-", None))
+        self.label_11.setText(QCoreApplication.translate("MainWindow", u"Age:", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Height (mm):", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Weight (kg):", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Left Knee Width (mm):", None))

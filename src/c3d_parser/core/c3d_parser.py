@@ -104,7 +104,7 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_
     set_marker_data(trc_data, frame_data)
     trc_file_path = write_trc_data(trc_data, file_name, output_directory)
 
-    height, weight, left_knee_width, right_knee_width, _, _ = static_data
+    _, _, height, weight, left_knee_width, right_knee_width, _, _ = static_data
     frame = add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marker_diameter)
 
     return frame, trc_file_path, height, weight
@@ -1081,7 +1081,7 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     phases = {"Left": {}, "Right": {}}
     strike_count = 0
 
-    _, _, _, _, left_leg_length, right_leg_length = static_data
+    _, _, _, _, _, _, left_leg_length, right_leg_length = static_data
     left_leg_length /= 1000
     right_leg_length /= 1000
     leg_lengths = {"Left": left_leg_length, "Right": right_leg_length}
