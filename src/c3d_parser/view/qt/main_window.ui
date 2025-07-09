@@ -204,7 +204,7 @@
            <widget class="QLabel" name="label_12">
             <property name="minimumSize">
              <size>
-              <width>128</width>
+              <width>132</width>
               <height>0</height>
              </size>
             </property>
@@ -247,7 +247,7 @@
            <widget class="QLabel" name="label_11">
             <property name="minimumSize">
              <size>
-              <width>128</width>
+              <width>132</width>
               <height>0</height>
              </size>
             </property>
@@ -273,7 +273,7 @@
            <widget class="QLabel" name="label_4">
             <property name="minimumSize">
              <size>
-              <width>128</width>
+              <width>132</width>
               <height>0</height>
              </size>
             </property>
@@ -315,7 +315,7 @@
            <widget class="QLabel" name="label_6">
             <property name="minimumSize">
              <size>
-              <width>128</width>
+              <width>132</width>
               <height>0</height>
              </size>
             </property>
@@ -357,7 +357,7 @@
            <widget class="QLabel" name="label_7">
             <property name="minimumSize">
              <size>
-              <width>128</width>
+              <width>132</width>
               <height>0</height>
              </size>
             </property>
@@ -399,7 +399,7 @@
            <widget class="QLabel" name="label_8">
             <property name="minimumSize">
              <size>
-              <width>128</width>
+              <width>132</width>
               <height>0</height>
              </size>
             </property>
@@ -430,6 +430,72 @@
          </layout>
         </item>
         <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_15">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_13">
+            <property name="minimumSize">
+             <size>
+              <width>132</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Left Ankle Width (mm):</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxLeftAnkleWidth">
+            <property name="decimals">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <double>999.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_16">
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_14">
+            <property name="minimumSize">
+             <size>
+              <width>132</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Right Ankle Width (mm):</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxRightAnkleWidth">
+            <property name="decimals">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <double>999.000000000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_11">
           <property name="leftMargin">
            <number>5</number>
@@ -441,7 +507,7 @@
            <widget class="QLabel" name="label_9">
             <property name="minimumSize">
              <size>
-              <width>128</width>
+              <width>132</width>
               <height>0</height>
              </size>
             </property>
@@ -483,7 +549,7 @@
            <widget class="QLabel" name="label_10">
             <property name="minimumSize">
              <size>
-              <width>128</width>
+              <width>132</width>
               <height>0</height>
              </size>
             </property>
@@ -531,7 +597,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>128</width>
+              <width>132</width>
               <height>0</height>
              </size>
             </property>
