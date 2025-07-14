@@ -31,9 +31,12 @@ class CancelException(Exception):
     pass
 
 
-def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, static_data, progress_tracker):
+def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, static_data,
+                  optimise_knee_axis, progress_tracker):
+
     file_path = os.path.normpath(os.path.join(input_directory, static_trial))
-    frame, static_trc_path, height, weight = parse_static_trial(file_path, lab, marker_diameter, output_directory, static_data)
+    frame, static_trc_path, height, weight = parse_static_trial(file_path, lab, marker_diameter, output_directory,
+                                                                static_data)
 
     marker_data_rate = 100
 
@@ -68,7 +71,8 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
 
     dynamic_trc_path = list(trc_file_paths.values())[0]
 
-    osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, height, weight, output_directory, progress_tracker)
+    osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, height, weight,
+                                   output_directory, optimise_knee_axis, progress_tracker)
 
     progress_tracker.progress.emit("Running IK and ID", "black")
 
@@ -1360,7 +1364,9 @@ def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marke
     return frame
 
 
-def create_osim_model(static_trc, dynamic_trc, static_marker_data, height, weight, output_directory, progress_tracker):
+def create_osim_model(static_trc, dynamic_trc, static_marker_data, height, weight,
+                      output_directory, optimise_knee_axis, progress_tracker):
+
     # Assume height in cm and convert to m.
     height /= 1000
 
@@ -1368,8 +1374,7 @@ def create_osim_model(static_trc, dynamic_trc, static_marker_data, height, weigh
     rotation_matrix = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])
     static_marker_data = {k: np.dot(rotation_matrix, v) for k, v in static_marker_data.items()}
 
-    create_model(static_trc, dynamic_trc, output_directory, static_marker_data, weight, height, testing=True,
-                 progress_tracker=progress_tracker)
-    model_path = os.path.join(output_directory, "Models", "Optimised_Knee_Axes.osim")
+    model_path = create_model(static_trc, dynamic_trc, output_directory, static_marker_data, weight, height,
+                              optimise_knee_axis=optimise_knee_axis, progress_tracker=progress_tracker)
 
     return model_path

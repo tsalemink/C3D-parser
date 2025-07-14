@@ -55,8 +55,11 @@ class MainWindow(QMainWindow):
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
 
+        # Initialise user settings.
+        self._line_width = 1.0
         self._input_data_directory = ''
         self._output_data_directory = ''
+        self._optimise_knee_axis = True
 
         self._static_trial = None
         self._analog_data = None
@@ -64,8 +67,6 @@ class MainWindow(QMainWindow):
         self._kinematic_data = {}
         self._kinetic_data = {}
         self._events = {}
-
-        self._line_width = 1.0
 
         self._setup_combo_boxes()
         self._setup_figures()
@@ -344,8 +345,9 @@ class MainWindow(QMainWindow):
         self._progress_tracker.progress.connect(self._update_progress)
         self._start_progress_animation()
 
-        self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, input_directory, self._output_directory, lab,
-                                   marker_diameter, static_data, self._progress_tracker)
+        self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, input_directory,
+                                   self._output_directory, lab, marker_diameter, static_data,
+                                   self._optimise_knee_axis, self._progress_tracker)
         self._worker.finished.connect(self._parse_finished)
         self._worker.cancelled.connect(self._parse_cancelled)
         self._worker.failed.connect(self._parse_failed)
@@ -598,7 +600,8 @@ class MainWindow(QMainWindow):
         options = {
             'line_width': self._line_width,
             'input_data_directory': self._input_data_directory,
-            'output_data_directory': self._output_data_directory
+            'output_data_directory': self._output_data_directory,
+            'optimise_knee_axis': self._optimise_knee_axis
         }
 
         return options
@@ -607,6 +610,7 @@ class MainWindow(QMainWindow):
         self._line_width = options['line_width']
         self._input_data_directory = options['input_data_directory']
         self._output_data_directory = options['output_data_directory']
+        self._optimise_knee_axis = options['optimise_knee_axis']
 
     def _show_marker_set_dialog(self):
         static_trials = []
@@ -650,6 +654,7 @@ class MainWindow(QMainWindow):
         settings.setValue('line_width', self._line_width)
         settings.setValue('input_data_directory', self._input_data_directory)
         settings.setValue('output_data_directory', self._output_data_directory)
+        settings.setValue('optimise_knee_axis', self._optimise_knee_axis)
         settings.endGroup()
 
     def _load_settings(self):
@@ -674,6 +679,8 @@ class MainWindow(QMainWindow):
             self._input_data_directory = settings.value('input_data_directory')
         if settings.contains('output_data_directory'):
             self._output_data_directory = settings.value('output_data_directory')
+        if settings.contains('optimise_knee_axis'):
+            self._optimise_knee_axis = settings.value('optimise_knee_axis') == 'true'
         settings.endGroup()
 
     def _quit_application(self):

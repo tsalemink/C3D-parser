@@ -26,12 +26,14 @@ class OptionsDialog(QtWidgets.QDialog):
         self._ui.doubleSpinBoxLineWidth.setValue(options['line_width'])
         self._ui.lineEditRootInput.setText(options['input_data_directory'])
         self._ui.lineEditRootOutput.setText(options['output_data_directory'])
+        self._ui.checkBoxOptimiseKneeAxis.setChecked(options['optimise_knee_axis'])
 
     def save(self):
         options = {
             'line_width': self._ui.doubleSpinBoxLineWidth.value(),
             'input_data_directory': self._ui.lineEditRootInput.text(),
-            'output_data_directory': self._ui.lineEditRootOutput.text()
+            'output_data_directory': self._ui.lineEditRootOutput.text(),
+            'optimise_knee_axis': self._ui.checkBoxOptimiseKneeAxis.isChecked()
         }
 
         return options
