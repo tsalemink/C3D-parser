@@ -217,11 +217,22 @@ def de_identify_c3d(file_path, output_directory):
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
+    def de_identify_string_array(group_name, parameter_name, new_value='Subject'):
+        if group_name in reader:
+            analysis_group = writer.get(group_name)
+            if parameter_name in analysis_group.param_keys():
+                array_length = len(analysis_group.get(parameter_name).string_array)
+                if array_length:
+                    analysis_group.remove_param(parameter_name)
+                    label_str, maxlen = c3d.Writer.pack_labels([new_value] * array_length)
+                    analysis_group.add_str(parameter_name, '', label_str, maxlen, array_length)
+
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
         writer = reader.to_writer('copy')
-        if 'SUBJECTS' in reader:
-            writer.get('SUBJECTS').set_str('NAMES', '', 'Subject', 7)
+
+        de_identify_string_array('SUBJECTS', 'NAMES')
+        de_identify_string_array('ANALYSIS', 'SUBJECTS')
 
     with open(os.path.join(output_directory, file_name), 'wb') as handle:
         writer.write(handle)
