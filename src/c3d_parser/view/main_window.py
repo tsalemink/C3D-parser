@@ -66,6 +66,8 @@ class MainWindow(QMainWindow):
         self._subject_weight = None
         self._kinematic_data = {}
         self._kinetic_data = {}
+        self._s_t_data = {}
+        self._deidentified_file_names = {}
         self._events = {}
 
         self._setup_combo_boxes()
@@ -355,7 +357,7 @@ class MainWindow(QMainWindow):
 
     @handle_runtime_error
     def _parse_finished(self, result):
-        grf_data, self._kinematic_data, self._kinetic_data, self._s_t_data = result
+        grf_data, self._kinematic_data, self._kinetic_data, self._s_t_data, self._deidentified_file_names = result
 
         self._visualise_grf_data(grf_data)
         self._visualise_kinematic_data(self._kinematic_data)
@@ -397,7 +399,8 @@ class MainWindow(QMainWindow):
 
     @handle_runtime_error
     def _harmonise_data(self):
-        selected_trials = self._get_selected_trials()
+        selected = self._get_selected_trials()
+        selected_trials = {key: value for key, value in self._deidentified_file_names.items() if key in selected}
         kinematic_exclusions = self._kinematic_curves.get_excluded_cycles()
         kinetic_exclusions = self._kinetic_curves.get_excluded_cycles()
         write_normalised_kinematics(self._kinematic_data, selected_trials, kinematic_exclusions, self._output_directory)

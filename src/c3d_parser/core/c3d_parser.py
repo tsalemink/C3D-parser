@@ -49,14 +49,15 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
 
     trc_file_paths = {}
     grf_file_paths = {}
+    deidentified_file_names = {}
 
     progress_tracker.progress.emit("Processing C3D data", "black")
 
-    for trial in dynamic_trials:
+    for trial_index, trial in enumerate(dynamic_trials, start=1):
         file_path = os.path.normpath(os.path.join(input_directory, trial))
         try:
             analog_data, events, foot_progression, s_t_data, trc_file_path, grf_file_path = \
-                parse_dynamic_trial(file_path, lab, output_directory, marker_data_rate, static_data)
+                parse_dynamic_trial(file_path, lab, output_directory, trial_index, marker_data_rate, static_data)
         except ParserError as e:
             logger.error(e)
             continue
@@ -68,6 +69,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
 
         trc_file_paths[trial] = trc_file_path
         grf_file_paths[trial] = grf_file_path
+        deidentified_file_names[trial] = os.path.basename(trc_file_path).rsplit(".", 1)[0]
 
     dynamic_trc_path = list(trc_file_paths.values())[0]
 
@@ -88,15 +90,16 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     normalised_kinematics = normalise_kinematics(kinematic_data, event_data)
     normalised_kinetics = normalise_kinetics(kinetic_data, event_data)
 
-    return normalised_grf_data, normalised_kinematics, normalised_kinetics, spatiotemporal_data
+    return normalised_grf_data, normalised_kinematics, normalised_kinetics, spatiotemporal_data, deidentified_file_names
 
 
 def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_data):
     logger.info(f"Parsing static trial: {c3d_file}")
 
+    output_file_name = 'static'
     c3d_file_name = os.path.basename(c3d_file)
     file_name = os.path.splitext(c3d_file_name)[0]
-    de_identify_c3d(c3d_file, output_directory)
+    de_identify_c3d(c3d_file, output_directory, output_file_name)
 
     # Harmonise TRC data.
     trc_data = TRCData()
@@ -106,7 +109,7 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_
     rotation_matrix = get_static_rotation(frame_data)
     rotate_trc_data(frame_data, rotation_matrix)
     set_marker_data(trc_data, frame_data)
-    trc_file_path = write_trc_data(trc_data, file_name, output_directory)
+    trc_file_path = write_trc_data(trc_data, output_file_name, output_directory)
 
     _, _, height, weight, left_knee_width, right_knee_width, _, _, _, _ = static_data
     frame = add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marker_diameter)
@@ -114,12 +117,13 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_
     return frame, trc_file_path, height, weight
 
 
-def parse_dynamic_trial(c3d_file, lab, output_directory, marker_data_rate, static_data):
+def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_data_rate, static_data):
     logger.info(f"Parsing dynamic trial: {c3d_file}")
 
+    output_file_name = f'dynamic_{trial_index}'
     c3d_file_name = os.path.basename(c3d_file)
     file_name = os.path.splitext(c3d_file_name)[0]
-    de_identify_c3d(c3d_file, output_directory)
+    de_identify_c3d(c3d_file, output_directory, output_file_name)
 
     # Harmonise TRC data.
     trc_data = TRCData()
@@ -156,13 +160,13 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, marker_data_rate, stati
     grf_directory = os.path.join(output_directory, 'grf')
     if not os.path.exists(grf_directory):
         os.makedirs(grf_directory)
-    grf_file_name = re.sub(r' +', '_', file_name)
+    grf_file_name = re.sub(r' +', '_', output_file_name)
     grf_file_path = os.path.join(grf_directory, f"{grf_file_name}_grf.mot")
     write_grf(analog_data, grf_file_path)
 
     # Write harmonised TRC data.
     set_marker_data(trc_data, frame_data, rate=marker_data_rate)
-    trc_file_path = write_trc_data(trc_data, file_name, output_directory)
+    trc_file_path = write_trc_data(trc_data, output_file_name, output_directory)
 
     foot_progression = calculate_foot_progression_angles(frame_data)
     resample_data(foot_progression, trc_data['DataRate'], marker_data_rate)
@@ -202,12 +206,12 @@ def run_id(osim_model, ik_data, ik_output, grf_file_path, output_directory, mark
     return id_data
 
 
-def de_identify_c3d(file_path, output_directory):
+def de_identify_c3d(file_path, output_directory, output_file_name):
     output_directory = os.path.join(output_directory, 'de_identified')
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    input_directory, file_name = os.path.split(os.path.abspath(file_path))
+    input_directory, _ = os.path.split(os.path.abspath(file_path))
     output_directory = os.path.abspath(output_directory)
 
     # Currently we prevent overwriting the input file.
@@ -234,7 +238,7 @@ def de_identify_c3d(file_path, output_directory):
         de_identify_string_array('SUBJECTS', 'NAMES')
         de_identify_string_array('ANALYSIS', 'SUBJECTS')
 
-    with open(os.path.join(output_directory, file_name), 'wb') as handle:
+    with open(os.path.join(output_directory, output_file_name), 'wb') as handle:
         writer.write(handle)
 
 
@@ -1087,7 +1091,7 @@ def write_normalised_data(data, column_names, selected_trials, excluded_cycles, 
                     normalised_segment = normalised_segment.round(6)
 
                     for x in range(1, 102):
-                        trial = file_name if x == 1 else ""
+                        trial = selected_trials[file_name] if x == 1 else ""
                         side = foot if x == 1 else ""
                         stride = cycle_number if x == 1 else ""
                         row_data = [trial, side, stride, x] + normalised_segment[:, x - 1].tolist()
@@ -1322,8 +1326,8 @@ def write_spatiotemporal_data(data, selected_trials, output_directory):
     normalised_directory = os.path.join(output_directory, 'normalised')
     output_file = os.path.join(normalised_directory, f"spattemp.csv")
 
-    combined_data_frame = pd.concat(
-        [df.rename(index=lambda idx: f"{trial} {idx}") for trial, df in data.items() if trial in selected_trials])
+    combined_data_frame = pd.concat([df.rename(index=lambda idx: f"{selected_trials[trial]} {idx}")
+         for trial, df in data.items() if trial in selected_trials])
     combined_data_frame.round(3).to_csv(output_file)
 
 
