@@ -341,6 +341,18 @@ class MainWindow(QMainWindow):
             return
         static_data = list(static_data.values())
 
+        optimise_knee_axis = self._optimise_knee_axis
+        if not dynamic_trials:
+            reply = QMessageBox.information(self, "No Dynamic Trials",
+                                    "No dynamic trials identified in input directory. Do you still want to "
+                                    "create the model? (knee-axis optimisation will be unavailable)",
+                                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                                    QMessageBox.StandardButton.No)
+            if reply == QMessageBox.StandardButton.Yes:
+                optimise_knee_axis = False
+            else:
+                return
+
         self._ui.pushButtonParseData.setEnabled(False)
 
         self._progress_tracker = ProgressTracker()
@@ -349,7 +361,7 @@ class MainWindow(QMainWindow):
 
         self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, input_directory,
                                    self._output_directory, lab, marker_diameter, static_data,
-                                   self._optimise_knee_axis, self._progress_tracker)
+                                   optimise_knee_axis, self._progress_tracker)
         self._worker.finished.connect(self._parse_finished)
         self._worker.cancelled.connect(self._parse_cancelled)
         self._worker.failed.connect(self._parse_failed)
