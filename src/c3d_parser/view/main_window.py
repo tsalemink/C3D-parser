@@ -388,6 +388,9 @@ class MainWindow(QMainWindow):
     def _parse_cancelled(self, e):
         logger.info(e)
 
+        self._stop_progress_animation()
+        self._progress_tracker.progress.emit("Completed", "green")
+
         self._ui.pushButtonParseData.setEnabled(True)
 
     @handle_runtime_error
