@@ -269,17 +269,19 @@ class MainWindow(QMainWindow):
         if static_data[1] is not None:
             self._ui.doubleSpinBoxWeight.setValue(static_data[1])
         if static_data[2] is not None:
-            self._ui.doubleSpinBoxLeftKneeWidth.setValue(static_data[2])
+            self._ui.doubleSpinBoxASISWidth.setValue(static_data[2])
         if static_data[3] is not None:
-            self._ui.doubleSpinBoxRightKneeWidth.setValue(static_data[3])
+            self._ui.doubleSpinBoxLeftKneeWidth.setValue(static_data[3])
         if static_data[4] is not None:
-            self._ui.doubleSpinBoxLeftAnkleWidth.setValue(static_data[4])
+            self._ui.doubleSpinBoxRightKneeWidth.setValue(static_data[4])
         if static_data[5] is not None:
-            self._ui.doubleSpinBoxRightAnkleWidth.setValue(static_data[5])
+            self._ui.doubleSpinBoxLeftAnkleWidth.setValue(static_data[5])
         if static_data[6] is not None:
-            self._ui.doubleSpinBoxLeftLegLength.setValue(static_data[6])
+            self._ui.doubleSpinBoxRightAnkleWidth.setValue(static_data[6])
         if static_data[7] is not None:
-            self._ui.doubleSpinBoxRightLegLength.setValue(static_data[7])
+            self._ui.doubleSpinBoxLeftLegLength.setValue(static_data[7])
+        if static_data[8] is not None:
+            self._ui.doubleSpinBoxRightLegLength.setValue(static_data[8])
 
     @handle_runtime_error
     def _parse_c3d_data(self):
@@ -328,6 +330,7 @@ class MainWindow(QMainWindow):
             "Age": self._ui.spinBoxAge.value(),
             'Height': self._ui.doubleSpinBoxHeight.value(),
             'Weight': self._ui.doubleSpinBoxWeight.value(),
+            'ASIS Width': self._ui.doubleSpinBoxASISWidth.value(),
             'Left Knee Width': self._ui.doubleSpinBoxLeftKneeWidth.value(),
             'Right Knee Width': self._ui.doubleSpinBoxRightKneeWidth.value(),
             'Left Ankle Width': self._ui.doubleSpinBoxLeftAnkleWidth.value(),
