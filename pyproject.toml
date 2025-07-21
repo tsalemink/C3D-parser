@@ -18,7 +18,7 @@ dynamic = ["version", "dependencies"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-c3d_parser = ["core/marker_maps/**/*", "core/osim_resources/**/*"]
+c3d_parser = ["settings/marker_maps/**/*", "core/osim_resources/**/*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "c3d_parser.__version__"}

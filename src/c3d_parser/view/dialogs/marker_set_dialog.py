@@ -5,7 +5,7 @@ import json
 
 from PySide6 import QtWidgets
 
-from c3d_parser.core.c3d_parser import marker_maps_dir
+from c3d_parser.settings.general import get_marker_maps_dir
 from c3d_parser.view.dialogs.marker_set_import_dialog import MarkerSetImportDialog
 from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET
 from c3d_parser.view.ui.ui_marker_set_dialog import Ui_MarkerSetDialog
@@ -43,6 +43,7 @@ class MarkerSetDialog(QtWidgets.QDialog):
 
     def save(self):
         file_name = f"{self._ui.lineEditName.text()}.json"
+        marker_maps_dir = get_marker_maps_dir()
         file_path = os.path.join(marker_maps_dir, file_name)
 
         with open(file_path, 'w') as file:
@@ -74,6 +75,7 @@ class MarkerSetDialog(QtWidgets.QDialog):
 
     def _validate_marker_set(self):
         file_name = f"{self._ui.lineEditName.text()}.json"
+        marker_maps_dir = get_marker_maps_dir()
         file_path = os.path.join(marker_maps_dir, file_name)
         if os.path.exists(file_path):
             QtWidgets.QMessageBox.warning(self, "Warning", f"Marker Set ({file_name}) already exists.")

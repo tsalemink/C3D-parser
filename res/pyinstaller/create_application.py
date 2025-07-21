@@ -44,8 +44,8 @@ def main():
     run_command.append(os.pathsep.join([f'--add-binary={rcc_exe}', 'PySide6/']))
     run_command.append(os.pathsep.join([f'--add-binary={uic_exe}', 'PySide6/']))
 
-    json_files = os.path.join('../../src/c3d_parser/core/marker_maps', '*.json')
-    run_command.append(os.pathsep.join([f'--add-data={json_files}', 'c3d_parser/core/marker_maps/']))
+    json_files = os.path.join('../../src/c3d_parser/settings/marker_maps', '*.json')
+    run_command.append(os.pathsep.join([f'--add-data={json_files}', 'c3d_parser/settings/marker_maps/']))
 
     osim_resources = os.path.join('../../src/c3d_parser/core/osim_resources', '*.xml')
     run_command.append(os.pathsep.join([f'--add-data={osim_resources}', 'c3d_parser/core/osim_resources/']))

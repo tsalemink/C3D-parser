@@ -16,11 +16,8 @@ from opensim_model_creator.Create_Model import create_model
 
 from c3d_parser.core.c3d_patch import c3d
 from c3d_parser.core.osim import perform_ik, perform_id
+from c3d_parser.settings.general import get_marker_maps_dir
 from c3d_parser.settings.logging import logger
-
-
-script_directory = os.path.dirname(os.path.abspath(__file__))
-marker_maps_dir = os.path.join(script_directory, 'marker_maps')
 
 
 class ParserError(Exception):
@@ -289,6 +286,7 @@ def write_trc_data(trc_data, file_name, output_directory):
 
 
 def get_marker_map(lab):
+    marker_maps_dir = get_marker_maps_dir()
     map_file = os.path.join(marker_maps_dir, f"{lab}.json")
     with open(map_file, 'r') as file:
         marker_mapping = json.load(file)

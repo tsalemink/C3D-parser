@@ -9,12 +9,12 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
 from c3d_parser.core.c3d_parser import (parse_session, extract_static_data, extract_marker_names, is_dynamic,
-    marker_maps_dir, CancelException, write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data)
+    CancelException, write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data)
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
 from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
 from c3d_parser.view.dialogs.about_dialog import AboutDialog
-from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET
+from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET, get_marker_maps_dir
 from c3d_parser.view.utils import handle_runtime_error
 from c3d_parser.settings.logging import logger
 
@@ -95,6 +95,7 @@ class MainWindow(QMainWindow):
 
     def _reset_lab_combo_box(self):
         current_selection = self._ui.comboBoxLab.currentText()
+        marker_maps_dir = get_marker_maps_dir()
         labs = [os.path.splitext(lab)[0] for lab in os.listdir(marker_maps_dir)]
         self._ui.comboBoxLab.clear()
         self._ui.comboBoxLab.addItems(labs)
