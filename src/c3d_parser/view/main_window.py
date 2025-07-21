@@ -88,11 +88,20 @@ class MainWindow(QMainWindow):
         self._dots = 0
 
     def _setup_combo_boxes(self):
-        labs = [os.path.splitext(lab)[0] for lab in os.listdir(marker_maps_dir)]
-        self._ui.comboBoxLab.addItems(labs)
+        self._reset_lab_combo_box()
 
         # Force Qt to use placeholder text until sex selected.
         self._ui.comboBoxSex.setCurrentIndex(-1)
+
+    def _reset_lab_combo_box(self):
+        current_selection = self._ui.comboBoxLab.currentText()
+        labs = [os.path.splitext(lab)[0] for lab in os.listdir(marker_maps_dir)]
+        self._ui.comboBoxLab.clear()
+        self._ui.comboBoxLab.addItems(labs)
+
+        if current_selection in labs:
+            index = labs.index(current_selection)
+            self._ui.comboBoxLab.setCurrentIndex(index)
 
     def _setup_figures(self):
         self._setup_grf_figure()
@@ -651,6 +660,7 @@ class MainWindow(QMainWindow):
         dlg.set_marker_names(marker_names)
         if dlg.exec():
             dlg.save()
+            self._reset_lab_combo_box()
 
     def _show_about_dialog(self):
         dlg = AboutDialog(self)
