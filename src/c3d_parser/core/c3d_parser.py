@@ -31,6 +31,10 @@ class CancelException(Exception):
     pass
 
 
+required_markers = [{"LASI", "RASI"}, {"LKNE", "RKNE"}, {"LANK", "RANK"}, {"LMED", "RMED"}, {"LHEE", "RHEE"},
+                    ({"LPSI", "RPSI"}, {"SACR"}), ({"LKNEM", "RKNEM"}, {"LKAX", "RKAX"})]
+
+
 def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, static_data,
                   optimise_knee_axis, progress_tracker):
 
@@ -107,7 +111,7 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_
     trc_data = TRCData()
     trc_data.import_from(c3d_file)
     frame_data = extract_marker_data(trc_data)
-    harmonise_markers(frame_data, lab)
+    harmonise_markers(frame_data, lab, required_markers)
     rotation_matrix = get_static_rotation(frame_data)
     rotate_trc_data(frame_data, rotation_matrix)
     set_marker_data(trc_data, frame_data)
@@ -131,7 +135,7 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     trc_data = TRCData()
     trc_data.import_from(c3d_file)
     frame_data = extract_marker_data(trc_data)
-    harmonise_markers(frame_data, lab)
+    harmonise_markers(frame_data, lab, [])
 
     # Extract GRF data from C3D file.
     start_frame, end_frame = trim_frames(frame_data)
@@ -306,7 +310,7 @@ def get_marker_set(lab):
 
     return marker_set
 
-def harmonise_markers(frame_data, lab):
+def harmonise_markers(frame_data, lab, required_markers):
     marker_set = get_marker_set(lab)
 
     # Harmonise marker labels.
@@ -317,6 +321,18 @@ def harmonise_markers(frame_data, lab):
     # Filter out non-harmonised data points.
     if None in frame_data.columns:
         frame_data.drop(columns=[None], axis=1, inplace=True)
+
+    # Ensure required markers are present.
+    available = set(frame_data.columns)
+    for item in required_markers:
+        if isinstance(item, set):
+            if not item.issubset(available):
+                raise ParserError(f"Required markers ({item}) missing from trial. "
+                                  f"Please ensure you are using the correct marker set.")
+        elif isinstance(item, tuple):
+            if not any(group.issubset(available) for group in item):
+                raise ParserError(f"Required markers (one of: {item}) missing from trial. "
+                                  f"Please ensure you are using the correct marker set.")
 
 
 def trim_frames(frame_data):

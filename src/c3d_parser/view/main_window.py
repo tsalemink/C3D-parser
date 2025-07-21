@@ -8,8 +8,8 @@ from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QLi
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
-from c3d_parser.core.c3d_parser import parse_session, extract_static_data, extract_marker_names, is_dynamic, marker_maps_dir,\
-    CancelException, write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data
+from c3d_parser.core.c3d_parser import (parse_session, extract_static_data, extract_marker_names, is_dynamic,
+    marker_maps_dir, CancelException, write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data)
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
 from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
