@@ -669,11 +669,15 @@ def calculate_force_and_couple(analog_data, plate_count):
     for i in range(plate_count):
         start = 1 + (6 * i)
         columns = list(range(start, start + 6))
-        Fx, Fy, Fz, Mx, My, Mz = analog_data.iloc[:, columns].values.T
+        Fx, Fy, Fz, Mx, My, Mz = analog_data.iloc[:, columns].values.T.astype(float)
 
         with np.errstate(divide='ignore', invalid='ignore'):
-            CoPx = np.where(Fz != 0, -(My + Fx) / Fz, 0)
-            CoPy = np.where(Fz != 0, (Mx - Fy) / Fz, 0)
+            CoPx = np.zeros_like(Fz, dtype=float)
+            CoPy = np.zeros_like(Fz, dtype=float)
+            nonzero = Fz != 0
+            CoPx[nonzero] = -(My[nonzero] + Fx[nonzero]) / Fz[nonzero]
+            CoPy[nonzero] = (Mx[nonzero] - Fy[nonzero]) / Fz[nonzero]
+
         Tz = Mz - CoPx * Fy + CoPy * Fx
 
         new_data[f'Fx{i + 1}'] = Fx
