@@ -500,6 +500,7 @@ def extract_marker_names(filename):
     while f'LABELS{i}' in point_group.param_keys():
         filtered_labels = [None if label in model_outputs else label.strip() for label in point_group.get(f'LABELS{i}').string_array]
         point_labels.extend(filtered_labels)
+        i += 1
     point_labels = list(filter(None, point_labels))
 
     marker_names = []
