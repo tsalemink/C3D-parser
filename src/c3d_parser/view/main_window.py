@@ -352,7 +352,6 @@ class MainWindow(QMainWindow):
         if missing:
             QMessageBox.warning(self, "Warning", "Subject measurements missing:\n- " + "\n- ".join(missing))
             return
-        static_data = list(static_data.values())
 
         optimise_knee_axis = self._optimise_knee_axis
         if not dynamic_trials:

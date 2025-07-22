@@ -73,7 +73,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         deidentified_file_names[trial] = os.path.basename(trc_file_path).rsplit(".", 1)[0]
 
     dynamic_trc_path = list(trc_file_paths.values())[0] if dynamic_trials else ""
-    osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, height, weight,
+    osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, height, weight, static_data,
                                    output_directory, optimise_knee_axis, progress_tracker)
 
     if not dynamic_trials:
@@ -114,7 +114,10 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_
     set_marker_data(trc_data, frame_data)
     trc_file_path = write_trc_data(trc_data, output_file_name, output_directory)
 
-    _, _, height, weight, _, left_knee_width, right_knee_width, _, _, _, _ = static_data
+    height = static_data['Height']
+    weight = static_data['Weight']
+    left_knee_width = static_data['Left Knee Width']
+    right_knee_width = static_data['Right Knee Width']
     frame = add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marker_diameter)
 
     return frame, trc_file_path, height, weight
@@ -1129,9 +1132,8 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     phases = {"Left": {}, "Right": {}}
     strike_count = 0
 
-    _, _, _, _, _, _, _, _, _, left_leg_length, right_leg_length = static_data
-    left_leg_length /= 1000
-    right_leg_length /= 1000
+    left_leg_length = static_data['Left Leg Length'] / 1000
+    right_leg_length = static_data['Right Leg Length'] / 1000
     leg_lengths = {"Left": left_leg_length, "Right": right_leg_length}
 
     time_ordered_events = defaultdict(dict)
@@ -1402,7 +1404,7 @@ def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marke
     return frame
 
 
-def create_osim_model(static_trc, dynamic_trc, static_marker_data, height, weight,
+def create_osim_model(static_trc, dynamic_trc, static_marker_data, height, weight, static_data,
                       output_directory, optimise_knee_axis, progress_tracker):
 
     # Assume height in cm and convert to m.
@@ -1411,8 +1413,23 @@ def create_osim_model(static_trc, dynamic_trc, static_marker_data, height, weigh
     static_marker_data = static_marker_data.drop("Time").to_dict()
     rotation_matrix = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])
     static_marker_data = {k: np.dot(rotation_matrix, v) for k, v in static_marker_data.items()}
+    subject_info = get_subject_info(static_data)
 
     model_path = create_model(static_trc, dynamic_trc, output_directory, static_marker_data, weight, height,
                               optimise_knee_axis=optimise_knee_axis, progress_tracker=progress_tracker)
 
     return model_path
+
+def get_subject_info(static_data):
+    info = [
+        static_data['Age'],
+        static_data['Height'] / 10,
+        static_data['Weight'],
+        1 if static_data['Sex'] == 'Female' else 2,
+        static_data['ASIS Width'],
+        static_data['Left Knee Width'],
+        static_data['Left Ankle Width'],
+        static_data['Right Knee Width'],
+        static_data['Right Ankle Width'],
+    ]
+    return info
