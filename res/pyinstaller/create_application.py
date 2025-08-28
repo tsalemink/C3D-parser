@@ -26,6 +26,7 @@ def main():
         '--additional-hooks-dir=hooks',
         '--hidden-import=scipy._cyutility',
         '--hidden-import=sklearn._cyutility',
+        '--hidden-import=sklearn.ensemble._forest',
     ]
 
     pyside_dir = os.path.dirname(PySide6.__file__)
