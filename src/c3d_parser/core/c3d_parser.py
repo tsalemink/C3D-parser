@@ -73,7 +73,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         deidentified_file_names[trial] = os.path.basename(trc_file_path).rsplit(".", 1)[0]
 
     dynamic_trc_path = list(trc_file_paths.values())[0] if dynamic_trials else ""
-    osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, height, weight, static_data,
+    osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, marker_diameter, static_data,
                                    output_directory, optimise_knee_axis, progress_tracker)
 
     if not dynamic_trials:
@@ -1404,24 +1404,22 @@ def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marke
     return frame
 
 
-def create_osim_model(static_trc, dynamic_trc, static_marker_data, height, weight, static_data,
+def create_osim_model(static_trc, dynamic_trc, static_marker_data, marker_diameter, static_data,
                       output_directory, optimise_knee_axis, progress_tracker):
-
-    # Assume height in cm and convert to m.
-    height /= 1000
 
     static_marker_data = static_marker_data.drop("Time").to_dict()
     rotation_matrix = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])
     static_marker_data = {k: np.dot(rotation_matrix, v) for k, v in static_marker_data.items()}
     subject_info = get_subject_info(static_data)
+    marker_radius = marker_diameter / 2
 
-    model_path = create_model(static_trc, dynamic_trc, output_directory, static_marker_data, weight, height,
-                              optimise_knee_axis=optimise_knee_axis, progress_tracker=progress_tracker)
+    model_path = create_model(static_trc, dynamic_trc, output_directory, static_marker_data, subject_info,
+                              marker_radius, optimise_knee_axis=optimise_knee_axis, progress_tracker=progress_tracker)
 
     return model_path
 
 def get_subject_info(static_data):
-    info = [
+    info = pd.DataFrame([[
         static_data['Age'],
         static_data['Height'] / 10,
         static_data['Weight'],
@@ -1431,5 +1429,15 @@ def get_subject_info(static_data):
         static_data['Left Ankle Width'],
         static_data['Right Knee Width'],
         static_data['Right Ankle Width'],
-    ]
+    ]], columns=[
+        'Age',
+        'Height',
+        'Mass',
+        'Sex',
+        'ASIS_width',
+        'left_epicon_width',
+        'left_malleolar_width',
+        'right_epicon_width',
+        'right_malleolar_width'
+    ])
     return info
