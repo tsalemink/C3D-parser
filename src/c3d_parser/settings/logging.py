@@ -1,6 +1,7 @@
 
 import os
 import logging
+import warnings
 
 from c3d_parser.settings.general import APPLICATION_NAME, get_app_directory
 
@@ -39,3 +40,11 @@ def initialise_logger():
     file_handler.setLevel(logging.INFO)
 
     logger.base_logger.addHandler(file_handler)
+
+
+def filter_c3d_warnings():
+    warnings.filterwarnings("ignore", message="No analog data found in file.")
+
+
+def restore_c3d_warning_filter():
+    warnings.filterwarnings("default", message="No analog data found in file.")

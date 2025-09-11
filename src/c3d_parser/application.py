@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QApplication
 from c3d_parser.view.main_window import MainWindow
 from c3d_parser.settings.general import (set_applications_settings, application_instance_exists,
     start_application_server, setup_marker_maps_dir)
-from c3d_parser.settings.logging import initialise_logger
+from c3d_parser.settings.logging import initialise_logger, filter_c3d_warnings
 
 
 def main():
@@ -21,6 +21,7 @@ def main():
     app_server = start_application_server()
 
     initialise_logger()
+    filter_c3d_warnings()
 
     window = MainWindow()
     window.show()
