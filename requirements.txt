@@ -1,5 +1,5 @@
 scipy
-numpy
+numpy==1.26.4
 pandas
 c3d
 trc-data-reader
