@@ -3,6 +3,6 @@ numpy==1.26.4
 pandas
 c3d==0.5.2
 trc-data-reader
-opensim-model-creator>=0.1.12
+opensim-model-creator>=0.1.13
 PySide6
 matplotlib
