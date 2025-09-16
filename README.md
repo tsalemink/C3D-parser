@@ -48,7 +48,7 @@ Once the "Harmonise Data" button is pressed, the user exclusions will be conside
 output files will be produced. All outputs are written to the user-defined output directory.
 
 
-### Options
+### Options:
 
 A number of user settings are available under "View" -> "Options". The "Line Width" option refers
 to the width of the lines displayed on the graphs in the visualisation tabs. Both "Data
@@ -56,7 +56,7 @@ Directories" define the starting directories used when choosing the "Input" and 
 the main window. These settings are retained after you close the application.
 
 
-### Custom marker sets
+### Custom marker sets:
 
 The application pre-defines a number of lab-specific marker sets. If the marker sets we provide do
 not fit your needs you can adjust one of the existing marker sets or create a new one from scratch
@@ -90,3 +90,13 @@ we have had to adopt a fairly strict policy on what is considered a 'valid' gait
 strike occurs over multiple force plates, we will be unable to use the GRF data associated with
 that stance phase. This will also affect which gait cycles are considered valid when normalising
 the results from ID.
+
+
+### Feature Requests and Bug Reports:
+If you would like to suggest a new feature for this application or report a bug you have discovered, please create a
+"New Issue" using the appropriate template found in this repository's 
+[_Issues_](https://github.com/tsalemink/C3D-parser/issues) page. Please check that your request does not match any 
+existing issues.
+
+Ongoing development of features and bug fixes can be tracked using the development 
+[_Project_](https://github.com/users/tsalemink/projects/3) for this repository.
