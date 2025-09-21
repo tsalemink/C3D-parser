@@ -562,7 +562,7 @@ class MainWindow(QMainWindow):
             5: ('Knee Abductor Moment', 'Nm/kg', 'Abd', 'Add'),
             6: ('Knee Rotation Moment', 'Nm/kg', 'Int', 'Ext'),
             7: ('Knee Power (Sagittal)', 'W/kg', 'Gen', 'Abs'),
-            8: ('Ankle Dorsiflexor Moment', 'Nm/kg', 'Dor', 'Pla'),
+            8: ('Ankle Dorsiflexor Moment', 'Nm/kg', 'Pla', 'Dor'),
             9: ('Subtalar Inverter Moment', 'Nm/kg', 'Inv', 'Eve'),
             10: ('Ankle Power (Sagittal)', 'W/kg', 'Gen', 'Abs')
         }

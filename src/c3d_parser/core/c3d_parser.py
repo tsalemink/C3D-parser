@@ -1055,9 +1055,14 @@ def normalise_kinetics(kinetic_data, events):
                     data_segment = data.iloc[start:frame, 1:]
 
                     # Perform sign transformations.
+                    data_segment[f"hip_flexion_{side}_moment"] = -data_segment[f"hip_flexion_{side}_moment"]
+                    data_segment[f"hip_adduction_{side}_moment"] = -data_segment[f"hip_adduction_{side}_moment"]
+                    data_segment[f"hip_rotation_{side}_moment"] = -data_segment[f"hip_rotation_{side}_moment"]
+                    data_segment[f"knee_flexion_{side}_moment"] = -data_segment[f"knee_flexion_{side}_moment"]
                     data_segment[f"knee_adduction_{side}_moment"] = -data_segment[f"knee_adduction_{side}_moment"]
                     data_segment[f"knee_rotation_{side}_moment"] = -data_segment[f"knee_rotation_{side}_moment"]
                     data_segment[f"ankle_angle_{side}_moment"] = -data_segment[f"ankle_angle_{side}_moment"]
+                    data_segment[f"subtalar_angle_{side}_moment"] = -data_segment[f"subtalar_angle_{side}_moment"]
 
                     normalised_data[foot][file_name][stride_number - 1] = data_segment.values.T
                     if event_plate is not None:
