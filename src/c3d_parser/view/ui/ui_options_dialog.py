@@ -100,7 +100,7 @@ class Ui_OptionsDialog(object):
         self.formLayout_2.setObjectName(u"formLayout_2")
         self.checkBoxOptimiseKneeAxis = QCheckBox(self.groupBox_2)
         self.checkBoxOptimiseKneeAxis.setObjectName(u"checkBoxOptimiseKneeAxis")
-        self.checkBoxOptimiseKneeAxis.setChecked(True)
+        self.checkBoxOptimiseKneeAxis.setChecked(False)
 
         self.formLayout_2.setWidget(0, QFormLayout.ItemRole.LabelRole, self.checkBoxOptimiseKneeAxis)
 
