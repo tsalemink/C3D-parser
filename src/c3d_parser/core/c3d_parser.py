@@ -15,6 +15,7 @@ from trc import TRCData
 from opensim_model_creator.Create_Model import create_model
 
 from c3d_parser.core.c3d_patch import c3d
+from c3d_parser.core.utils import clear_directory
 from c3d_parser.core.osim import perform_ik, perform_id
 from c3d_parser.settings.general import get_marker_maps_dir
 from c3d_parser.settings.logging import logger
@@ -34,6 +35,8 @@ required_markers = [{"LASI", "RASI"}, {"LKNE", "RKNE"}, {"LANK", "RANK"}, {"LMED
 
 def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, static_data,
                   optimise_knee_axis, progress_tracker):
+
+    clear_directory(output_directory)
 
     file_path = os.path.normpath(os.path.join(input_directory, static_trial))
     frame, static_trc_path, height, weight = parse_static_trial(file_path, lab, marker_diameter, output_directory,
