@@ -6,3 +6,4 @@ trc-data-reader
 opensim-model-creator>=0.1.14
 PySide6
 matplotlib
+mplcursors

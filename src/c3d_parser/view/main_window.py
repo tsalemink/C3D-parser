@@ -1,5 +1,6 @@
 
 import os
+import mplcursors
 import numpy as np
 from collections import defaultdict
 
@@ -743,6 +744,8 @@ class GaitCurves(defaultdict):
         self._selected_curves = []
         self._excluded_cycles = set()
 
+        self._cursors = {}
+
     def add_curve(self, file_name, cycle, curve):
         self[file_name][cycle].append(curve)
 
@@ -762,6 +765,15 @@ class GaitCurves(defaultdict):
         if event.mouseevent.button == 3:
             return
 
+        def create_hover_callback(trial, cycle_id):
+            def on_hover(selection):
+                selection.annotation.set_text(f"Trial: {trial}\nCycle: {cycle_id}")
+                patch = selection.annotation.get_bbox_patch()
+                patch.set_alpha(0.8)
+                patch.set_facecolor("white")
+                patch.set_boxstyle("round,pad=0.3,rounding_size=0.15")
+            return on_hover
+
         line = event.artist
         for file_name, cycles in self.items():
             for cycle, lines in cycles.items():
@@ -771,10 +783,21 @@ class GaitCurves(defaultdict):
                         self._selected_curves.remove(identifier)
                         colour = 'red' if "Left" in cycle else 'blue'
                         z_order = 2
+
+                        # Remove hover cursor from selected curve.
+                        if identifier in self._cursors:
+                            cursor = self._cursors.pop(identifier)
+                            cursor.remove()
+
                     else:
                         self._selected_curves.append(identifier)
                         colour = 'green'
                         z_order = 3
+
+                        # Add hover cursor to selected curve.
+                        cursor = mplcursors.cursor(self[file_name][cycle], hover=mplcursors.HoverMode.Transient)
+                        cursor.connect("add", create_hover_callback(file_name, cycle))
+                        self._cursors[identifier] = cursor
 
                     for line in self[file_name][cycle]:
                         line.set_color(colour)
