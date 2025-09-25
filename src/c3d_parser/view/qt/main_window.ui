@@ -747,6 +747,16 @@
             </item>
            </layout>
           </widget>
+          <widget class="QWidget" name="tabSpatiotemporal">
+           <attribute name="title">
+            <string>Spatio-temporal</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <item>
+             <layout class="QVBoxLayout" name="layoutSpatiotemporal"/>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
         <item>

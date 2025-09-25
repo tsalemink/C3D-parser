@@ -457,6 +457,16 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addLayout(self.layoutGRFPlot)
 
         self.tabWidget.addTab(self.tabGRF, "")
+        self.tabSpatiotemporal = QWidget()
+        self.tabSpatiotemporal.setObjectName(u"tabSpatiotemporal")
+        self.verticalLayout_8 = QVBoxLayout(self.tabSpatiotemporal)
+        self.verticalLayout_8.setObjectName(u"verticalLayout_8")
+        self.layoutSpatiotemporal = QVBoxLayout()
+        self.layoutSpatiotemporal.setObjectName(u"layoutSpatiotemporal")
+
+        self.verticalLayout_8.addLayout(self.layoutSpatiotemporal)
+
+        self.tabWidget.addTab(self.tabSpatiotemporal, "")
 
         self.verticalLayout_3.addWidget(self.tabWidget)
 
@@ -551,6 +561,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinematic), QCoreApplication.translate("MainWindow", u"Kinematic", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinetic), QCoreApplication.translate("MainWindow", u"Kinetic", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSpatiotemporal), QCoreApplication.translate("MainWindow", u"Spatio-temporal", None))
         self.labelProgress.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
