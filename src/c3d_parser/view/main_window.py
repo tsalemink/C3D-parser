@@ -121,7 +121,7 @@ class MainWindow(QMainWindow):
         self._plot_x.tick_params(axis='y', which='both', labelleft=False, left=False)
         self._plot_y.tick_params(axis='y', which='both', labelleft=False, left=False)
         self._plot_z.tick_params(axis='y', which='both', labelleft=False, left=False)
-        self._grf_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=2.0, w_pad=0.2)
+        self._grf_canvas.figure.tight_layout(pad=0.0, rect=(0.04, 0.06, 0.98, 0.96), h_pad=2.0, w_pad=0.2)
         self._update_grf_axes()
 
         self._ui.layoutGRFPlot.addWidget(self._grf_canvas)
@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
                 self._kinematic_plots.append(plot)
-        self._kinematic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=2.0, w_pad=2.0)
+        self._kinematic_canvas.figure.tight_layout(pad=0.0, rect=(0.04, 0.06, 0.98, 0.96), h_pad=2.0, w_pad=2.0)
         self._update_kinematic_axes()
 
         self._ui.layoutKinematicPlot.addWidget(self._kinematic_canvas)
@@ -152,7 +152,7 @@ class MainWindow(QMainWindow):
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
                 self._kinetic_plots.append(plot)
-        self._kinetic_canvas.figure.tight_layout(pad=0.0, rect=[0.04, 0.06, 0.98, 0.96], h_pad=2.0, w_pad=2.0)
+        self._kinetic_canvas.figure.tight_layout(pad=0.0, rect=(0.04, 0.06, 0.98, 0.96), h_pad=2.0, w_pad=2.0)
         self._update_kinetic_axes()
 
         self._ui.layoutKineticPlot.addWidget(self._kinetic_canvas)
