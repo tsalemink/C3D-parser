@@ -349,7 +349,17 @@ class MainWindow(QMainWindow):
             'Left Leg Length': self._ui.doubleSpinBoxLeftLegLength.value(),
             'Right Leg Length': self._ui.doubleSpinBoxRightLegLength.value(),
         }
+
         missing = [key for key, value in static_data.items() if not value]
+        if 'Left Leg Length' in missing or 'Right Leg Length' in missing:
+            reply = QMessageBox.warning(self, "Warning", "Leg length measurements missing. You can continue "
+                        "without these values but will be unable to calculate the following spatio-temporal results:"
+                        "\n- Normalised Stride Length\n- Normalised Step Length\n- Normalised Gait Speed",
+                        QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel,
+                        QMessageBox.StandardButton.Ok)
+            if reply == QMessageBox.StandardButton.Cancel:
+                return
+            missing = [key for key in missing if key not in ('Left Leg Length', 'Right Leg Length')]
         if missing:
             QMessageBox.warning(self, "Warning", "Subject measurements missing:\n- " + "\n- ".join(missing))
             return

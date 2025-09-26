@@ -1203,10 +1203,14 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     s_t_data = {}
 
     # Calculate normalised lengths.
-    normalised_stride_lengths = {side: {k: v / leg_lengths[side] for k, v in stride_lengths[side].items()}
-                                 for side in stride_lengths}
-    normalised_step_lengths = {side: {k: v / leg_lengths[side] for k, v in step_lengths[side].items()}
-                               for side in step_lengths}
+    def normalise_by_leg_lengths(data):
+        if leg_lengths["Left"] and leg_lengths["Right"]:
+            return {leg: {k: v / leg_lengths[leg] for k, v in data[leg].items()} for leg in data}
+        else:
+            return {leg: {k: np.nan for k in data[leg]} for leg in data}
+
+    normalised_stride_lengths = normalise_by_leg_lengths(stride_lengths)
+    normalised_step_lengths = normalise_by_leg_lengths(step_lengths)
 
     # Assign lengths and widths.
     s_t_data["Stride Length (m)"] = stride_lengths
@@ -1251,7 +1255,10 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     # Calculate gait-speed and cadence.
     total_distance = calculate_distance_covered(frame_data, start_time, end_time)
     gait_speed = (total_distance / total_time) / 1000
-    normalised_gait_speed = gait_speed / math.sqrt(9.81 * average_leg_length)
+    if left_leg_length and right_leg_length:
+        normalised_gait_speed = gait_speed / math.sqrt(9.81 * average_leg_length)
+    else:
+        normalised_gait_speed = np.nan
     cadence = ((strike_count - 1) / total_time) * 60
 
     # Calculate foot progression.
