@@ -2,10 +2,13 @@
 import os
 import mplcursors
 import numpy as np
+import pandas as pd
 from collections import defaultdict
 
-from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QTimer
-from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog, QMessageBox
+from PySide6.QtGui import QPen, QColor, QFontMetrics
+from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QTimer, QAbstractTableModel
+from PySide6.QtWidgets import (QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog,
+                               QMessageBox, QTableView, QLabel, QAbstractButton, QHeaderView, QStyledItemDelegate)
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
@@ -73,6 +76,7 @@ class MainWindow(QMainWindow):
 
         self._setup_combo_boxes()
         self._setup_figures()
+        self._setup_spatiotemporal_display()
         self._make_connections()
         self._load_settings()
         self._setup_progress_bar()
@@ -156,6 +160,28 @@ class MainWindow(QMainWindow):
         self._update_kinetic_axes()
 
         self._ui.layoutKineticPlot.addWidget(self._kinetic_canvas)
+
+    def _setup_spatiotemporal_display(self):
+        self._spatiotemporal_tables = []
+
+    def _visualise_spatiotemporal_data(self):
+        layout = self._ui.scrollAreaSpatiotemporal.layout()
+
+        # Clear existing tables.
+        for table in self._spatiotemporal_tables:
+            layout.removeWidget(table)
+            table.deleteLater()
+        self._spatiotemporal_tables = []
+
+        # Create spatio-temporal tables.
+        for trial, df in self._s_t_data.items():
+            df_renamed = df.rename(index=lambda idx: f"{idx}").round(3)
+            table = CustomTableView(trial)
+            model = SpatiotemporalModel(df_renamed.T)
+            table.setModel(model)
+
+            layout.addWidget(table)
+            self._spatiotemporal_tables.append(table)
 
     def _update_grf_axes(self):
         self._plot_x.set_title(f'GRF (Anterior - Posterior)', fontsize=10, pad=6)
@@ -397,6 +423,7 @@ class MainWindow(QMainWindow):
         self._visualise_grf_data(grf_data)
         self._visualise_kinematic_data(self._kinematic_data)
         self._visualise_kinetic_data(self._kinetic_data)
+        self._visualise_spatiotemporal_data()
 
         self._show_selected_trials()
         self._stop_progress_animation()
@@ -913,3 +940,112 @@ class GaitCurves(defaultdict):
         self._selected_curves = []
 
         self._canvas.draw()
+
+
+class SpatiotemporalModel(QAbstractTableModel):
+    def __init__(self, df: pd.DataFrame, parent=None):
+        super().__init__(parent)
+        self._df = df
+
+    def rowCount(self, parent=None):
+        return len(self._df.index)
+
+    def columnCount(self, parent=None):
+        return len(self._df.columns)
+
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if not index.isValid():
+            return None
+        if role == Qt.ItemDataRole.DisplayRole:
+            value = self._df.iat[index.row(), index.column()]
+            if pd.isna(value):
+                return ""
+            return str(value)
+        return None
+
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        if role != Qt.ItemDataRole.DisplayRole:
+            return None
+        if orientation == Qt.Orientation.Horizontal:
+            return str(self._df.columns[section])
+        else:
+            return str(self._df.index[section])
+
+
+class LastRowColBorderDelegate(QStyledItemDelegate):
+    def paint(self, painter, option, index):
+        super().paint(painter, option, index)
+        model = index.model()
+        pen = QPen(QColor("black"))
+        painter.setPen(pen)
+        rect = option.rect
+
+        if index.row() == model.rowCount() - 1:
+            painter.drawLine(rect.bottomLeft(), rect.bottomRight())
+
+        if index.column() == model.columnCount() - 1:
+            painter.drawLine(rect.topRight(), rect.bottomRight())
+
+
+class CustomTableView(QTableView):
+    def __init__(self, trial_name, parent=None):
+        super().__init__(parent)
+
+        self._trial_name = trial_name
+        self._corner_label = QLabel(self)
+        self._corner_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        font = self._corner_label.font()
+        font.setBold(True)
+        font.setPointSize(10)
+        self._corner_label.setFont(font)
+
+        self.setShowGrid(False)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
+        self.setStyleSheet("""
+            QTableView { selection-color: black; } 
+            QHeaderView::section { border-top: 1px solid black; border-left: 1px solid black; }
+            QTableView::item { border-top: 1px solid black; border-left: 1px solid black; }
+        """)
+        self.horizontalHeader().setStyleSheet("""
+            border-left: 0px; border-right: 1px solid black; border-top: 0px; border-bottom: 0px;
+        """)
+        self.verticalHeader().setStyleSheet("""
+            border-left: 0px; border-right: 0px; border-top: 0px; border-bottom: 1px solid black;
+        """)
+
+        delegate = LastRowColBorderDelegate()
+        self.setItemDelegate(delegate)
+
+    def setModel(self, model):
+        super().setModel(model)
+
+        self._resize_table()
+        self._update_corner_text()
+
+    def _resize_table(self):
+        self.resizeRowsToContents()
+        table_height = self.verticalHeader().length() + self.horizontalHeader().height() + 2
+        self.setMinimumHeight(table_height)
+        self.setMaximumHeight(table_height)
+
+        self.resizeColumnsToContents()
+        table_width = self.horizontalHeader().length() + self.verticalHeader().width() + 2
+        self.setMinimumWidth(table_width)
+        self.setMaximumWidth(table_width)
+
+        self.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
+        self.verticalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
+
+    def _update_corner_text(self):
+        corner_buttons = self.findChildren(QAbstractButton, options=Qt.FindChildOption.FindDirectChildrenOnly)
+        if corner_buttons:
+            rect = corner_buttons[0].geometry()
+            fm = QFontMetrics(self._corner_label.font())
+            elided = fm.elidedText(self._trial_name, Qt.TextElideMode.ElideLeft, rect.width())
+
+            self._corner_label.setText(elided)
+            self._corner_label.setGeometry(rect)
+            self._corner_label.show()

@@ -1268,8 +1268,8 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     data_frame = convert_to_data_frame(s_t_data)
 
     # Calculate averages and other trial-specific measurements.
-    data_frame.loc['average'] = data_frame.mean()
-    data_frame.loc['average', ["Gait Speed (m/s)", "Normalised Gait Speed (m/s)", "Cadence (steps/min)"]] = [
+    data_frame.loc['Average'] = data_frame.mean()
+    data_frame.loc['Average', ["Gait Speed (m/s)", "Normalised Gait Speed (m/s)", "Cadence (steps/min)"]] = [
         gait_speed, normalised_gait_speed, cadence
     ]
 
