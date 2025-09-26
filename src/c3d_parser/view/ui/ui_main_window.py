@@ -19,8 +19,8 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
 from PySide6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox, QFrame,
     QHBoxLayout, QLabel, QLineEdit, QListWidgetItem,
     QMainWindow, QMenu, QMenuBar, QPushButton,
-    QSizePolicy, QSpinBox, QSplitter, QTabWidget,
-    QVBoxLayout, QWidget)
+    QScrollArea, QSizePolicy, QSpinBox, QSplitter,
+    QTabWidget, QVBoxLayout, QWidget)
 
 from c3d_parser.view.widgets import CustomListWidget
 
@@ -461,10 +461,20 @@ class Ui_MainWindow(object):
         self.tabSpatiotemporal.setObjectName(u"tabSpatiotemporal")
         self.verticalLayout_8 = QVBoxLayout(self.tabSpatiotemporal)
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
-        self.layoutSpatiotemporal = QVBoxLayout()
-        self.layoutSpatiotemporal.setObjectName(u"layoutSpatiotemporal")
+        self.scrollArea = QScrollArea(self.tabSpatiotemporal)
+        self.scrollArea.setObjectName(u"scrollArea")
+        self.scrollArea.setFrameShape(QFrame.Shape.NoFrame)
+        self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollAreaSpatiotemporal = QWidget()
+        self.scrollAreaSpatiotemporal.setObjectName(u"scrollAreaSpatiotemporal")
+        self.scrollAreaSpatiotemporal.setGeometry(QRect(0, 0, 1193, 668))
+        self.verticalLayout_5 = QVBoxLayout(self.scrollAreaSpatiotemporal)
+        self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.scrollArea.setWidget(self.scrollAreaSpatiotemporal)
 
-        self.verticalLayout_8.addLayout(self.layoutSpatiotemporal)
+        self.verticalLayout_8.addWidget(self.scrollArea)
 
         self.tabWidget.addTab(self.tabSpatiotemporal, "")
 

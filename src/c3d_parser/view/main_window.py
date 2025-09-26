@@ -2,10 +2,12 @@
 import os
 import mplcursors
 import numpy as np
+import pandas as pd
 from collections import defaultdict
 
-from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QTimer
-from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog, QMessageBox
+from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QTimer, QAbstractTableModel
+from PySide6.QtWidgets import (QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog,
+                               QMessageBox, QTableView, QSizePolicy)
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
@@ -73,6 +75,7 @@ class MainWindow(QMainWindow):
 
         self._setup_combo_boxes()
         self._setup_figures()
+        self._setup_spatiotemporal_display()
         self._make_connections()
         self._load_settings()
         self._setup_progress_bar()
@@ -156,6 +159,32 @@ class MainWindow(QMainWindow):
         self._update_kinetic_axes()
 
         self._ui.layoutKineticPlot.addWidget(self._kinetic_canvas)
+
+    def _setup_spatiotemporal_display(self):
+        self._spatiotemporal_tables = []
+
+    def _visualise_spatiotemporal_data(self):
+        for table in getattr(self, "_spatiotemporal_tables", []):
+            layout = self._ui.scrollAreaSpatiotemporal.layout()
+            layout.removeWidget(table)
+
+            table.deleteLater()
+        self._spatiotemporal_tables = []
+
+        for trial, df in self._s_t_data.items():
+            df_renamed = df.rename(index=lambda idx: f"{trial} {idx}").round(3)
+            table = QTableView()
+            model = SpatiotemporalModel(df_renamed)
+            table.setModel(model)
+
+            table.resizeRowsToContents()
+            table.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            table.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+            layout = self._ui.scrollAreaSpatiotemporal.layout()
+            layout.addWidget(table)
+
+            self._spatiotemporal_tables.append(table)
 
     def _update_grf_axes(self):
         self._plot_x.set_title(f'GRF (Anterior - Posterior)', fontsize=10, pad=6)
@@ -397,6 +426,7 @@ class MainWindow(QMainWindow):
         self._visualise_grf_data(grf_data)
         self._visualise_kinematic_data(self._kinematic_data)
         self._visualise_kinetic_data(self._kinetic_data)
+        self._visualise_spatiotemporal_data()
 
         self._show_selected_trials()
         self._stop_progress_animation()
@@ -913,3 +943,33 @@ class GaitCurves(defaultdict):
         self._selected_curves = []
 
         self._canvas.draw()
+
+
+class SpatiotemporalModel(QAbstractTableModel):
+    def __init__(self, df: pd.DataFrame, parent=None):
+        super().__init__(parent)
+        self._df = df
+
+    def rowCount(self, parent=None):
+        return len(self._df.index)
+
+    def columnCount(self, parent=None):
+        return len(self._df.columns)
+
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if not index.isValid():
+            return None
+        if role == Qt.ItemDataRole.DisplayRole:
+            value = self._df.iat[index.row(), index.column()]
+            if pd.isna(value):
+                return ""
+            return str(value)
+        return None
+
+    def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
+        if role != Qt.ItemDataRole.DisplayRole:
+            return None
+        if orientation == Qt.Orientation.Horizontal:
+            return str(self._df.columns[section])
+        else:
+            return str(self._df.index[section])
