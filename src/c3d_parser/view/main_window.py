@@ -1007,6 +1007,7 @@ class CustomTableView(QTableView):
         self.setStyleSheet("""
             QTableView { selection-color: black; } 
             QHeaderView::section { border-top: 1px solid black; border-left: 1px solid black; }
+            QHeaderView::section:vertical { padding-left: 6px; } 
             QTableView::item { border-top: 1px solid black; border-left: 1px solid black; }
         """)
         self.horizontalHeader().setStyleSheet("""
@@ -1031,7 +1032,9 @@ class CustomTableView(QTableView):
         self.setMinimumHeight(table_height)
         self.setMaximumHeight(table_height)
 
-        self.resizeColumnsToContents()
+        self.verticalHeader().setFixedWidth(240)
+        self.horizontalHeader().setDefaultSectionSize(60)
+
         table_width = self.horizontalHeader().length() + self.verticalHeader().width() + 2
         self.setMinimumWidth(table_width)
         self.setMaximumWidth(table_width)
@@ -1042,10 +1045,13 @@ class CustomTableView(QTableView):
     def _update_corner_text(self):
         corner_buttons = self.findChildren(QAbstractButton, options=Qt.FindChildOption.FindDirectChildrenOnly)
         if corner_buttons:
-            rect = corner_buttons[0].geometry()
+            width = self.verticalHeader().width()
+            height = self.horizontalHeader().height()
+            corner_buttons[0].setGeometry(0, 0, width, height)
+
             fm = QFontMetrics(self._corner_label.font())
-            elided = fm.elidedText(self._trial_name, Qt.TextElideMode.ElideLeft, rect.width())
+            elided = fm.elidedText(self._trial_name, Qt.TextElideMode.ElideLeft, width)
 
             self._corner_label.setText(elided)
-            self._corner_label.setGeometry(rect)
+            self._corner_label.setGeometry(0, 0, width, height)
             self._corner_label.show()

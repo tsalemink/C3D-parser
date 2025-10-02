@@ -471,7 +471,9 @@ class Ui_MainWindow(object):
         self.scrollAreaSpatiotemporal.setObjectName(u"scrollAreaSpatiotemporal")
         self.scrollAreaSpatiotemporal.setGeometry(QRect(0, 0, 1193, 668))
         self.verticalLayout_5 = QVBoxLayout(self.scrollAreaSpatiotemporal)
+        self.verticalLayout_5.setSpacing(40)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
+        self.verticalLayout_5.setContentsMargins(30, 30, 30, 30)
         self.scrollArea.setWidget(self.scrollAreaSpatiotemporal)
 
         self.verticalLayout_8.addWidget(self.scrollArea)

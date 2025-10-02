@@ -775,7 +775,23 @@
                  <height>668</height>
                 </rect>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_5"/>
+               <layout class="QVBoxLayout" name="verticalLayout_5">
+                <property name="spacing">
+                 <number>40</number>
+                </property>
+                <property name="leftMargin">
+                 <number>30</number>
+                </property>
+                <property name="topMargin">
+                 <number>30</number>
+                </property>
+                <property name="rightMargin">
+                 <number>30</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>30</number>
+                </property>
+               </layout>
               </widget>
              </widget>
             </item>
