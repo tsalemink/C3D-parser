@@ -1376,11 +1376,17 @@ def convert_to_data_frame(s_t_data):
     for measurement, data_both_side in s_t_data.items():
         for side, data_one_side in data_both_side.items():
             for cycle_number, value in data_one_side.items():
-                row_label = f"({side}-{cycle_number})"
+                row_label = f"{side}-{cycle_number}"
                 if row_label not in row_dict:
                     row_dict[row_label] = {}
                 row_dict[row_label][measurement] = value
     data_frame = pd.DataFrame.from_dict(row_dict, orient='index')
+
+    def sort_key(label):
+        side, cycle_number = label.split("-")
+        return side, int(cycle_number)
+
+    data_frame = data_frame.reindex(sorted(data_frame.index, key=sort_key))
 
     return data_frame
 
