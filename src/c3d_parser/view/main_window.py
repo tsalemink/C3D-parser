@@ -946,6 +946,7 @@ class SpatiotemporalModel(QAbstractTableModel):
     def __init__(self, df: pd.DataFrame, parent=None):
         super().__init__(parent)
         self._df = df
+        self._excluded_cycles = set()
 
     def rowCount(self, parent=None):
         return len(self._df.index)
@@ -961,6 +962,9 @@ class SpatiotemporalModel(QAbstractTableModel):
             if pd.isna(value):
                 return ""
             return str(value)
+        elif role == Qt.ItemDataRole.ForegroundRole:
+            if index.column() in self._excluded_cycles:
+                return QColor("lightgrey")
         return None
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
@@ -971,8 +975,14 @@ class SpatiotemporalModel(QAbstractTableModel):
         else:
             return str(self._df.index[section])
 
+    def exclude_cycles(self, exclusions):
+        self._excluded_cycles.update(exclusions)
 
-class LastRowColBorderDelegate(QStyledItemDelegate):
+    def include_cycles(self, inclusions):
+        self._excluded_cycles.difference_update(inclusions)
+
+
+class SpatiotemporalTableDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
         model = index.model()
@@ -1017,8 +1027,15 @@ class CustomTableView(QTableView):
             border-left: 0px; border-right: 0px; border-top: 0px; border-bottom: 1px solid black;
         """)
 
-        delegate = LastRowColBorderDelegate()
+        delegate = SpatiotemporalTableDelegate()
         self.setItemDelegate(delegate)
+
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._show_context_menu)
+        self.horizontalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.horizontalHeader().customContextMenuRequested.connect(self._show_context_menu)
+        self.verticalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.verticalHeader().customContextMenuRequested.connect(self._show_context_menu)
 
     def setModel(self, model):
         super().setModel(model)
@@ -1055,3 +1072,58 @@ class CustomTableView(QTableView):
             self._corner_label.setText(elided)
             self._corner_label.setGeometry(0, 0, width, height)
             self._corner_label.show()
+
+    def _show_context_menu(self, pos):
+        context_menu = QMenu()
+
+        include_action = context_menu.addAction("Include Selected Cycles")
+        exclude_action = context_menu.addAction("Exclude Selected Cycles")
+        include_action.triggered.connect(self._include_cycles)
+        exclude_action.triggered.connect(self._exclude_cycles)
+        context_menu.addSeparator()
+
+        include_all_action = context_menu.addAction("Include All Cycles")
+        exclude_all_action = context_menu.addAction("Exclude All Cycles")
+        include_all_action.triggered.connect(self._include_all)
+        exclude_all_action.triggered.connect(self._exclude_all)
+        context_menu.addSeparator()
+
+        sender = self.sender()
+        if isinstance(sender, QHeaderView):
+            global_pos = self.mapToGlobal(sender.mapToParent(pos))
+        else:
+            global_pos = self.viewport().mapToGlobal(pos)
+        context_menu.exec(global_pos)
+
+    def _get_selected_columns(self):
+        selection_model = self.selectionModel()
+        selected_indexes = selection_model.selectedIndexes()
+        selected_columns = {idx.column() for idx in selected_indexes}
+        for idx in selected_indexes:
+            selection_model.select(idx, selection_model.SelectionFlag.Deselect)
+
+        return selected_columns
+
+    def _include_cycles(self):
+        selected_columns = self._get_selected_columns()
+        self.model().include_cycles(selected_columns)
+
+        self.viewport().update()
+
+    def _exclude_cycles(self):
+        selected_columns = self._get_selected_columns()
+        self.model().exclude_cycles(selected_columns)
+
+        self.viewport().update()
+
+    def _include_all(self):
+        all_columns = set(range(self.model().columnCount()))
+        self.model().include_cycles(all_columns)
+
+        self.viewport().update()
+
+    def _exclude_all(self):
+        all_columns = set(range(self.model().columnCount()))
+        self.model().exclude_cycles(all_columns)
+
+        self.viewport().update()
