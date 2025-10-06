@@ -977,9 +977,24 @@ class SpatiotemporalModel(QAbstractTableModel):
 
     def exclude_cycles(self, exclusions):
         self._excluded_cycles.update(exclusions)
+        self._update_averages()
 
     def include_cycles(self, inclusions):
         self._excluded_cycles.difference_update(inclusions)
+        self._update_averages()
+
+    def _update_averages(self):
+        data_columns = [c for i, c in enumerate(self._df.columns) if i != self._df.shape[1] - 1
+                     and i not in self._excluded_cycles]
+
+        if data_columns:
+            self._df.iloc[:, -1] = self._df[data_columns].mean(axis=1).round(3)
+        else:
+            self._df.iloc[:, -1] = float("nan")
+
+        top_left = self.index(0, self._df.shape[1] - 1)
+        bottom_right = self.index(self._df.shape[0] - 1, self._df.shape[1] - 1)
+        self.dataChanged.emit(top_left, bottom_right, [Qt.ItemDataRole.DisplayRole])
 
 
 class SpatiotemporalTableDelegate(QStyledItemDelegate):
