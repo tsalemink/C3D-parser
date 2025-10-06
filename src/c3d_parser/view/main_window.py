@@ -183,6 +183,15 @@ class MainWindow(QMainWindow):
             layout.addWidget(table)
             self._spatiotemporal_tables.append(table)
 
+    def _update_s_t_data_from_tables(self):
+        for table in self._spatiotemporal_tables:
+            trial_name = table.get_trial_name()
+            df = table.model().get_data().copy()
+            excluded = table.model().get_excluded_cycles()
+            if excluded:
+                df = df.drop(df.columns[list(excluded)], axis=1)
+            self._s_t_data[trial_name] = df.T
+
     def _update_grf_axes(self):
         self._plot_x.set_title(f'GRF (Anterior - Posterior)', fontsize=10, pad=6)
         self._plot_y.set_title(f'GRF (Medial - Lateral)', fontsize=10, pad=6)
@@ -468,6 +477,7 @@ class MainWindow(QMainWindow):
         selected_trials = {key: value for key, value in self._deidentified_file_names.items() if key in selected}
         kinematic_exclusions = self._kinematic_curves.get_excluded_cycles()
         kinetic_exclusions = self._kinetic_curves.get_excluded_cycles()
+        self._update_s_t_data_from_tables()
         write_normalised_kinematics(self._kinematic_data, selected_trials, kinematic_exclusions, self._output_directory)
         write_normalised_kinetics(self._kinetic_data, selected_trials, kinetic_exclusions, self._output_directory)
         write_spatiotemporal_data(self._s_t_data, selected_trials, self._output_directory)
@@ -983,6 +993,12 @@ class SpatiotemporalModel(QAbstractTableModel):
         self._excluded_cycles.difference_update(inclusions)
         self._update_averages()
 
+    def get_data(self):
+        return self._df
+
+    def get_excluded_cycles(self):
+        return self._excluded_cycles
+
     def _update_averages(self):
         data_columns = [c for i, c in enumerate(self._df.columns) if i != self._df.shape[1] - 1
                      and i not in self._excluded_cycles]
@@ -1142,3 +1158,6 @@ class CustomTableView(QTableView):
         self.model().exclude_cycles(all_columns)
 
         self.viewport().update()
+
+    def get_trial_name(self):
+        return self._trial_name
