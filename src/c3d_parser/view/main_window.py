@@ -1168,6 +1168,11 @@ class CustomTableView(QTableView):
 
 
 class CustomHeaderView(QHeaderView):
+    def __init__(self, orientation, parent=None):
+        super().__init__(orientation, parent)
+        self.setSectionsClickable(True)
+        self.setHighlightSections(True)
+
     def paintSection(self, painter, rect, logical_index):
         if logical_index == self.model().columnCount() - 1:
             painter.save()
