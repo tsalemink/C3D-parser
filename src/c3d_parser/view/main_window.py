@@ -962,12 +962,14 @@ class SpatiotemporalModel(QAbstractTableModel):
         return len(self._df.index)
 
     def columnCount(self, parent=None):
-        return len(self._df.columns)
+        return len(self._df.columns) + 1
 
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if not index.isValid():
             return None
         if role == Qt.ItemDataRole.DisplayRole:
+            if index.column() == len(self._df.columns):
+                return ""
             value = self._df.iat[index.row(), index.column()]
             if pd.isna(value):
                 return ""
@@ -981,6 +983,8 @@ class SpatiotemporalModel(QAbstractTableModel):
         if role != Qt.ItemDataRole.DisplayRole:
             return None
         if orientation == Qt.Orientation.Horizontal:
+            if section == len(self._df.columns):
+                return ""
             return str(self._df.columns[section])
         else:
             return str(self._df.index[section])
@@ -1035,6 +1039,7 @@ class CustomTableView(QTableView):
         self._trial_name = trial_name
         self._corner_label = QLabel(self)
         self._corner_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setHorizontalHeader(CustomHeaderView(Qt.Orientation.Horizontal))
 
         font = self._corner_label.font()
         font.setBold(True)
@@ -1050,9 +1055,6 @@ class CustomTableView(QTableView):
             QHeaderView::section { border-top: 1px solid black; border-left: 1px solid black; }
             QHeaderView::section:vertical { padding-left: 6px; } 
             QTableView::item { border-top: 1px solid black; border-left: 1px solid black; }
-        """)
-        self.horizontalHeader().setStyleSheet("""
-            border-left: 0px; border-right: 1px solid black; border-top: 0px; border-bottom: 0px;
         """)
         self.verticalHeader().setStyleSheet("""
             border-left: 0px; border-right: 0px; border-top: 0px; border-bottom: 1px solid black;
@@ -1082,6 +1084,8 @@ class CustomTableView(QTableView):
 
         self.verticalHeader().setFixedWidth(240)
         self.horizontalHeader().setDefaultSectionSize(60)
+        last_col = self.model().columnCount() - 1
+        self.setColumnWidth(last_col, 240)
 
         table_width = self.horizontalHeader().length() + self.verticalHeader().width() + 2
         self.setMinimumWidth(table_width)
@@ -1161,3 +1165,14 @@ class CustomTableView(QTableView):
 
     def get_trial_name(self):
         return self._trial_name
+
+
+class CustomHeaderView(QHeaderView):
+    def paintSection(self, painter, rect, logical_index):
+        if logical_index == self.model().columnCount() - 1:
+            painter.save()
+            painter.setPen(self.palette().color(self.foregroundRole()))
+            painter.drawLine(rect.topLeft(), rect.bottomLeft())
+            painter.restore()
+        else:
+            super().paintSection(painter, rect, logical_index)
