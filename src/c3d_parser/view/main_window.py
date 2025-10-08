@@ -1032,34 +1032,56 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
         if index.column() == model.columnCount() - 1:
             painter.save()
 
+            data = index.model().get_data()
             row = index.row()
-            row_values = index.model().get_data().iloc[row, :-2]
+            columns = [i for i in range(data.shape[1] - 1) if i not in model.get_excluded_cycles()]
+            row_values = data.iloc[row, columns]
+
+            row_min, row_max = row_values.min(), row_values.max()
             mean = float(index.model().data(index.siblingAtColumn(index.column() - 1)))
             cell_left = rect.left() + 1
 
-            if index.row() in [5, 6, 7, 8]:
-                box_width = rect.width() * mean / 100
-                left = cell_left + (rect.width() * row_values.min() / 100)
-                right = cell_left + (rect.width() * row_values.max() / 100)
+            # Calculate slightly-arbitrary max value for meter metrics.
+            max_value = data.iloc[:2, :-1].max().max() + 0.40
+
+            if index.row() == 9:
+                return
+                painter.restore()
+            elif index.row() in [5, 6, 7, 8]:
+                max_value = 100
+                colour = QColor("cornflowerblue")
             else:
-                box_width = 100
-                left = cell_left + 90
-                right = cell_left + 110
+                if index.row() == 10:
+                    max_value = 3.0
+                elif index.row() == 11:
+                    max_value = 1.5
+                elif index.row() == 12:
+                    max_value = 240
+
+                if index.row() in [0, 1, 2, 3, 4]:
+                    colour = QColor("mediumpurple")
+                else:
+                    colour = QColor("firebrick")
+
+            box_width = rect.width() * (mean / max_value)
+            left = cell_left + (rect.width() * (row_min / max_value)) - 1
+            right = cell_left + (rect.width() * (row_max / max_value))
 
             # Draw box.
             margin = 5
             box_rect = QRect(rect.left() + 1, rect.top() + margin, box_width, rect.height() - 2 * margin)
-            painter.fillRect(box_rect, QColor("cornflowerblue"))
-
-            pen = QPen(QColor("black"))
-            painter.setPen(pen)
+            painter.fillRect(box_rect, colour)
 
             # Draw whiskers.
-            width = 4
-            centre_y = box_rect.center().y()
-            painter.drawLine(left, centre_y + width, left, centre_y - width)
-            painter.drawLine(right, centre_y + width, right, centre_y - width)
-            painter.drawLine(left, centre_y, right, centre_y)
+            if index.row() not in [10, 11, 12]:
+                pen = QPen(QColor("black"))
+                painter.setPen(pen)
+
+                width = 4
+                centre_y = box_rect.center().y()
+                painter.drawLine(left, centre_y + width, left, centre_y - width)
+                painter.drawLine(right, centre_y + width, right, centre_y - width)
+                painter.drawLine(left, centre_y, right, centre_y)
 
             painter.restore()
 
