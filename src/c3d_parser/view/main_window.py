@@ -1032,9 +1032,23 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
         if index.column() == model.columnCount() - 1:
             painter.save()
 
+            row = index.row()
+            row_values = index.model().get_data().iloc[row, :-2]
+            mean = float(index.model().data(index.siblingAtColumn(index.column() - 1)))
+            cell_left = rect.left() + 1
+
+            if index.row() in [5, 6, 7, 8]:
+                box_width = rect.width() * mean / 100
+                left = cell_left + (rect.width() * row_values.min() / 100)
+                right = cell_left + (rect.width() * row_values.max() / 100)
+            else:
+                box_width = 100
+                left = cell_left + 90
+                right = cell_left + 110
+
             # Draw box.
             margin = 5
-            box_rect = QRect(rect.left() + 1, rect.top() + margin, 100, rect.height() - 2 * margin)
+            box_rect = QRect(rect.left() + 1, rect.top() + margin, box_width, rect.height() - 2 * margin)
             painter.fillRect(box_rect, QColor("cornflowerblue"))
 
             pen = QPen(QColor("black"))
@@ -1042,8 +1056,6 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
 
             # Draw whiskers.
             width = 4
-            left = box_rect.right() - 10
-            right = box_rect.right() + 10
             centre_y = box_rect.center().y()
             painter.drawLine(left, centre_y + width, left, centre_y - width)
             painter.drawLine(right, centre_y + width, right, centre_y - width)
