@@ -6,7 +6,7 @@ import pandas as pd
 from collections import defaultdict
 
 from PySide6.QtGui import QPen, QColor, QFontMetrics
-from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QTimer, QAbstractTableModel
+from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QTimer, QAbstractTableModel, QRect
 from PySide6.QtWidgets import (QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog,
                                QMessageBox, QTableView, QLabel, QAbstractButton, QHeaderView, QStyledItemDelegate)
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
@@ -1027,9 +1027,32 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
         model = index.model()
+        rect = option.rect
+
+        if index.column() == model.columnCount() - 1:
+            painter.save()
+
+            # Draw box.
+            margin = 5
+            box_rect = QRect(rect.left() + 1, rect.top() + margin, 100, rect.height() - 2 * margin)
+            painter.fillRect(box_rect, QColor("cornflowerblue"))
+
+            pen = QPen(QColor("black"))
+            painter.setPen(pen)
+
+            # Draw whiskers.
+            width = 4
+            left = box_rect.right() - 10
+            right = box_rect.right() + 10
+            centre_y = box_rect.center().y()
+            painter.drawLine(left, centre_y + width, left, centre_y - width)
+            painter.drawLine(right, centre_y + width, right, centre_y - width)
+            painter.drawLine(left, centre_y, right, centre_y)
+
+            painter.restore()
+
         pen = QPen(QColor("black"))
         painter.setPen(pen)
-        rect = option.rect
 
         if index.row() == model.rowCount() - 1:
             painter.drawLine(rect.bottomLeft(), rect.bottomRight())
