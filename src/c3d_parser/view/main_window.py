@@ -1008,7 +1008,7 @@ class SpatiotemporalModel(QAbstractTableModel):
                      and i not in self._excluded_cycles]
 
         if data_columns:
-            self._df.iloc[:, -1] = self._df[data_columns].mean(axis=1).round(3)
+            self._df.iloc[:-3, -1] = self._df[data_columns].iloc[:-3].mean(axis=1).round(3)
         else:
             self._df.iloc[:, -1] = float("nan")
 
