@@ -989,6 +989,12 @@ class SpatiotemporalModel(QAbstractTableModel):
         else:
             return str(self._df.index[section])
 
+    def flags(self, index):
+        default_flags = super().flags(index)
+        if index.column() == self.columnCount() - 2:
+            return default_flags & ~Qt.ItemFlag.ItemIsSelectable
+        return default_flags
+
     def exclude_cycles(self, exclusions):
         self._excluded_cycles.update(exclusions)
         self._update_averages()
