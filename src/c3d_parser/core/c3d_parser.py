@@ -1214,9 +1214,9 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
 
     # Assign lengths and widths.
     s_t_data["Stride Length (m)"] = stride_lengths
-    s_t_data["Normalised Stride Length (m)"] = normalised_stride_lengths
+    s_t_data["Normalised Stride Length"] = normalised_stride_lengths
     s_t_data["Step Length (m)"] = step_lengths
-    s_t_data["Normalised Step Length (m)"] = normalised_step_lengths
+    s_t_data["Normalised Step Length"] = normalised_step_lengths
     s_t_data["Step Width (m)"] = step_widths
 
     # Determine phase percentages.
@@ -1269,7 +1269,7 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
 
     # Calculate averages and other trial-specific measurements.
     data_frame.loc['Average'] = data_frame.mean()
-    data_frame.loc['Average', ["Gait Speed (m/s)", "Normalised Gait Speed (m/s)", "Cadence (steps/min)"]] = [
+    data_frame.loc['Average', ["Gait Speed (m/s)", "Normalised Gait Speed", "Cadence (steps/min)"]] = [
         gait_speed, normalised_gait_speed, cadence
     ]
 
