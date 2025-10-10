@@ -1013,6 +1013,7 @@ def normalise_kinematics(kinematic_data, events):
                         data_segment["pelvis_rotation"] = -data_segment["pelvis_rotation"]
                     if foot == "Right":
                         data_segment["pelvis_list"] = -(data_segment["pelvis_list"] - 180)
+                    data_segment["pelvis_tilt"] = -data_segment["pelvis_tilt"]
                     data_segment["pelvis_list"] -= 90
 
                     normalised_data[foot][file_name][stride_number - 1] = data_segment.values.T
