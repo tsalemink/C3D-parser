@@ -991,7 +991,7 @@ class SpatiotemporalModel(QAbstractTableModel):
 
     def flags(self, index):
         default_flags = super().flags(index)
-        if index.column() == self.columnCount() - 2:
+        if index.column() >= self.columnCount() - 2:
             return default_flags & ~Qt.ItemFlag.ItemIsSelectable
         return default_flags
 
