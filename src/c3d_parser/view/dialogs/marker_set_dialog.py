@@ -11,8 +11,9 @@ from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET
 from c3d_parser.view.ui.ui_marker_set_dialog import Ui_MarkerSetDialog
 
 
-markers = ["C7", "T2", "T10", "MAN", "SACR", "ASI", "PSI", "THI", "PAT",
-           "KNE", "KNEM", "KAX", "TIB", "ANK", "MED", "HEE", "TOE"]
+markers = ["C7", "T2", "T10", "MAN", "SACR", "LASI", "RASI", "LPSI", "RPSI",
+           "LTHI", "RTHI", "LPAT", "RPAT", "LKNE", "RKNE", "LKNEM", "RKNEM", "LKAX", "RKAX",
+           "LTIB", "RTIB", "LANK", "RANK", "LMED", "RMED", "LHEE", "RHEE", "LTOE", "RTOE"]
 
 
 class MarkerSetDialog(QtWidgets.QDialog):
@@ -88,14 +89,16 @@ class MarkerSetDialog(QtWidgets.QDialog):
             self._marker_mapping[marker] = value if value else None
 
         missing = []
-        for marker in ["ASI", "KNE", "ANK", "MED", "HEE"]:
+        for marker in ["LASI", "RASI", "LKNE", "RKNE", "LANK", "RANK", "LMED", "RMED", "LHEE", "RHEE"]:
             if self._marker_mapping[marker] is None:
                 missing.append(f"\"{marker}\"")
 
-        if self._marker_mapping["PSI"] is None and self._marker_mapping["SACR"] is None:
+        if ((self._marker_mapping["LPSI"] is None or self._marker_mapping["RPSI"] is None) and
+                self._marker_mapping["SACR"] is None):
             missing.append('either "PSI" or "SACR"')
 
-        if self._marker_mapping["KNEM"] is None and self._marker_mapping["KAX"] is None:
+        if ((self._marker_mapping["LKNEM"] is None and self._marker_mapping["LKAX"] is None) or
+                ((self._marker_mapping["RKNEM"] is None and self._marker_mapping["RKAX"] is None))):
             missing.append('either "KNEM" or "KAX"')
 
         if missing:

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>280</width>
-    <height>588</height>
+    <width>480</width>
+    <height>622</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -38,25 +38,14 @@
      <property name="title">
       <string/>
      </property>
-     <layout class="QFormLayout" name="formLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>C7:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="comboBoxC7">
+     <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,1">
+      <property name="horizontalSpacing">
+       <number>12</number>
+      </property>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="comboBoxT10">
         <property name="editable">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>T2:</string>
         </property>
        </widget>
       </item>
@@ -67,15 +56,29 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_3">
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>T10:</string>
+         <string>LASI:</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QComboBox" name="comboBoxT10">
+      <item row="14" column="0">
+       <widget class="QLabel" name="label_15">
+        <property name="text">
+         <string>LMED:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>LKNE:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1">
+       <widget class="QComboBox" name="comboBoxLKNEM">
         <property name="editable">
          <bool>true</bool>
         </property>
@@ -88,17 +91,24 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QComboBox" name="comboBoxMAN">
+      <item row="10" column="2">
+       <widget class="QLabel" name="label_24">
+        <property name="text">
+         <string>RKNEM:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="3">
+       <widget class="QComboBox" name="comboBoxRPSI">
         <property name="editable">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>SACR:</string>
+      <item row="12" column="1">
+       <widget class="QComboBox" name="comboBoxLTIB">
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -109,15 +119,29 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_6">
+      <item row="11" column="0">
+       <widget class="QLabel" name="label_12">
         <property name="text">
-         <string>ASI:</string>
+         <string>LKAX:</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
-       <widget class="QComboBox" name="comboBoxASI">
+      <item row="9" column="1">
+       <widget class="QComboBox" name="comboBoxLKNE">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QComboBox" name="comboBoxLPSI">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="1">
+       <widget class="QComboBox" name="comboBoxLHEE">
         <property name="editable">
          <bool>true</bool>
         </property>
@@ -126,152 +150,299 @@
       <item row="6" column="0">
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>PSI:</string>
+         <string>LPSI:</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="1">
-       <widget class="QComboBox" name="comboBoxPSI">
+      <item row="11" column="1">
+       <widget class="QComboBox" name="comboBoxLKAX">
         <property name="editable">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QComboBox" name="comboBoxRASI">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1">
+       <widget class="QComboBox" name="comboBoxLTHI">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>T2:</string>
         </property>
        </widget>
       </item>
       <item row="7" column="0">
        <widget class="QLabel" name="label_8">
         <property name="text">
-         <string>THI:</string>
+         <string>LTHI:</string>
         </property>
        </widget>
       </item>
-      <item row="7" column="1">
-       <widget class="QComboBox" name="comboBoxTHI">
+      <item row="13" column="1">
+       <widget class="QComboBox" name="comboBoxLANK">
         <property name="editable">
          <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="2">
+       <widget class="QLabel" name="label_25">
+        <property name="text">
+         <string>RKAX:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>SACR:</string>
         </property>
        </widget>
       </item>
       <item row="8" column="0">
        <widget class="QLabel" name="label_9">
         <property name="text">
-         <string>PAT:</string>
+         <string>LPAT:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="comboBoxC7">
+        <property name="editable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item row="8" column="1">
-       <widget class="QComboBox" name="comboBoxPAT">
+       <widget class="QComboBox" name="comboBoxLPAT">
         <property name="editable">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="label_10">
+      <item row="9" column="2">
+       <widget class="QLabel" name="label_23">
         <property name="text">
-         <string>KNE:</string>
+         <string>RKNE:</string>
         </property>
        </widget>
       </item>
-      <item row="9" column="1">
-       <widget class="QComboBox" name="comboBoxKNE">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0">
-       <widget class="QLabel" name="label_11">
+      <item row="5" column="2">
+       <widget class="QLabel" name="label_19">
         <property name="text">
-         <string>KNEM:</string>
+         <string>RASI:</string>
         </property>
        </widget>
       </item>
-      <item row="10" column="1">
-       <widget class="QComboBox" name="comboBoxKNEM">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <widget class="QLabel" name="label_12">
+      <item row="6" column="2">
+       <widget class="QLabel" name="label_20">
         <property name="text">
-         <string>KAX:</string>
+         <string>RPSI:</string>
         </property>
        </widget>
       </item>
-      <item row="11" column="1">
-       <widget class="QComboBox" name="comboBoxKAX">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="0">
-       <widget class="QLabel" name="label_13">
+      <item row="7" column="2">
+       <widget class="QLabel" name="label_21">
         <property name="text">
-         <string>TIB:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="12" column="1">
-       <widget class="QComboBox" name="comboBoxTIB">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="0">
-       <widget class="QLabel" name="label_14">
-        <property name="text">
-         <string>ANK:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="0">
-       <widget class="QLabel" name="label_15">
-        <property name="text">
-         <string>MED:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="1">
-       <widget class="QComboBox" name="comboBoxANK">
-        <property name="editable">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="1">
-       <widget class="QComboBox" name="comboBoxMED">
-        <property name="editable">
-         <bool>true</bool>
+         <string>RTHI:</string>
         </property>
        </widget>
       </item>
       <item row="15" column="0">
        <widget class="QLabel" name="label_16">
         <property name="text">
-         <string>HEE:</string>
+         <string>LHEE:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="16" column="2">
+       <widget class="QLabel" name="label_30">
+        <property name="text">
+         <string>RTOE:</string>
         </property>
        </widget>
       </item>
       <item row="16" column="0">
        <widget class="QLabel" name="label_17">
         <property name="text">
-         <string>TOE:</string>
+         <string>LTOE:</string>
         </property>
        </widget>
       </item>
-      <item row="15" column="1">
-       <widget class="QComboBox" name="comboBoxHEE">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>C7:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>LKNEM:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="2">
+       <widget class="QLabel" name="label_29">
+        <property name="text">
+         <string>RHEE:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="comboBoxMAN">
         <property name="editable">
          <bool>true</bool>
         </property>
        </widget>
       </item>
+      <item row="14" column="2">
+       <widget class="QLabel" name="label_28">
+        <property name="text">
+         <string>RMED:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="1">
+       <widget class="QComboBox" name="comboBoxLMED">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="2">
+       <widget class="QLabel" name="label_22">
+        <property name="text">
+         <string>RPAT:</string>
+        </property>
+       </widget>
+      </item>
       <item row="16" column="1">
-       <widget class="QComboBox" name="comboBoxTOE">
+       <widget class="QComboBox" name="comboBoxLTOE">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="3">
+       <widget class="QComboBox" name="comboBoxRTHI">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="2">
+       <widget class="QLabel" name="label_27">
+        <property name="text">
+         <string>RANK:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QComboBox" name="comboBoxLASI">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>T10:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0">
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>LTIB:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="0">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>LANK:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="2">
+       <widget class="QLabel" name="label_26">
+        <property name="text">
+         <string>RTIB:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="3">
+       <widget class="QComboBox" name="comboBoxRPAT">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="3">
+       <widget class="QComboBox" name="comboBoxRKNE">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="3">
+       <widget class="QComboBox" name="comboBoxRKNEM">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="3">
+       <widget class="QComboBox" name="comboBoxRKAX">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="3">
+       <widget class="QComboBox" name="comboBoxRTIB">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="13" column="3">
+       <widget class="QComboBox" name="comboBoxRANK">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="14" column="3">
+       <widget class="QComboBox" name="comboBoxRMED">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="3">
+       <widget class="QComboBox" name="comboBoxRHEE">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="16" column="3">
+       <widget class="QComboBox" name="comboBoxRTOE">
         <property name="editable">
          <bool>true</bool>
         </property>
@@ -292,7 +463,7 @@
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>

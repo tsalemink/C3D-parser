@@ -513,14 +513,7 @@ def extract_marker_names(filename):
         i += 1
     point_labels = list(filter(None, point_labels))
 
-    marker_names = []
-    for item in point_labels:
-        if item.startswith('L') and f'R{item[1:]}' in point_labels:
-            marker_names.append(item[1:])
-        elif not (item.startswith('L') or item.startswith('R')):
-            marker_names.append(item)
-
-    return marker_names
+    return point_labels
 
 
 def extract_data(file_path, start_frame, end_frame):
