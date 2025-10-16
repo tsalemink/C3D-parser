@@ -297,12 +297,14 @@ def get_marker_map(lab):
     with open(map_file, 'r') as file:
         marker_mapping = json.load(file)
 
+    # Convert marker sets using older format.
+    if 'ASI' in marker_mapping:
+        marker_mapping = convert_old_marker_map(map_file, marker_mapping)
+
     return marker_mapping
 
 
-def get_marker_set(lab):
-    marker_mapping = get_marker_map(lab)
-
+def convert_old_marker_map(map_file, marker_mapping):
     singular = ['C7', 'T2', 'T10', 'MAN', 'SACR']
     marker_set = {}
     for key, value in marker_mapping.items():
@@ -312,7 +314,11 @@ def get_marker_set(lab):
             marker_set[f"L{key}"] = f"L{value}" if value is not None else None
             marker_set[f"R{key}"] = f"R{value}" if value is not None else None
 
+    with open(map_file, 'w') as f:
+        json.dump(marker_set, f, indent="\t")
+
     return marker_set
+
 
 def harmonise_markers(frame_data, lab, required_markers):
     marker_set = get_marker_map(lab)
