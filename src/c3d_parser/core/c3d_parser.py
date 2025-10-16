@@ -315,7 +315,7 @@ def get_marker_set(lab):
     return marker_set
 
 def harmonise_markers(frame_data, lab, required_markers):
-    marker_set = get_marker_set(lab)
+    marker_set = get_marker_map(lab)
 
     # Harmonise marker labels.
     reversed_mapping = {value: key for key, value in marker_set.items() if value is not None}
