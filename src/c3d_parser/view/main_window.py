@@ -399,6 +399,10 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Warning", "Subject measurements missing:\n- " + "\n- ".join(missing))
             return
 
+        if static_data['Height'] < 300:
+            QMessageBox.warning(self, "Warning", "Please ensure subject height is in mm.")
+            return
+
         optimise_knee_axis = self._optimise_knee_axis
         if not dynamic_trials:
             reply = QMessageBox.information(self, "No Dynamic Trials",
