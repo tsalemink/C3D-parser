@@ -1033,59 +1033,82 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
         model = index.model()
         rect = option.rect
 
+        if index.row() == 9:
+            return
+
         if index.column() == model.columnCount() - 1:
             painter.save()
 
             data = index.model().get_data()
             columns = [i for i in range(data.shape[1] - 1) if i not in model.get_excluded_cycles()]
-            row_values = data.iloc[index.row(), columns]
 
-            if not row_values.empty:
-                row_min, row_max = row_values.min(), row_values.max()
-                mean = float(data.iat[index.row(), index.column() - 1])
+            def draw_box(min_value, max_value, mean, total, side=None):
+                if pd.isna(mean):
+                    return
+
+                margin = 4
+                y_offset = 0
+                whisker_width = 2
+                box_width = int(rect.width() * (mean / total))
+                box_height = (rect.height() - 2 * margin) // (2 if side else 1)
+                if side == 'left':
+                    colour = QColor("firebrick")
+                elif side == 'right':
+                    colour = QColor("cornflowerblue")
+                    y_offset = box_height
+                else:
+                    colour = QColor("mediumpurple")
+                    whisker_width = 4
                 cell_left = rect.left() + 1
 
-                # Calculate slightly-arbitrary max value for meter metrics.
-                max_value = data.iloc[:2, :-1].max().max() + 0.40
-
-                if index.row() == 9:
-                    painter.restore()
-                    return
-                elif index.row() in [5, 6, 7, 8]:
-                    max_value = 100
-                    colour = QColor("cornflowerblue")
-                else:
-                    if index.row() == 10:
-                        max_value = 3.0
-                    elif index.row() == 11:
-                        max_value = 1.5
-                    elif index.row() == 12:
-                        max_value = 240
-
-                    if index.row() in [0, 1, 2, 3, 4]:
-                        colour = QColor("mediumpurple")
-                    else:
-                        colour = QColor("firebrick")
-
-                box_width = int(rect.width() * (mean / max_value))
-                left = cell_left + (rect.width() * (row_min / max_value)) - 1
-                right = cell_left + (rect.width() * (row_max / max_value))
-
                 # Draw box.
-                margin = 5
-                box_rect = QRect(rect.left() + 1, rect.top() + margin, box_width, rect.height() - 2 * margin)
+                box_rect = QRect(rect.left() + 1, rect.top() + margin + y_offset, box_width, box_height)
                 painter.fillRect(box_rect, colour)
 
                 # Draw whiskers.
-                if index.row() not in [10, 11, 12]:
+                if side:
+                    left = cell_left + (rect.width() * (min_value / total)) - 1
+                    right = cell_left + (rect.width() * (max_value / total))
                     pen = QPen(QColor("black"))
                     painter.setPen(pen)
-
-                    width = 4
                     centre_y = box_rect.center().y()
-                    painter.drawLine(left, centre_y + width, left, centre_y - width)
-                    painter.drawLine(right, centre_y + width, right, centre_y - width)
+                    painter.drawLine(left, centre_y + whisker_width, left, centre_y - whisker_width)
+                    painter.drawLine(right, centre_y + whisker_width, right, centre_y - whisker_width)
                     painter.drawLine(left, centre_y, right, centre_y)
+
+            # Calculate slightly-arbitrary max value for meter metrics.
+            max_value = data.iloc[:2, :-1].max().max() + 0.40
+            if index.row() in [5, 6, 7, 8]:
+                max_value = 100
+            else:
+                if index.row() == 10:
+                    max_value = 3.0
+                elif index.row() == 11:
+                    max_value = 1.5
+                elif index.row() == 12:
+                    max_value = 240
+
+            # Single mean rows.
+            if index.row() in [10, 11, 12]:
+                row_values = data.iloc[index.row(), columns]
+                if not row_values.empty:
+                    row_min, row_max = row_values.min(), row_values.max()
+                    row_mean = float(data.iat[index.row(), index.column() - 1])
+                    draw_box(row_min, row_max, row_mean, max_value)
+
+            # Split left/right box plots.
+            else:
+                left_columns = [i for i in columns if "Left" in data.columns[i]]
+                right_columns = [i for i in columns if "Right" in data.columns[i]]
+                left_values = data.iloc[index.row(), left_columns]
+                right_values = data.iloc[index.row(), right_columns]
+
+                if not left_values.empty:
+                    l_min, l_max, l_mean = left_values.min(), left_values.max(), left_values.mean()
+                    draw_box(l_min, l_max, l_mean, max_value, side='left')
+                if not right_values.empty:
+                    r_min, r_max, r_mean = right_values.min(), right_values.max(), right_values.mean()
+                    draw_box(r_min, r_max, r_mean, max_value, side='right')
 
             painter.restore()
 
