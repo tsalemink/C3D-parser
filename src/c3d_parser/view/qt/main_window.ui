@@ -754,6 +754,9 @@
            <layout class="QVBoxLayout" name="verticalLayout_8">
             <item>
              <widget class="QScrollArea" name="scrollArea">
+              <property name="styleSheet">
+               <string notr="true">background-color: transparent;</string>
+              </property>
               <property name="frameShape">
                <enum>QFrame::Shape::NoFrame</enum>
               </property>
