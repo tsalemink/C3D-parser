@@ -8,7 +8,8 @@ from collections import defaultdict
 from PySide6.QtGui import QPen, QColor, QFontMetrics
 from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QTimer, QAbstractTableModel, QRect
 from PySide6.QtWidgets import (QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog,
-                               QMessageBox, QTableView, QLabel, QAbstractButton, QHeaderView, QStyledItemDelegate)
+                               QMessageBox, QTableView, QLabel, QAbstractButton, QHeaderView, QStyledItemDelegate,
+                               QWidget, QVBoxLayout, QHBoxLayout)
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
@@ -182,6 +183,32 @@ class MainWindow(QMainWindow):
 
             layout.addWidget(table)
             self._spatiotemporal_tables.append(table)
+
+        # Create legend.
+        legend = QWidget(self._ui.tabSpatiotemporal)
+        legend.setStyleSheet("border: 1px solid gray;")
+        layout = QVBoxLayout(legend)
+        layout.setContentsMargins(6, 6, 6, 6)
+        layout.setSpacing(6)
+        legend.resize(100, 50)
+
+        for color, text in [("firebrick", "Left"), ("cornflowerblue", "Right")]:
+            row_layout = QHBoxLayout()
+            box = QLabel()
+            box.setFixedSize(15, 15)
+            box.setStyleSheet(f"background-color: {color}; border: 1px solid black;")
+            label = QLabel(text)
+            label.setStyleSheet("border: none;")
+            row_layout.addWidget(box)
+            row_layout.addWidget(label)
+            layout.addLayout(row_layout)
+
+        def reposition():
+            legend.move(self._ui.tabSpatiotemporal.width() - legend.width() - 10, 10)
+            legend.raise_()
+
+        self._ui.tabSpatiotemporal.resizeEvent = lambda e: reposition()
+        reposition()
 
     def _update_s_t_data_from_tables(self):
         for table in self._spatiotemporal_tables:
