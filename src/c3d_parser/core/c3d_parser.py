@@ -103,8 +103,6 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_
     logger.info(f"Parsing static trial: {c3d_file}")
 
     output_file_name = 'static'
-    c3d_file_name = os.path.basename(c3d_file)
-    file_name = os.path.splitext(c3d_file_name)[0]
     de_identify_c3d(c3d_file, output_directory, output_file_name)
 
     # Harmonise TRC data.
@@ -130,8 +128,6 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     logger.info(f"Parsing dynamic trial: {c3d_file}")
 
     output_file_name = f'dynamic_{trial_index}'
-    c3d_file_name = os.path.basename(c3d_file)
-    file_name = os.path.splitext(c3d_file_name)[0]
     de_identify_c3d(c3d_file, output_directory, output_file_name)
 
     # Harmonise TRC data.
@@ -247,7 +243,7 @@ def de_identify_c3d(file_path, output_directory, output_file_name):
         de_identify_string_array('SUBJECTS', 'NAMES')
         de_identify_string_array('ANALYSIS', 'SUBJECTS')
 
-    with open(os.path.join(output_directory, output_file_name), 'wb') as handle:
+    with open(os.path.join(output_directory, f"{output_file_name}.c3d"), 'wb') as handle:
         writer.write(handle)
 
 
