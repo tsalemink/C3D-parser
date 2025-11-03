@@ -75,6 +75,7 @@ class MainWindow(QMainWindow):
         self._deidentified_file_names = {}
         self._events = {}
 
+        self._disable_spin_box_scrolling()
         self._setup_combo_boxes()
         self._setup_figures()
         self._setup_spatiotemporal_display()
@@ -98,6 +99,19 @@ class MainWindow(QMainWindow):
 
         # Force Qt to use placeholder text until sex selected.
         self._ui.comboBoxSex.setCurrentIndex(-1)
+
+    def _disable_spin_box_scrolling(self):
+        self._ui.spinBoxAge.wheelEvent = lambda event: None
+        self._ui.doubleSpinBoxHeight.wheelEvent = lambda event: None
+        self._ui.doubleSpinBoxWeight.wheelEvent = lambda event: None
+        self._ui.doubleSpinBoxASISWidth.wheelEvent = lambda event: None
+        self._ui.doubleSpinBoxLeftKneeWidth.wheelEvent = lambda event: None
+        self._ui.doubleSpinBoxRightKneeWidth.wheelEvent = lambda event: None
+        self._ui.doubleSpinBoxLeftAnkleWidth.wheelEvent = lambda event: None
+        self._ui.doubleSpinBoxRightAnkleWidth.wheelEvent = lambda event: None
+        self._ui.doubleSpinBoxLeftLegLength.wheelEvent = lambda event: None
+        self._ui.doubleSpinBoxRightLegLength.wheelEvent = lambda event: None
+        self._ui.doubleSpinBoxMarkerDiameter.wheelEvent = lambda event: None
 
     def _reset_lab_combo_box(self):
         current_selection = self._ui.comboBoxLab.currentText()
