@@ -100,6 +100,9 @@ class MainWindow(QMainWindow):
         # Force Qt to use placeholder text until sex selected.
         self._ui.comboBoxSex.setCurrentIndex(-1)
 
+        self._ui.comboBoxLab.wheelEvent = lambda event: None
+        self._ui.comboBoxSex.wheelEvent = lambda event: None
+
     def _disable_spin_box_scrolling(self):
         self._ui.spinBoxAge.wheelEvent = lambda event: None
         self._ui.doubleSpinBoxHeight.wheelEvent = lambda event: None
