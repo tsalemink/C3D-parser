@@ -212,14 +212,14 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_8.addWidget(self.label_6)
 
-        self.doubleSpinBoxWeight = QDoubleSpinBox(self.frameTrial)
-        self.doubleSpinBoxWeight.setObjectName(u"doubleSpinBoxWeight")
-        sizePolicy1.setHeightForWidth(self.doubleSpinBoxWeight.sizePolicy().hasHeightForWidth())
-        self.doubleSpinBoxWeight.setSizePolicy(sizePolicy1)
-        self.doubleSpinBoxWeight.setMinimumSize(QSize(0, 0))
-        self.doubleSpinBoxWeight.setMaximum(999.990000000000009)
+        self.doubleSpinBoxBodyMass = QDoubleSpinBox(self.frameTrial)
+        self.doubleSpinBoxBodyMass.setObjectName(u"doubleSpinBoxBodyMass")
+        sizePolicy1.setHeightForWidth(self.doubleSpinBoxBodyMass.sizePolicy().hasHeightForWidth())
+        self.doubleSpinBoxBodyMass.setSizePolicy(sizePolicy1)
+        self.doubleSpinBoxBodyMass.setMinimumSize(QSize(0, 0))
+        self.doubleSpinBoxBodyMass.setMaximum(999.990000000000009)
 
-        self.horizontalLayout_8.addWidget(self.doubleSpinBoxWeight)
+        self.horizontalLayout_8.addWidget(self.doubleSpinBoxBodyMass)
 
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_8)
@@ -560,7 +560,7 @@ class Ui_MainWindow(object):
         self.comboBoxSex.setPlaceholderText(QCoreApplication.translate("MainWindow", u"-", None))
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"Age:", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"Height (mm):", None))
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Weight (kg):", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Body Mass (kg):", None))
         self.label_15.setText(QCoreApplication.translate("MainWindow", u"Inter ASIS Distance (mm):", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Left Knee Width (mm):", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"Right Knee Width (mm):", None))

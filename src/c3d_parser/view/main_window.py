@@ -106,7 +106,7 @@ class MainWindow(QMainWindow):
     def _disable_spin_box_scrolling(self):
         self._ui.spinBoxAge.wheelEvent = lambda event: None
         self._ui.doubleSpinBoxHeight.wheelEvent = lambda event: None
-        self._ui.doubleSpinBoxWeight.wheelEvent = lambda event: None
+        self._ui.doubleSpinBoxBodyMass.wheelEvent = lambda event: None
         self._ui.doubleSpinBoxASISWidth.wheelEvent = lambda event: None
         self._ui.doubleSpinBoxLeftKneeWidth.wheelEvent = lambda event: None
         self._ui.doubleSpinBoxRightKneeWidth.wheelEvent = lambda event: None
@@ -357,7 +357,7 @@ class MainWindow(QMainWindow):
         if static_data[0] is not None:
             self._ui.doubleSpinBoxHeight.setValue(static_data[0])
         if static_data[1] is not None:
-            self._ui.doubleSpinBoxWeight.setValue(static_data[1])
+            self._ui.doubleSpinBoxBodyMass.setValue(static_data[1])
         if static_data[2] is not None:
             self._ui.doubleSpinBoxASISWidth.setValue(static_data[2])
         if static_data[3] is not None:
@@ -419,7 +419,7 @@ class MainWindow(QMainWindow):
             "Sex": self._ui.comboBoxSex.currentText(),
             "Age": self._ui.spinBoxAge.value(),
             'Height': self._ui.doubleSpinBoxHeight.value(),
-            'Weight': self._ui.doubleSpinBoxWeight.value(),
+            'Weight': self._ui.doubleSpinBoxBodyMass.value(),
             'ASIS Width': self._ui.doubleSpinBoxASISWidth.value(),
             'Left Knee Width': self._ui.doubleSpinBoxLeftKneeWidth.value(),
             'Right Knee Width': self._ui.doubleSpinBoxRightKneeWidth.value(),

@@ -320,12 +320,12 @@
              </size>
             </property>
             <property name="text">
-             <string>Weight (kg):</string>
+             <string>Body Mass (kg):</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QDoubleSpinBox" name="doubleSpinBoxWeight">
+           <widget class="QDoubleSpinBox" name="doubleSpinBoxBodyMass">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
