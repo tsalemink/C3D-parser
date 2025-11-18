@@ -1134,6 +1134,8 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     step_lengths = {"Left": {}, "Right": {}}
     step_widths = {"Left": {}, "Right": {}}
     phases = {"Left": {}, "Right": {}}
+    gait_speeds = {"Left": {}, "Right": {}}
+    cadences = {"Left": {}, "Right": {}}
     strike_count = 0
 
     left_leg_length = static_data['Left Leg Length'] / 1000
@@ -1149,6 +1151,7 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     opposite_side = {"Left": "Right", "Right": "Left"}
     strike_position = {"Left": None, "Right": None}
     foot_events = {"Left": None, "Right": None}
+    strike_times = {"Left": None, "Right": None}
     stride_numbers = {"Left": 0, "Right": 0}
     for event_time in sorted(time_ordered_events):
         for foot, (event_type, stride_number) in time_ordered_events[event_time].items():
@@ -1163,7 +1166,10 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                 if strike_position[foot] is not None:
                     stride_length = heel_coordinates[0] - strike_position[foot][0]  # type: ignore
                     stride_lengths[foot][stride_number - 1] = stride_length / 1000
+                    total_time = event_time - strike_times[foot]
+                    gait_speeds[foot][stride_number - 1] = (stride_length / total_time) / 1000
                 strike_position[foot] = heel_coordinates
+                strike_times[foot] = event_time
 
                 # Calculate length and width of step.
                 if strike_position[opposite_side[foot]] is not None:
@@ -1193,6 +1199,7 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                 time_interval = event_time - foot_events[opposite_foot]
                 if event_type == "Foot Strike":
                     phases[opposite_foot][stride_numbers[opposite_foot]]["Single-Support"] = time_interval
+                    cadences[opposite_foot][stride_numbers[opposite_foot]] = 60 / time_interval
                 elif event_type == "Foot Off":
                     phases[opposite_foot][stride_numbers[opposite_foot]]["Double-Support"] = time_interval
 
@@ -1207,6 +1214,14 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
 
     normalised_stride_lengths = normalise_by_leg_lengths(stride_lengths)
     normalised_step_lengths = normalise_by_leg_lengths(step_lengths)
+
+    def normalise_gait_speed(data):
+        if leg_lengths["Left"] and leg_lengths["Right"]:
+            return {leg: {k: v / math.sqrt(9.81 * leg_lengths[leg]) for k, v in data[leg].items()} for leg in data}
+        else:
+            return {leg: {k: np.nan for k in data[leg]} for leg in data}
+
+    normalised_gait_speeds = normalise_gait_speed(gait_speeds)
 
     # Assign lengths and widths.
     s_t_data["Stride Length (m)"] = stride_lengths
@@ -1237,6 +1252,9 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     s_t_data["Swing Phase %"] = swing_phases
     s_t_data["Single Support Phase %"] = single_support_phases
     s_t_data["Double Support Phase %"] = double_support_phases
+    s_t_data["Gait Speed (m/s)"] = gait_speeds
+    s_t_data["Normalised Gait Speed"] = normalised_gait_speeds
+    s_t_data["Cadence (steps/min)"] = cadences
 
     data_frame = convert_to_data_frame(s_t_data)
 
