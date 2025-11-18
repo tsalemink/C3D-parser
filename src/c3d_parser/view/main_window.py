@@ -1077,9 +1077,6 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
         model = index.model()
         rect = option.rect
 
-        if index.row() == 9:
-            return
-
         if index.column() == model.columnCount() - 1:
             painter.save()
 
@@ -1133,7 +1130,7 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
                     max_value = 240
 
             # Single mean rows.
-            if index.row() in [10, 11, 12]:
+            if index.row() in [9, 10, 11]:
                 row_values = data.iloc[index.row(), columns]
                 if not row_values.empty:
                     row_min, row_max = row_values.min(), row_values.max()

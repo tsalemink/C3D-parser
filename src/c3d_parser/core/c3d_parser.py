@@ -1257,10 +1257,6 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
         normalised_gait_speed = np.nan
     cadence = ((strike_count - 1) / total_time) * 60
 
-    # Calculate foot progression.
-    foot_angles = calculate_foot_progression(frame_data, time_ordered_events)
-    s_t_data["Foot Progression (deg)"] = foot_angles
-
     data_frame = convert_to_data_frame(s_t_data)
 
     # Calculate averages and other trial-specific measurements.
@@ -1319,35 +1315,6 @@ def calculate_foot_progression_angles(frame_data):
         foot_progression[f'foot_progression_{side.lower()}'] = angles
 
     return foot_progression
-
-
-def calculate_foot_progression(frame_data, time_ordered_events):
-    walking_direction = calculate_walking_direction(frame_data)
-
-    foot_angles = {"Left": {}, "Right": {}}
-    foot_events = {"Left": None, "Right": None}
-    for event_time in sorted(time_ordered_events):
-        for foot, (event_type, stride_number) in time_ordered_events[event_time].items():
-            if foot_events[foot] is not None:
-                if event_type == "Foot Off":
-                    mid_stance_time = (foot_events[foot] + event_time) / 2  # type: ignore
-                    frame = frame_data[frame_data['Time'] >= mid_stance_time].index[0]
-                    heel_position = frame_data.loc[frame, f"{foot[0]}HEE"]
-                    toe_position = frame_data.loc[frame, f"{foot[0]}TOE"]
-                    foot_vector = toe_position[:2] - heel_position[:2]
-                    foot_vector /= np.linalg.norm(foot_vector)
-
-                    foot_angle = np.arctan2(foot_vector[1], foot_vector[0])
-                    walking_angle = np.arctan2(walking_direction[1], walking_direction[0])
-                    angle = np.degrees(foot_angle - walking_angle)
-                    if foot == 'Right':
-                        angle = -angle
-
-                    foot_angles[foot][stride_number] = normalise_angle(angle)
-
-            foot_events[foot] = event_time
-
-    return foot_angles
 
 
 def normalise_angle(angle):
