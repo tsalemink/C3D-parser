@@ -1039,36 +1039,21 @@ class SpatiotemporalModel(QAbstractTableModel):
 
     def flags(self, index):
         default_flags = super().flags(index)
-        if index.column() >= self.columnCount() - 2:
+        if index.column() >= self.columnCount() - 1:
             return default_flags & ~Qt.ItemFlag.ItemIsSelectable
         return default_flags
 
     def exclude_cycles(self, exclusions):
         self._excluded_cycles.update(exclusions)
-        self._update_averages()
 
     def include_cycles(self, inclusions):
         self._excluded_cycles.difference_update(inclusions)
-        self._update_averages()
 
     def get_data(self):
         return self._df
 
     def get_excluded_cycles(self):
         return self._excluded_cycles
-
-    def _update_averages(self):
-        data_columns = [c for i, c in enumerate(self._df.columns) if i != self._df.shape[1] - 1
-                     and i not in self._excluded_cycles]
-
-        if data_columns:
-            self._df.iloc[:-3, -1] = self._df[data_columns].iloc[:-3].mean(axis=1).round(3)
-        else:
-            self._df.iloc[:-3, -1] = float("nan")
-
-        top_left = self.index(0, self._df.shape[1] - 1)
-        bottom_right = self.index(self._df.shape[0] - 1, self._df.shape[1] - 1)
-        self.dataChanged.emit(top_left, bottom_right, [Qt.ItemDataRole.DisplayRole])
 
 
 class SpatiotemporalTableDelegate(QStyledItemDelegate):
@@ -1081,7 +1066,7 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
             painter.save()
 
             data = index.model().get_data()
-            columns = [i for i in range(data.shape[1] - 1) if i not in model.get_excluded_cycles()]
+            columns = [i for i in range(data.shape[1]) if i not in model.get_excluded_cycles()]
 
             def draw_box(min_value, max_value, mean, total, side=None):
                 if pd.isna(mean):
@@ -1122,34 +1107,24 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
             if index.row() in [5, 6, 7, 8]:
                 max_value = 100
             else:
-                if index.row() == 10:
+                if index.row() == 9:
                     max_value = 3.0
-                elif index.row() == 11:
+                elif index.row() == 10:
                     max_value = 1.5
-                elif index.row() == 12:
+                elif index.row() == 11:
                     max_value = 240
 
-            # Single mean rows.
-            if index.row() in [9, 10, 11]:
-                row_values = data.iloc[index.row(), columns]
-                if not row_values.empty:
-                    row_min, row_max = row_values.min(), row_values.max()
-                    row_mean = float(data.iat[index.row(), index.column() - 1])
-                    draw_box(row_min, row_max, row_mean, max_value)
+            left_columns = [i for i in columns if "Left" in data.columns[i]]
+            right_columns = [i for i in columns if "Right" in data.columns[i]]
+            left_values = data.iloc[index.row(), left_columns]
+            right_values = data.iloc[index.row(), right_columns]
 
-            # Split left/right box plots.
-            else:
-                left_columns = [i for i in columns if "Left" in data.columns[i]]
-                right_columns = [i for i in columns if "Right" in data.columns[i]]
-                left_values = data.iloc[index.row(), left_columns]
-                right_values = data.iloc[index.row(), right_columns]
-
-                if not left_values.empty:
-                    l_min, l_max, l_mean = left_values.min(), left_values.max(), left_values.mean()
-                    draw_box(l_min, l_max, l_mean, max_value, side='left')
-                if not right_values.empty:
-                    r_min, r_max, r_mean = right_values.min(), right_values.max(), right_values.mean()
-                    draw_box(r_min, r_max, r_mean, max_value, side='right')
+            if not left_values.empty:
+                l_min, l_max, l_mean = left_values.min(), left_values.max(), left_values.mean()
+                draw_box(l_min, l_max, l_mean, max_value, side='left')
+            if not right_values.empty:
+                r_min, r_max, r_mean = right_values.min(), right_values.max(), right_values.mean()
+                draw_box(r_min, r_max, r_mean, max_value, side='right')
 
             painter.restore()
 
@@ -1289,7 +1264,7 @@ class CustomTableView(QTableView):
         self.viewport().update()
 
     def _exclude_all(self):
-        all_columns = set(range(self.model().columnCount() - 2))
+        all_columns = set(range(self.model().columnCount() - 1))
         self.model().exclude_cycles(all_columns)
 
         self.viewport().update()
