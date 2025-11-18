@@ -1238,32 +1238,7 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     s_t_data["Single Support Phase %"] = single_support_phases
     s_t_data["Double Support Phase %"] = double_support_phases
 
-    average_leg_length = (left_leg_length + right_leg_length) / 2
-    start_time, end_time = None, None
-    for event_time in sorted(time_ordered_events):
-        for event_type, _ in time_ordered_events[event_time].values():
-            if event_type == "Foot Strike":
-                if start_time is None:
-                    start_time = event_time
-                end_time = event_time
-    total_time = end_time - start_time
-
-    # Calculate gait-speed and cadence.
-    total_distance = calculate_distance_covered(frame_data, start_time, end_time)
-    gait_speed = (total_distance / total_time) / 1000
-    if left_leg_length and right_leg_length:
-        normalised_gait_speed = gait_speed / math.sqrt(9.81 * average_leg_length)
-    else:
-        normalised_gait_speed = np.nan
-    cadence = ((strike_count - 1) / total_time) * 60
-
     data_frame = convert_to_data_frame(s_t_data)
-
-    # Calculate averages and other trial-specific measurements.
-    data_frame.loc['Average'] = data_frame.mean()
-    data_frame.loc['Average', ["Gait Speed (m/s)", "Normalised Gait Speed", "Cadence (steps/min)"]] = [
-        gait_speed, normalised_gait_speed, cadence
-    ]
 
     return data_frame
 
