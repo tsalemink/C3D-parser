@@ -1322,9 +1322,19 @@ def write_spatiotemporal_data(data, selected_trials, output_directory):
     normalised_directory = os.path.join(output_directory, 'normalised')
     output_file = os.path.join(normalised_directory, f"spattemp.csv")
 
-    combined_data_frame = pd.concat([df.rename(index=lambda idx: f"{selected_trials[trial]} {idx}")
-         for trial, df in data.items() if trial in selected_trials])
-    combined_data_frame.round(3).to_csv(output_file)
+    frames = []
+    for trial, df in data.items():
+        if trial in selected_trials:
+            new_df = df.copy()
+            idx_series = pd.Series(df.index, index=df.index)
+            cycle_id = idx_series.str.split("-", n=1, expand=True)
+            new_df.insert(0, "Trial", selected_trials[trial])
+            new_df.insert(1, "Side", cycle_id[0])
+            new_df.insert(2, "Cycle-Number", cycle_id[1].astype(int))
+
+            frames.append(new_df)
+    combined_data_frame = pd.concat(frames, ignore_index=True)
+    combined_data_frame.round(3).to_csv(output_file, index=False)
 
 
 def convert_to_data_frame(s_t_data):
