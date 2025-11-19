@@ -6,9 +6,12 @@ import shutil
 from PySide6 import QtCore
 from PySide6.QtNetwork import QLocalSocket, QLocalServer
 
+from c3d_parser import __version__
+
 
 APPLICATION_NAME = 'C3D-Parser'
 ORGANISATION_NAME = 'Auckland Bioengineering Institute'
+VERSION = __version__
 
 DEFAULT_STYLE_SHEET = ''
 INVALID_STYLE_SHEET = 'background-color: rgba(239, 0, 0, 50)'

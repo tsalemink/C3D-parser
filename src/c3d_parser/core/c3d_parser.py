@@ -19,6 +19,7 @@ from c3d_parser.core.utils import clear_directory
 from c3d_parser.core.osim import perform_ik, perform_id
 from c3d_parser.settings.general import get_marker_maps_dir
 from c3d_parser.settings.logging import logger
+from c3d_parser.settings.general import VERSION
 
 
 class ParserError(Exception):
@@ -1100,7 +1101,8 @@ def write_normalised_kinetics(kinetic_data, selected_trials, excluded_cycles, ou
 
 def write_normalised_data(data, column_names, selected_trials, excluded_cycles, output_file):
     with open(output_file, 'w') as file:
-        file.write(','.join(["Trial", "Side", "Cycle-Number", "Frame"] + column_names) + '\n\n\n')
+        file.write(f"C3D-Parser Version:, {VERSION}\n\n\n")
+        file.write(','.join(["Trial", "Side", "Cycle-Number", "Frame"] + column_names) + '\n\n')
 
         for foot, files_dict in data.items():
             for file_name, cycles in files_dict.items():
@@ -1126,7 +1128,7 @@ def write_normalised_data(data, column_names, selected_trials, excluded_cycles, 
                         stride = cycle_number if x == 1 else ""
                         row_data = [trial, side, stride, x] + normalised_segment[:, x - 1].tolist()
                         file.write(','.join(str(value) for value in row_data) + '\n')
-                    file.write('\n\n')
+                    file.write('\n')
 
 
 def calculate_spatiotemporal_data(frame_data, events, static_data):
@@ -1333,8 +1335,13 @@ def write_spatiotemporal_data(data, selected_trials, output_directory):
             new_df.insert(2, "Cycle-Number", cycle_id[1].astype(int))
 
             frames.append(new_df)
+
+    # Write header.
+    with open(output_file, "w") as file:
+        file.write(f"C3D-Parser Version:, {VERSION}\n\n\n")
+
     combined_data_frame = pd.concat(frames, ignore_index=True)
-    combined_data_frame.round(3).to_csv(output_file, index=False)
+    combined_data_frame.round(3).to_csv(output_file, index=False, mode="a")
 
 
 def convert_to_data_frame(s_t_data):
