@@ -1325,7 +1325,7 @@ def write_spatiotemporal_data(data, selected_trials, output_directory):
 
     frames = []
     for trial, df in data.items():
-        if trial in selected_trials:
+        if trial in selected_trials and not df.empty:
             new_df = df.copy()
             idx_series = pd.Series(df.index, index=df.index)
             cycle_id = idx_series.str.split("-", n=1, expand=True)
