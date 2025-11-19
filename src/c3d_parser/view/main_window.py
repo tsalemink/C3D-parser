@@ -652,11 +652,11 @@ class MainWindow(QMainWindow):
         plot_labels = {
             0: ('Hip Extensor Moment', 'Nm/kg', 'Ext', 'Flx'),
             1: ('Hip Abductor Moment', 'Nm/kg', 'Abd', 'Add'),
-            2: ('Hip Rotation Moment', 'Nm/kg', 'Int', 'Ext'),
+            2: ('Hip Rotator Moment', 'Nm/kg', 'Int', 'Ext'),
             3: ('Hip Power (Sagittal)', 'W/kg', 'Gen', 'Abs'),
             4: ('Knee Extensor Moment', 'Nm/kg', 'Ext', 'Flx'),
             5: ('Knee Abductor Moment', 'Nm/kg', 'Abd', 'Add'),
-            6: ('Knee Rotation Moment', 'Nm/kg', 'Int', 'Ext'),
+            6: ('Knee Rotator Moment', 'Nm/kg', 'Int', 'Ext'),
             7: ('Knee Power (Sagittal)', 'W/kg', 'Gen', 'Abs'),
             8: ('Ankle Dorsiflexor Moment', 'Nm/kg', 'Pla', 'Dor'),
             9: ('Subtalar Inverter Moment', 'Nm/kg', 'Inv', 'Eve'),
@@ -665,11 +665,11 @@ class MainWindow(QMainWindow):
 
         self._kinetic_plots[0].set_ylim(-2.0, 3.0)      # Hip Extensor
         self._kinetic_plots[1].set_ylim(-1.0, 2.0)      # Hip Abductor
-        self._kinetic_plots[2].set_ylim(-0.5, 0.5)      # Hip Rotation
+        self._kinetic_plots[2].set_ylim(-0.5, 0.5)      # Hip Rotator
         self._kinetic_plots[3].set_ylim(-3.0, 3.0)      # Total Hip
         self._kinetic_plots[4].set_ylim(-1.0, 1.0)      # Knee Extensor
         self._kinetic_plots[5].set_ylim(-1.0, 1.0)      # Knee Abductor
-        self._kinetic_plots[6].set_ylim(-0.5, 0.5)      # Knee Rotation
+        self._kinetic_plots[6].set_ylim(-0.5, 0.5)      # Knee Rotator
         self._kinetic_plots[7].set_ylim(-3.0, 3.0)      # Total Knee
         self._kinetic_plots[8].set_ylim(-1.0, 3.0)      # Ankle Dorsiflexor
         self._kinetic_plots[9].set_ylim(-0.5, 0.5)      # Subtalar Inverter
