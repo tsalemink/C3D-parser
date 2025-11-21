@@ -378,7 +378,7 @@ class MainWindow(QMainWindow):
         input_directory = self._ui.lineEditInputDirectory.text()
         output_directory = self._ui.lineEditOutputDirectory.text()
         session_name = os.path.basename(input_directory)
-        self._output_directory = os.path.join(output_directory, output_direcory_name, session_name)
+        self._output_directory = os.path.join(output_directory, output_direcory_name)
 
         if os.path.exists(self._output_directory):
             reply = QMessageBox.warning(self, "Warning",
