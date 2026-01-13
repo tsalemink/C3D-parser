@@ -853,9 +853,15 @@ def concatenate_grf_data(analog_data, events, mean_centre):
                 start = analog_data[analog_data['time'] <= start_time].index[-1]
                 while analog_data.iloc[start, source_columns[2]] > 0:
                     start -= 1
+                    if start < analog_data.index[0]:
+                        start =+ 1
+                        break
                 end = analog_data[analog_data['time'] <= end_time].index[-1]
                 while analog_data.iloc[end, source_columns[2]] > 0:
                     end += 1
+                    if end > analog_data.index[-1]:
+                        end -= 1
+                        break
 
                 new_start_time = analog_data.iloc[start]['time']
                 new_end_time = analog_data.iloc[end]['time']
