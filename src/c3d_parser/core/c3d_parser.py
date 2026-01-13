@@ -396,9 +396,10 @@ def filter_data(frame_data, data_rate, cut_off_frequency=8):
 
     # Filter each marker trajectory.
     for marker in frame_data.columns[1:]:
-        marker_trajectory = frame_data.loc[:, marker].values
+        marker_trajectory = np.stack(frame_data.loc[:, marker].values)
         filtered_trajectory = signal.filtfilt(b, a, marker_trajectory, axis=0)
-        frame_data.loc[:, marker] = filtered_trajectory
+        series = pd.Series([row for row in filtered_trajectory], index=frame_data.index)
+        frame_data.loc[:, marker] = series
 
 
 def resample_data(frame_data, data_rate, frequency=100):
