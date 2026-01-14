@@ -17,10 +17,10 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
 from PySide6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox, QFrame,
-    QHBoxLayout, QLabel, QLineEdit, QListWidgetItem,
-    QMainWindow, QMenu, QMenuBar, QPushButton,
-    QScrollArea, QSizePolicy, QSpinBox, QSplitter,
-    QTabWidget, QVBoxLayout, QWidget)
+    QGroupBox, QHBoxLayout, QLabel, QLineEdit,
+    QListWidgetItem, QMainWindow, QMenu, QMenuBar,
+    QPushButton, QScrollArea, QSizePolicy, QSpinBox,
+    QSplitter, QTabWidget, QVBoxLayout, QWidget)
 
 from c3d_parser.view.widgets import CustomListWidget
 
@@ -57,6 +57,7 @@ class Ui_MainWindow(object):
         self.frameTrial.setFrameShape(QFrame.Shape.StyledPanel)
         self.frameTrial.setFrameShadow(QFrame.Shadow.Raised)
         self.verticalLayout_2 = QVBoxLayout(self.frameTrial)
+        self.verticalLayout_2.setSpacing(3)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.verticalLayout_2.setContentsMargins(0, 5, 0, 5)
         self.horizontalLayout_3 = QHBoxLayout()
@@ -145,16 +146,21 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addWidget(self.listWidgetFiles)
 
+        self.groupBox = QGroupBox(self.frameTrial)
+        self.groupBox.setObjectName(u"groupBox")
+        self.verticalLayout_9 = QVBoxLayout(self.groupBox)
+        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
+        self.verticalLayout_9.setContentsMargins(6, 1, 3, 6)
         self.horizontalLayout_14 = QHBoxLayout()
         self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
         self.horizontalLayout_14.setContentsMargins(5, -1, 5, -1)
-        self.label_12 = QLabel(self.frameTrial)
+        self.label_12 = QLabel(self.groupBox)
         self.label_12.setObjectName(u"label_12")
         self.label_12.setMinimumSize(QSize(134, 0))
 
         self.horizontalLayout_14.addWidget(self.label_12)
 
-        self.comboBoxSex = QComboBox(self.frameTrial)
+        self.comboBoxSex = QComboBox(self.groupBox)
         self.comboBoxSex.addItem("")
         self.comboBoxSex.addItem("")
         self.comboBoxSex.setObjectName(u"comboBoxSex")
@@ -162,35 +168,56 @@ class Ui_MainWindow(object):
         self.horizontalLayout_14.addWidget(self.comboBoxSex)
 
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_14)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_14)
 
         self.horizontalLayout_13 = QHBoxLayout()
         self.horizontalLayout_13.setObjectName(u"horizontalLayout_13")
         self.horizontalLayout_13.setContentsMargins(5, -1, 5, -1)
-        self.label_11 = QLabel(self.frameTrial)
+        self.label_11 = QLabel(self.groupBox)
         self.label_11.setObjectName(u"label_11")
         self.label_11.setMinimumSize(QSize(134, 0))
 
         self.horizontalLayout_13.addWidget(self.label_11)
 
-        self.spinBoxAge = QSpinBox(self.frameTrial)
+        self.spinBoxAge = QSpinBox(self.groupBox)
         self.spinBoxAge.setObjectName(u"spinBoxAge")
 
         self.horizontalLayout_13.addWidget(self.spinBoxAge)
 
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_13)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_13)
+
+        self.horizontalLayout_8 = QHBoxLayout()
+        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
+        self.horizontalLayout_8.setContentsMargins(5, -1, 5, -1)
+        self.label_6 = QLabel(self.groupBox)
+        self.label_6.setObjectName(u"label_6")
+        self.label_6.setMinimumSize(QSize(134, 0))
+
+        self.horizontalLayout_8.addWidget(self.label_6)
+
+        self.doubleSpinBoxBodyMass = QDoubleSpinBox(self.groupBox)
+        self.doubleSpinBoxBodyMass.setObjectName(u"doubleSpinBoxBodyMass")
+        sizePolicy1.setHeightForWidth(self.doubleSpinBoxBodyMass.sizePolicy().hasHeightForWidth())
+        self.doubleSpinBoxBodyMass.setSizePolicy(sizePolicy1)
+        self.doubleSpinBoxBodyMass.setMinimumSize(QSize(0, 0))
+        self.doubleSpinBoxBodyMass.setMaximum(999.990000000000009)
+
+        self.horizontalLayout_8.addWidget(self.doubleSpinBoxBodyMass)
+
+
+        self.verticalLayout_9.addLayout(self.horizontalLayout_8)
 
         self.horizontalLayout_5 = QHBoxLayout()
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.horizontalLayout_5.setContentsMargins(5, -1, 5, -1)
-        self.label_4 = QLabel(self.frameTrial)
+        self.label_4 = QLabel(self.groupBox)
         self.label_4.setObjectName(u"label_4")
         self.label_4.setMinimumSize(QSize(134, 0))
 
         self.horizontalLayout_5.addWidget(self.label_4)
 
-        self.doubleSpinBoxHeight = QDoubleSpinBox(self.frameTrial)
+        self.doubleSpinBoxHeight = QDoubleSpinBox(self.groupBox)
         self.doubleSpinBoxHeight.setObjectName(u"doubleSpinBoxHeight")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxHeight.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxHeight.setSizePolicy(sizePolicy1)
@@ -201,39 +228,18 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.addWidget(self.doubleSpinBoxHeight)
 
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_5)
-
-        self.horizontalLayout_8 = QHBoxLayout()
-        self.horizontalLayout_8.setObjectName(u"horizontalLayout_8")
-        self.horizontalLayout_8.setContentsMargins(5, -1, 5, -1)
-        self.label_6 = QLabel(self.frameTrial)
-        self.label_6.setObjectName(u"label_6")
-        self.label_6.setMinimumSize(QSize(134, 0))
-
-        self.horizontalLayout_8.addWidget(self.label_6)
-
-        self.doubleSpinBoxBodyMass = QDoubleSpinBox(self.frameTrial)
-        self.doubleSpinBoxBodyMass.setObjectName(u"doubleSpinBoxBodyMass")
-        sizePolicy1.setHeightForWidth(self.doubleSpinBoxBodyMass.sizePolicy().hasHeightForWidth())
-        self.doubleSpinBoxBodyMass.setSizePolicy(sizePolicy1)
-        self.doubleSpinBoxBodyMass.setMinimumSize(QSize(0, 0))
-        self.doubleSpinBoxBodyMass.setMaximum(999.990000000000009)
-
-        self.horizontalLayout_8.addWidget(self.doubleSpinBoxBodyMass)
-
-
-        self.verticalLayout_2.addLayout(self.horizontalLayout_8)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_5)
 
         self.horizontalLayout_17 = QHBoxLayout()
         self.horizontalLayout_17.setObjectName(u"horizontalLayout_17")
         self.horizontalLayout_17.setContentsMargins(5, -1, 5, -1)
-        self.label_15 = QLabel(self.frameTrial)
+        self.label_15 = QLabel(self.groupBox)
         self.label_15.setObjectName(u"label_15")
         self.label_15.setMinimumSize(QSize(134, 0))
 
         self.horizontalLayout_17.addWidget(self.label_15)
 
-        self.doubleSpinBoxASISWidth = QDoubleSpinBox(self.frameTrial)
+        self.doubleSpinBoxASISWidth = QDoubleSpinBox(self.groupBox)
         self.doubleSpinBoxASISWidth.setObjectName(u"doubleSpinBoxASISWidth")
         self.doubleSpinBoxASISWidth.setDecimals(1)
         self.doubleSpinBoxASISWidth.setMaximum(999.000000000000000)
@@ -241,100 +247,26 @@ class Ui_MainWindow(object):
         self.horizontalLayout_17.addWidget(self.doubleSpinBoxASISWidth)
 
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_17)
-
-        self.horizontalLayout_9 = QHBoxLayout()
-        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.horizontalLayout_9.setContentsMargins(5, -1, 5, -1)
-        self.label_7 = QLabel(self.frameTrial)
-        self.label_7.setObjectName(u"label_7")
-        self.label_7.setMinimumSize(QSize(134, 0))
-
-        self.horizontalLayout_9.addWidget(self.label_7)
-
-        self.doubleSpinBoxLeftKneeWidth = QDoubleSpinBox(self.frameTrial)
-        self.doubleSpinBoxLeftKneeWidth.setObjectName(u"doubleSpinBoxLeftKneeWidth")
-        sizePolicy1.setHeightForWidth(self.doubleSpinBoxLeftKneeWidth.sizePolicy().hasHeightForWidth())
-        self.doubleSpinBoxLeftKneeWidth.setSizePolicy(sizePolicy1)
-        self.doubleSpinBoxLeftKneeWidth.setDecimals(1)
-        self.doubleSpinBoxLeftKneeWidth.setMaximum(999.000000000000000)
-        self.doubleSpinBoxLeftKneeWidth.setSingleStep(1.000000000000000)
-
-        self.horizontalLayout_9.addWidget(self.doubleSpinBoxLeftKneeWidth)
+        self.verticalLayout_9.addLayout(self.horizontalLayout_17)
 
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_9)
+        self.verticalLayout_2.addWidget(self.groupBox)
 
-        self.horizontalLayout_10 = QHBoxLayout()
-        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
-        self.horizontalLayout_10.setContentsMargins(5, -1, 5, -1)
-        self.label_8 = QLabel(self.frameTrial)
-        self.label_8.setObjectName(u"label_8")
-        self.label_8.setMinimumSize(QSize(134, 0))
-
-        self.horizontalLayout_10.addWidget(self.label_8)
-
-        self.doubleSpinBoxRightKneeWidth = QDoubleSpinBox(self.frameTrial)
-        self.doubleSpinBoxRightKneeWidth.setObjectName(u"doubleSpinBoxRightKneeWidth")
-        sizePolicy1.setHeightForWidth(self.doubleSpinBoxRightKneeWidth.sizePolicy().hasHeightForWidth())
-        self.doubleSpinBoxRightKneeWidth.setSizePolicy(sizePolicy1)
-        self.doubleSpinBoxRightKneeWidth.setDecimals(1)
-        self.doubleSpinBoxRightKneeWidth.setMaximum(999.000000000000000)
-        self.doubleSpinBoxRightKneeWidth.setSingleStep(1.000000000000000)
-
-        self.horizontalLayout_10.addWidget(self.doubleSpinBoxRightKneeWidth)
-
-
-        self.verticalLayout_2.addLayout(self.horizontalLayout_10)
-
-        self.horizontalLayout_15 = QHBoxLayout()
-        self.horizontalLayout_15.setObjectName(u"horizontalLayout_15")
-        self.horizontalLayout_15.setContentsMargins(5, -1, 5, -1)
-        self.label_13 = QLabel(self.frameTrial)
-        self.label_13.setObjectName(u"label_13")
-        self.label_13.setMinimumSize(QSize(134, 0))
-
-        self.horizontalLayout_15.addWidget(self.label_13)
-
-        self.doubleSpinBoxLeftAnkleWidth = QDoubleSpinBox(self.frameTrial)
-        self.doubleSpinBoxLeftAnkleWidth.setObjectName(u"doubleSpinBoxLeftAnkleWidth")
-        self.doubleSpinBoxLeftAnkleWidth.setDecimals(1)
-        self.doubleSpinBoxLeftAnkleWidth.setMaximum(999.000000000000000)
-
-        self.horizontalLayout_15.addWidget(self.doubleSpinBoxLeftAnkleWidth)
-
-
-        self.verticalLayout_2.addLayout(self.horizontalLayout_15)
-
-        self.horizontalLayout_16 = QHBoxLayout()
-        self.horizontalLayout_16.setObjectName(u"horizontalLayout_16")
-        self.horizontalLayout_16.setContentsMargins(5, -1, 5, -1)
-        self.label_14 = QLabel(self.frameTrial)
-        self.label_14.setObjectName(u"label_14")
-        self.label_14.setMinimumSize(QSize(134, 0))
-
-        self.horizontalLayout_16.addWidget(self.label_14)
-
-        self.doubleSpinBoxRightAnkleWidth = QDoubleSpinBox(self.frameTrial)
-        self.doubleSpinBoxRightAnkleWidth.setObjectName(u"doubleSpinBoxRightAnkleWidth")
-        self.doubleSpinBoxRightAnkleWidth.setDecimals(1)
-        self.doubleSpinBoxRightAnkleWidth.setMaximum(999.000000000000000)
-
-        self.horizontalLayout_16.addWidget(self.doubleSpinBoxRightAnkleWidth)
-
-
-        self.verticalLayout_2.addLayout(self.horizontalLayout_16)
-
+        self.groupBox_2 = QGroupBox(self.frameTrial)
+        self.groupBox_2.setObjectName(u"groupBox_2")
+        self.verticalLayout_10 = QVBoxLayout(self.groupBox_2)
+        self.verticalLayout_10.setObjectName(u"verticalLayout_10")
+        self.verticalLayout_10.setContentsMargins(6, 1, 3, 6)
         self.horizontalLayout_11 = QHBoxLayout()
         self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
         self.horizontalLayout_11.setContentsMargins(5, -1, 5, -1)
-        self.label_9 = QLabel(self.frameTrial)
+        self.label_9 = QLabel(self.groupBox_2)
         self.label_9.setObjectName(u"label_9")
         self.label_9.setMinimumSize(QSize(134, 0))
 
         self.horizontalLayout_11.addWidget(self.label_9)
 
-        self.doubleSpinBoxLeftLegLength = QDoubleSpinBox(self.frameTrial)
+        self.doubleSpinBoxLeftLegLength = QDoubleSpinBox(self.groupBox_2)
         self.doubleSpinBoxLeftLegLength.setObjectName(u"doubleSpinBoxLeftLegLength")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxLeftLegLength.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxLeftLegLength.setSizePolicy(sizePolicy1)
@@ -345,18 +277,67 @@ class Ui_MainWindow(object):
         self.horizontalLayout_11.addWidget(self.doubleSpinBoxLeftLegLength)
 
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_11)
+        self.verticalLayout_10.addLayout(self.horizontalLayout_11)
 
+        self.horizontalLayout_9 = QHBoxLayout()
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.horizontalLayout_9.setContentsMargins(5, -1, 5, -1)
+        self.label_7 = QLabel(self.groupBox_2)
+        self.label_7.setObjectName(u"label_7")
+        self.label_7.setMinimumSize(QSize(134, 0))
+
+        self.horizontalLayout_9.addWidget(self.label_7)
+
+        self.doubleSpinBoxLeftKneeWidth = QDoubleSpinBox(self.groupBox_2)
+        self.doubleSpinBoxLeftKneeWidth.setObjectName(u"doubleSpinBoxLeftKneeWidth")
+        sizePolicy1.setHeightForWidth(self.doubleSpinBoxLeftKneeWidth.sizePolicy().hasHeightForWidth())
+        self.doubleSpinBoxLeftKneeWidth.setSizePolicy(sizePolicy1)
+        self.doubleSpinBoxLeftKneeWidth.setDecimals(1)
+        self.doubleSpinBoxLeftKneeWidth.setMaximum(999.000000000000000)
+        self.doubleSpinBoxLeftKneeWidth.setSingleStep(1.000000000000000)
+
+        self.horizontalLayout_9.addWidget(self.doubleSpinBoxLeftKneeWidth)
+
+
+        self.verticalLayout_10.addLayout(self.horizontalLayout_9)
+
+        self.horizontalLayout_15 = QHBoxLayout()
+        self.horizontalLayout_15.setObjectName(u"horizontalLayout_15")
+        self.horizontalLayout_15.setContentsMargins(5, -1, 5, -1)
+        self.label_13 = QLabel(self.groupBox_2)
+        self.label_13.setObjectName(u"label_13")
+        self.label_13.setMinimumSize(QSize(134, 0))
+
+        self.horizontalLayout_15.addWidget(self.label_13)
+
+        self.doubleSpinBoxLeftAnkleWidth = QDoubleSpinBox(self.groupBox_2)
+        self.doubleSpinBoxLeftAnkleWidth.setObjectName(u"doubleSpinBoxLeftAnkleWidth")
+        self.doubleSpinBoxLeftAnkleWidth.setDecimals(1)
+        self.doubleSpinBoxLeftAnkleWidth.setMaximum(999.000000000000000)
+
+        self.horizontalLayout_15.addWidget(self.doubleSpinBoxLeftAnkleWidth)
+
+
+        self.verticalLayout_10.addLayout(self.horizontalLayout_15)
+
+
+        self.verticalLayout_2.addWidget(self.groupBox_2)
+
+        self.groupBox_3 = QGroupBox(self.frameTrial)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.verticalLayout_11 = QVBoxLayout(self.groupBox_3)
+        self.verticalLayout_11.setObjectName(u"verticalLayout_11")
+        self.verticalLayout_11.setContentsMargins(6, 1, 3, 6)
         self.horizontalLayout_12 = QHBoxLayout()
         self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
         self.horizontalLayout_12.setContentsMargins(5, -1, 5, -1)
-        self.label_10 = QLabel(self.frameTrial)
+        self.label_10 = QLabel(self.groupBox_3)
         self.label_10.setObjectName(u"label_10")
         self.label_10.setMinimumSize(QSize(134, 0))
 
         self.horizontalLayout_12.addWidget(self.label_10)
 
-        self.doubleSpinBoxRightLegLength = QDoubleSpinBox(self.frameTrial)
+        self.doubleSpinBoxRightLegLength = QDoubleSpinBox(self.groupBox_3)
         self.doubleSpinBoxRightLegLength.setObjectName(u"doubleSpinBoxRightLegLength")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxRightLegLength.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxRightLegLength.setSizePolicy(sizePolicy1)
@@ -367,12 +348,61 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12.addWidget(self.doubleSpinBoxRightLegLength)
 
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_12)
+        self.verticalLayout_11.addLayout(self.horizontalLayout_12)
 
+        self.horizontalLayout_10 = QHBoxLayout()
+        self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
+        self.horizontalLayout_10.setContentsMargins(5, -1, 5, -1)
+        self.label_8 = QLabel(self.groupBox_3)
+        self.label_8.setObjectName(u"label_8")
+        self.label_8.setMinimumSize(QSize(134, 0))
+
+        self.horizontalLayout_10.addWidget(self.label_8)
+
+        self.doubleSpinBoxRightKneeWidth = QDoubleSpinBox(self.groupBox_3)
+        self.doubleSpinBoxRightKneeWidth.setObjectName(u"doubleSpinBoxRightKneeWidth")
+        sizePolicy1.setHeightForWidth(self.doubleSpinBoxRightKneeWidth.sizePolicy().hasHeightForWidth())
+        self.doubleSpinBoxRightKneeWidth.setSizePolicy(sizePolicy1)
+        self.doubleSpinBoxRightKneeWidth.setDecimals(1)
+        self.doubleSpinBoxRightKneeWidth.setMaximum(999.000000000000000)
+        self.doubleSpinBoxRightKneeWidth.setSingleStep(1.000000000000000)
+
+        self.horizontalLayout_10.addWidget(self.doubleSpinBoxRightKneeWidth)
+
+
+        self.verticalLayout_11.addLayout(self.horizontalLayout_10)
+
+        self.horizontalLayout_16 = QHBoxLayout()
+        self.horizontalLayout_16.setObjectName(u"horizontalLayout_16")
+        self.horizontalLayout_16.setContentsMargins(5, -1, 5, -1)
+        self.label_14 = QLabel(self.groupBox_3)
+        self.label_14.setObjectName(u"label_14")
+        self.label_14.setMinimumSize(QSize(134, 0))
+
+        self.horizontalLayout_16.addWidget(self.label_14)
+
+        self.doubleSpinBoxRightAnkleWidth = QDoubleSpinBox(self.groupBox_3)
+        self.doubleSpinBoxRightAnkleWidth.setObjectName(u"doubleSpinBoxRightAnkleWidth")
+        self.doubleSpinBoxRightAnkleWidth.setDecimals(1)
+        self.doubleSpinBoxRightAnkleWidth.setMaximum(999.000000000000000)
+
+        self.horizontalLayout_16.addWidget(self.doubleSpinBoxRightAnkleWidth)
+
+
+        self.verticalLayout_11.addLayout(self.horizontalLayout_16)
+
+
+        self.verticalLayout_2.addWidget(self.groupBox_3)
+
+        self.groupBox_4 = QGroupBox(self.frameTrial)
+        self.groupBox_4.setObjectName(u"groupBox_4")
+        self.verticalLayout_12 = QVBoxLayout(self.groupBox_4)
+        self.verticalLayout_12.setObjectName(u"verticalLayout_12")
+        self.verticalLayout_12.setContentsMargins(6, 1, 3, 6)
         self.horizontalLayout_4 = QHBoxLayout()
         self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
         self.horizontalLayout_4.setContentsMargins(5, -1, 5, -1)
-        self.label_3 = QLabel(self.frameTrial)
+        self.label_3 = QLabel(self.groupBox_4)
         self.label_3.setObjectName(u"label_3")
         sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy3.setHorizontalStretch(0)
@@ -383,7 +413,7 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_4.addWidget(self.label_3)
 
-        self.doubleSpinBoxMarkerDiameter = QDoubleSpinBox(self.frameTrial)
+        self.doubleSpinBoxMarkerDiameter = QDoubleSpinBox(self.groupBox_4)
         self.doubleSpinBoxMarkerDiameter.setObjectName(u"doubleSpinBoxMarkerDiameter")
         sizePolicy1.setHeightForWidth(self.doubleSpinBoxMarkerDiameter.sizePolicy().hasHeightForWidth())
         self.doubleSpinBoxMarkerDiameter.setSizePolicy(sizePolicy1)
@@ -392,7 +422,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.doubleSpinBoxMarkerDiameter)
 
 
-        self.verticalLayout_2.addLayout(self.horizontalLayout_4)
+        self.verticalLayout_12.addLayout(self.horizontalLayout_4)
+
+
+        self.verticalLayout_2.addWidget(self.groupBox_4)
 
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
@@ -552,6 +585,7 @@ class Ui_MainWindow(object):
         self.pushButtonInputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
         self.label_5.setText(QCoreApplication.translate("MainWindow", u"Output:", None))
         self.pushButtonOutputDirectoryChooser.setText(QCoreApplication.translate("MainWindow", u"...", None))
+        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"General", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"Sex:", None))
         self.comboBoxSex.setItemText(0, QCoreApplication.translate("MainWindow", u"Female", None))
         self.comboBoxSex.setItemText(1, QCoreApplication.translate("MainWindow", u"Male", None))
@@ -559,15 +593,18 @@ class Ui_MainWindow(object):
         self.comboBoxSex.setCurrentText("")
         self.comboBoxSex.setPlaceholderText(QCoreApplication.translate("MainWindow", u"-", None))
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"Age:", None))
-        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Height (mm):", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"Body Mass (kg):", None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"Height (mm):", None))
         self.label_15.setText(QCoreApplication.translate("MainWindow", u"Inter ASIS Distance (mm):", None))
-        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Left Knee Width (mm):", None))
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Right Knee Width (mm):", None))
-        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Left Ankle Width (mm):", None))
-        self.label_14.setText(QCoreApplication.translate("MainWindow", u"Right Ankle Width (mm):", None))
-        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Left Leg Length (mm):", None))
-        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Right Leg Length (mm):", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("MainWindow", u"Left", None))
+        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Leg Length (mm):", None))
+        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Knee Width (mm):", None))
+        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Ankle Width (mm):", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("MainWindow", u"Right", None))
+        self.label_10.setText(QCoreApplication.translate("MainWindow", u"Leg Length (mm):", None))
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Knee Width (mm):", None))
+        self.label_14.setText(QCoreApplication.translate("MainWindow", u"Ankle Width (mm):", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Marker", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Marker Diameter (mm):", None))
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Process Data", None))
         self.pushButtonHarmonise.setText(QCoreApplication.translate("MainWindow", u"Harmonise Data", None))
