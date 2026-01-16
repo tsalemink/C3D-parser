@@ -182,14 +182,17 @@ class MainWindow(QMainWindow):
     def _setup_spatiotemporal_display(self):
         self._spatiotemporal_tables = []
 
-    def _visualise_spatiotemporal_data(self):
+    def _clear_spatiotemporal_data(self):
         layout = self._ui.scrollAreaSpatiotemporal.layout()
 
-        # Clear existing tables.
         for table in self._spatiotemporal_tables:
             layout.removeWidget(table)
             table.deleteLater()
         self._spatiotemporal_tables = []
+
+    def _visualise_spatiotemporal_data(self):
+        layout = self._ui.scrollAreaSpatiotemporal.layout()
+        self._clear_spatiotemporal_data()
 
         # Create spatio-temporal tables.
         for trial, df in self._s_t_data.items():
@@ -287,6 +290,7 @@ class MainWindow(QMainWindow):
             self._reset_grf_plots()
             self._reset_kinematic_plots()
             self._reset_kinetic_plots()
+            self._clear_spatiotemporal_data()
 
     def _validate_directory(self):
         input_directory = self._ui.lineEditInputDirectory.text()
