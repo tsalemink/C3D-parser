@@ -151,9 +151,9 @@ class MainWindow(QMainWindow):
     def _setup_kinematic_figures(self):
         self._kinematic_canvas = FigureCanvasQTAgg(Figure())
         self._kinematic_plots = []
-        for i in range(3):
-            for j in range(4 if i == 2 else 3):
-                plot = self._kinematic_canvas.figure.add_subplot(3, 4, i * 4 + j + 1)
+        for i in range(4):
+            for j in range(1 if i == 2 else 3):
+                plot = self._kinematic_canvas.figure.add_subplot(4, 3, i * 3 + j + 1)
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
                 self._kinematic_plots.append(plot)
@@ -662,7 +662,7 @@ class MainWindow(QMainWindow):
 
             plot.set_xticks([0, 20, 40, 60, 80, 100])
             plot.tick_params(axis='x', which='both', bottom=True, labelbottom=False)
-            if i in [6, 7, 8, 9]:
+            if i in [7, 8, 9]:
                 plot.set_xticklabels(['0%', '20%', '40%', '60%', '80%', '100%'], fontsize=9)
                 plot.tick_params(axis='x', labelbottom=True)
                 plot.set_xlabel("Gait Cycle (%)", fontsize=9)
