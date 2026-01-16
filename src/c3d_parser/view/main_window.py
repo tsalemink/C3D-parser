@@ -794,6 +794,7 @@ class MainWindow(QMainWindow):
         settings.setValue('pos', self.pos())
         settings.setValue('is_maximized', self.isMaximized())
         settings.setValue('lab', self._ui.comboBoxLab.currentText())
+        settings.setValue('marker_diameter', self._ui.doubleSpinBoxMarkerDiameter.value())
         settings.endGroup()
 
         settings.beginGroup('Options')
@@ -816,6 +817,8 @@ class MainWindow(QMainWindow):
                 self.showMaximized()
         if settings.contains('lab'):
             self._ui.comboBoxLab.setCurrentText(settings.value('lab'))
+        if settings.contains('marker_diameter'):
+            self._ui.doubleSpinBoxMarkerDiameter.setValue(float(settings.value('marker_diameter')))
         settings.endGroup()
 
         settings.beginGroup('Options')
