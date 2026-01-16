@@ -600,7 +600,7 @@ def extract_static_data(file_path):
 
         if 'PROCESSING' not in reader:
             logger.warn("No processing section found in static trial.")
-            return None, None, None, None, None, None
+            return None, None, None, None, None, None, None, None, None
 
         processing_group = reader.get('PROCESSING')
         height = weight = asis_width = left_knee_width = right_knee_width = None

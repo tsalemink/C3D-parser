@@ -319,6 +319,8 @@ class MainWindow(QMainWindow):
                 line_edit.setText(directory)
 
     def _scan_directory(self):
+        self._clear_subject_info()
+
         directory = self._ui.lineEditInputDirectory.text()
         self._ui.listWidgetFiles.clear()
         for root, dirs, files in os.walk(directory):
@@ -348,6 +350,19 @@ class MainWindow(QMainWindow):
             if static_trial != self._static_trial:
                 self._set_subject_info(static_trial)
                 self._static_trial = static_trial
+
+    def _clear_subject_info(self):
+        self._ui.comboBoxSex.setCurrentIndex(-1)
+        self._ui.spinBoxAge.setValue(0)
+        self._ui.doubleSpinBoxHeight.setValue(0)
+        self._ui.doubleSpinBoxBodyMass.setValue(0)
+        self._ui.doubleSpinBoxASISWidth.setValue(0)
+        self._ui.doubleSpinBoxLeftKneeWidth.setValue(0)
+        self._ui.doubleSpinBoxRightKneeWidth.setValue(0)
+        self._ui.doubleSpinBoxLeftAnkleWidth.setValue(0)
+        self._ui.doubleSpinBoxRightAnkleWidth.setValue(0)
+        self._ui.doubleSpinBoxLeftLegLength.setValue(0)
+        self._ui.doubleSpinBoxRightLegLength.setValue(0)
 
     def _set_subject_info(self, static_trial):
         input_directory = self._ui.lineEditInputDirectory.text()
