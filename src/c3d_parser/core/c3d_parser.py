@@ -1040,13 +1040,13 @@ def normalise_kinetics(kinetic_data, events):
                 f'hip_flexion_{side}_moment',
                 f'hip_adduction_{side}_moment',
                 f'hip_rotation_{side}_moment',
-                f'hip_flexion_{side}_power',
                 f'knee_flexion_{side}_moment',
                 f'knee_adduction_{side}_moment',
                 f'knee_rotation_{side}_moment',
-                f'knee_flexion_{side}_power',
                 f'ankle_angle_{side}_moment',
                 f'subtalar_angle_{side}_moment',
+                f'hip_flexion_{side}_power',
+                f'knee_flexion_{side}_power',
                 f'ankle_angle_{side}_power'
             ]
             data = trial_data.loc[:, ['time'] + names]

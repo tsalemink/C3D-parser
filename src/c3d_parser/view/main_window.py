@@ -165,12 +165,10 @@ class MainWindow(QMainWindow):
     def _setup_kinetic_figures(self):
         self._kinetic_canvas = FigureCanvasQTAgg(Figure())
         self._kinetic_plots = []
-        for i in range(3):
-            for j in range(4):
-                index = i * 4 + j + 1
-                if index == 12:
-                    continue
-                plot = self._kinetic_canvas.figure.add_subplot(3, 4, index)
+        for i in range(4):
+            for j in range(2 if i == 2 else 3):
+                index = i * 3 + j + 1
+                plot = self._kinetic_canvas.figure.add_subplot(4, 3, index)
                 plot.tick_params(axis='x', which='both', labelbottom=False, bottom=False)
                 plot.tick_params(axis='y', which='both', labelleft=False, left=False)
                 self._kinetic_plots.append(plot)
@@ -672,26 +670,26 @@ class MainWindow(QMainWindow):
             0: ('Hip Extensor Moment', 'Nm/kg', 'Ext', 'Flx'),
             1: ('Hip Abductor Moment', 'Nm/kg', 'Abd', 'Add'),
             2: ('Hip Rotator Moment', 'Nm/kg', 'Int', 'Ext'),
-            3: ('Hip Power (Sagittal)', 'W/kg', 'Gen', 'Abs'),
-            4: ('Knee Extensor Moment', 'Nm/kg', 'Ext', 'Flx'),
-            5: ('Knee Abductor Moment', 'Nm/kg', 'Abd', 'Add'),
-            6: ('Knee Rotator Moment', 'Nm/kg', 'Int', 'Ext'),
-            7: ('Knee Power (Sagittal)', 'W/kg', 'Gen', 'Abs'),
-            8: ('Ankle Dorsiflexor Moment', 'Nm/kg', 'Pla', 'Dor'),
-            9: ('Subtalar Inverter Moment', 'Nm/kg', 'Inv', 'Eve'),
+            3: ('Knee Extensor Moment', 'Nm/kg', 'Ext', 'Flx'),
+            4: ('Knee Abductor Moment', 'Nm/kg', 'Abd', 'Add'),
+            5: ('Knee Rotator Moment', 'Nm/kg', 'Int', 'Ext'),
+            6: ('Ankle Dorsiflexor Moment', 'Nm/kg', 'Pla', 'Dor'),
+            7: ('Subtalar Inverter Moment', 'Nm/kg', 'Inv', 'Eve'),
+            8: ('Hip Power (Sagittal)', 'W/kg', 'Gen', 'Abs'),
+            9: ('Knee Power (Sagittal)', 'W/kg', 'Gen', 'Abs'),
             10: ('Ankle Power (Sagittal)', 'W/kg', 'Gen', 'Abs')
         }
 
         self._kinetic_plots[0].set_ylim(-2.0, 3.0)      # Hip Extensor
         self._kinetic_plots[1].set_ylim(-1.0, 2.0)      # Hip Abductor
         self._kinetic_plots[2].set_ylim(-0.5, 0.5)      # Hip Rotator
-        self._kinetic_plots[3].set_ylim(-3.0, 3.0)      # Total Hip
-        self._kinetic_plots[4].set_ylim(-1.0, 1.0)      # Knee Extensor
-        self._kinetic_plots[5].set_ylim(-1.0, 1.0)      # Knee Abductor
-        self._kinetic_plots[6].set_ylim(-0.5, 0.5)      # Knee Rotator
-        self._kinetic_plots[7].set_ylim(-3.0, 3.0)      # Total Knee
-        self._kinetic_plots[8].set_ylim(-1.0, 3.0)      # Ankle Dorsiflexor
-        self._kinetic_plots[9].set_ylim(-0.5, 0.5)      # Subtalar Inverter
+        self._kinetic_plots[3].set_ylim(-1.0, 1.0)      # Knee Extensor
+        self._kinetic_plots[4].set_ylim(-1.0, 1.0)      # Knee Abductor
+        self._kinetic_plots[5].set_ylim(-0.5, 0.5)      # Knee Rotator
+        self._kinetic_plots[6].set_ylim(-1.0, 3.0)      # Ankle Dorsiflexor
+        self._kinetic_plots[7].set_ylim(-0.5, 0.5)      # Subtalar Inverter
+        self._kinetic_plots[8].set_ylim(-3.0, 3.0)      # Total Hip
+        self._kinetic_plots[9].set_ylim(-3.0, 3.0)      # Total Knee
         self._kinetic_plots[10].set_ylim(-2.0, 5.0)     # Total Ankle
 
         for i, plot in enumerate(self._kinetic_plots):
@@ -711,7 +709,7 @@ class MainWindow(QMainWindow):
 
             plot.set_xticks([0, 20, 40, 60, 80, 100])
             plot.tick_params(axis='x', which='both', bottom=True, labelbottom=False)
-            if i in [7, 8, 9, 10]:
+            if i in [8, 9, 10]:
                 plot.set_xticklabels(['0%', '20%', '40%', '60%', '80%', '100%'], fontsize=9)
                 plot.tick_params(axis='x', labelbottom=True)
                 plot.set_xlabel("Gait Cycle (%)", fontsize=9)
