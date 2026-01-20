@@ -15,11 +15,12 @@ from matplotlib.figure import Figure
 
 from c3d_parser.core.c3d_parser import (parse_session, extract_static_data, extract_marker_names, is_dynamic,
     CancelException, write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data)
+from c3d_parser.settings.general import (APPLICATION_NAME, VERSION, DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET,
+                                         get_marker_maps_dir)
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
 from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
 from c3d_parser.view.dialogs.about_dialog import AboutDialog
-from c3d_parser.settings.general import DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET, get_marker_maps_dir
 from c3d_parser.view.utils import handle_runtime_error
 from c3d_parser.settings.logging import logger
 
@@ -59,6 +60,8 @@ class MainWindow(QMainWindow):
 
         self._ui = Ui_MainWindow()
         self._ui.setupUi(self)
+
+        self.setWindowTitle(f"{APPLICATION_NAME} {VERSION}")
 
         # Initialise user settings.
         self._line_width = 1.0
