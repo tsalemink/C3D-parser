@@ -1201,15 +1201,15 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
             foot_events[foot] = event_time
 
             # Calculate single and double support phases.
+            if stride_numbers[foot] not in phases[foot]:
+                phases[foot][stride_numbers[foot]] = {}
             if stride_numbers[opposite_foot] not in phases[opposite_foot]:
                 phases[opposite_foot][stride_numbers[opposite_foot]] = {}
             if foot_events[opposite_foot] is not None:
                 time_interval = event_time - foot_events[opposite_foot]
-                if event_type == "Foot Strike":
-                    phases[opposite_foot][stride_numbers[opposite_foot]]["Single-Support"] = time_interval
-                    cadences[opposite_foot][stride_numbers[opposite_foot]] = 60 / time_interval
-                elif event_type == "Foot Off":
-                    phases[opposite_foot][stride_numbers[opposite_foot]]["Double-Support"] = time_interval
+                if event_type == "Foot Off":
+                    phases[opposite_foot][stride_numbers[opposite_foot]]["Initial-DS"] = time_interval
+                    phases[foot][stride_numbers[foot]]["Terminal-DS"] = time_interval
 
     s_t_data = {}
 
@@ -1250,10 +1250,10 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                 stance_phases[side][cycle_number] = (cycle["Stance"] / total_time) * 100
                 swing_phases[side][cycle_number] = (cycle["Swing"] / total_time) * 100
 
-            if "Single-Support" in cycle and "Double-Support" in cycle:
-                total_time = cycle["Single-Support"] + cycle["Double-Support"]
-                single_support_phases[side][cycle_number] = (cycle["Single-Support"] / total_time) * 100
-                double_support_phases[side][cycle_number] = (cycle["Double-Support"] / total_time) * 100
+                if "Initial-DS" in cycle and "Terminal-DS" in cycle:
+                    ds_time = cycle["Initial-DS"] + cycle["Terminal-DS"]
+                    single_support_phases[side][cycle_number] = ((cycle["Stance"] - ds_time) / total_time) * 100
+                    double_support_phases[side][cycle_number] = (ds_time / total_time) * 100
 
     # Assign phase percentages.
     s_t_data["Stance Phase %"] = stance_phases
