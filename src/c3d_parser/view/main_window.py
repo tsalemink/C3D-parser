@@ -328,6 +328,7 @@ class MainWindow(QMainWindow):
 
         directory = self._ui.lineEditInputDirectory.text()
         self._ui.listWidgetFiles.clear()
+        self._static_trial = None
         for root, dirs, files in os.walk(directory):
             if output_direcory_name in dirs:
                 dirs.remove(output_direcory_name)
