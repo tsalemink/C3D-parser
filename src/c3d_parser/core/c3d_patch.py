@@ -1,6 +1,5 @@
 
 import c3d
-import logging
 
 import numpy as np
 
@@ -61,9 +60,28 @@ def _check_metadata(self):
     check_metadata_base(self)
 
 
+def add_param(self, name, **kwargs):
+    """
+    This method overrides `add_param` so that it can handle C3D files created in Nexus versions
+    earlier than 2.0. For some reason these files cause `c3d` to crash when reading them in,
+    claiming that the parameters already exist.
+
+    When this function is called to create a parameter that already exists, it will return instead
+    of raising an error.
+    """
+    if not isinstance(name, str):
+        raise TypeError("Expected 'name' argument to be a string, was of type {}".format(type(name)))
+    name = name.upper()
+    if name in self._params:
+        logger.warning(f"Duplicate parameters found in input file.")
+        return
+    self._params[name] = c3d.Param(name, self._dtypes, **kwargs)
+
+
 # Patch methods.
 c3d.Writer.add_frames = add_frames
 c3d.Reader.parameter_blocks = parameter_blocks
 c3d.Writer.parameter_blocks = parameter_blocks
 c3d.Writer.set_point_labels = set_point_labels
 c3d.Reader._check_metadata = _check_metadata
+c3d.Group.add_param = add_param
