@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="mapclient">
+    <file>images/app-icon.png</file>
+  </qresource>
+</RCC>

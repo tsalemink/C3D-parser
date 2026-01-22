@@ -23,12 +23,16 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox, QFrame,
     QSplitter, QTabWidget, QVBoxLayout, QWidget)
 
 from c3d_parser.view.widgets import CustomListWidget
+from . import resources_rc
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(1500, 800)
+        icon = QIcon()
+        icon.addFile(u":/mapclient/images/app-icon.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
+        MainWindow.setWindowIcon(icon)
         self.actionQuit = QAction(MainWindow)
         self.actionQuit.setObjectName(u"actionQuit")
         self.actionOptions = QAction(MainWindow)
