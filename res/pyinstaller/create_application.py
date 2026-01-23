@@ -39,6 +39,9 @@ def main():
         rcc_exe = os.path.join(pyside_dir, "rcc.exe")
         uic_exe = os.path.join(pyside_dir, "uic.exe")
 
+        win_icon = os.path.join(here, '..', 'win', 'Motion_Connect.ico')
+        run_command.append(f'--icon={win_icon}')
+
     else:
         raise NotImplementedError("Platform is not supported for creating this application.")
 

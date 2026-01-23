@@ -34,7 +34,7 @@
 ;-------------------------------------------------------------------------------
 ; Interface Settings
     !define MUI_ABORTWARNING
-    !define MUI_ICON "{win_res_dir}\ABI.ico"
+    !define MUI_ICON "{win_res_dir}\Motion_Connect.ico"
 
 ;-------------------------------------------------------------------------------
 ; Installer Pages

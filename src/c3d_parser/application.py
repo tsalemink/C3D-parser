@@ -1,5 +1,6 @@
 
 import sys
+import ctypes
 
 from PySide6.QtWidgets import QApplication
 
@@ -10,6 +11,10 @@ from c3d_parser.settings.logging import initialise_logger, filter_c3d_warnings
 
 
 def main():
+    if sys.platform == 'win32':
+        my_app_id = 'Motion_Connect.C3D_Parser'
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(my_app_id)
+
     app = QApplication(sys.argv)
     set_applications_settings(app)
     setup_marker_maps_dir()
