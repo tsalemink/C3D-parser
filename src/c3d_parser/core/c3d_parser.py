@@ -327,7 +327,7 @@ def harmonise_markers(frame_data, lab, required_markers):
 
     # Filter out non-harmonised data points.
     if None in frame_data.columns:
-        frame_data.drop(columns=[None], axis=1, inplace=True)
+        frame_data.drop(columns=frame_data.columns[frame_data.columns.isna()], inplace=True)
 
     # Ensure required markers are present.
     available = set(frame_data.columns)
