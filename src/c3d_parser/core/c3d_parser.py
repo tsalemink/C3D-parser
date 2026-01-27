@@ -408,7 +408,7 @@ def resample_data(frame_data, data_rate, frequency=100):
 
     start_time = frame_data.iloc[:, 0].iat[0]
     end_time = frame_data.iloc[:, 0].iat[-1]
-    number_of_frames = int((end_time - start_time) * frequency)
+    number_of_frames = round(end_time * frequency) - round(start_time * frequency) + 1
     time_array = np.linspace(start_time, end_time, number_of_frames)
 
     resampled_frame_data = pd.DataFrame(columns=frame_data.columns)
@@ -435,7 +435,7 @@ def resample_data(frame_data, data_rate, frequency=100):
         for i in range(resampled_trajectory.shape[0]):
             flattened_array[i] = resampled_trajectory[i]
         resampled_frame_data.loc[:, column] = flattened_array
-        resampled_frame_data.index = pd.RangeIndex(start=1, stop=len(resampled_frame_data) + 1, step=1)
+        resampled_frame_data.index = pd.RangeIndex(start=0, stop=len(resampled_frame_data), step=1)
 
     return resampled_frame_data
 
