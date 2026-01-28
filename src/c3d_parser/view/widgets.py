@@ -9,6 +9,10 @@ class CustomListWidget(QListWidget):
     exclude_trial = Signal(str)
     include_kinetics = Signal(str)
     exclude_kinetics = Signal(str)
+    include_left = Signal(str)
+    exclude_left = Signal(str)
+    include_right = Signal(str)
+    exclude_right = Signal(str)
     category_changed = Signal()
 
     def __init__(self, parent=None):
@@ -36,6 +40,16 @@ class CustomListWidget(QListWidget):
                 include_kinetics_action.triggered.connect(lambda: self.include_kinetics.emit(item.text()))
                 exclude_kinetics_action.triggered.connect(lambda: self.exclude_kinetics.emit(item.text()))
 
+                include_left_action = QAction("Include Left", self)
+                exclude_left_action = QAction("Exclude Left", self)
+                include_left_action.triggered.connect(lambda: self.include_left.emit(item.text()))
+                exclude_left_action.triggered.connect(lambda: self.exclude_left.emit(item.text()))
+
+                include_right_action = QAction("Include Right", self)
+                exclude_right_action = QAction("Exclude Right", self)
+                include_right_action.triggered.connect(lambda: self.include_right.emit(item.text()))
+                exclude_right_action.triggered.connect(lambda: self.exclude_right.emit(item.text()))
+
                 menu.addAction(static_action)
                 menu.addAction(dynamic_action)
                 menu.addSeparator()
@@ -44,6 +58,11 @@ class CustomListWidget(QListWidget):
                 menu.addSeparator()
                 menu.addAction(include_kinetics_action)
                 menu.addAction(exclude_kinetics_action)
+                menu.addSeparator()
+                menu.addAction(include_left_action)
+                menu.addAction(exclude_left_action)
+                menu.addAction(include_right_action)
+                menu.addAction(exclude_right_action)
 
                 menu.exec_(event.globalPos())
 

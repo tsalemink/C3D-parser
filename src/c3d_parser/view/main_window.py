@@ -281,6 +281,10 @@ class MainWindow(QMainWindow):
         self._ui.listWidgetFiles.exclude_trial.connect(self._exclude_trial)
         self._ui.listWidgetFiles.include_kinetics.connect(self._include_kinetics)
         self._ui.listWidgetFiles.exclude_kinetics.connect(self._exclude_kinetics)
+        self._ui.listWidgetFiles.include_left.connect(self._include_left)
+        self._ui.listWidgetFiles.exclude_left.connect(self._exclude_left)
+        self._ui.listWidgetFiles.include_right.connect(self._include_right)
+        self._ui.listWidgetFiles.exclude_right.connect(self._exclude_right)
         self._ui.listWidgetFiles.category_changed.connect(self._update_subject_info)
 
     def _validate_input_directory(self):
@@ -858,6 +862,22 @@ class MainWindow(QMainWindow):
     def _exclude_kinetics(self, file_name):
         self._kinetic_curves.exclude_trial(file_name)
 
+    def _include_left(self, file_name):
+        for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
+            curves.include_side(file_name, "Left")
+
+    def _exclude_left(self, file_name):
+        for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
+            curves.exclude_side(file_name, "Left")
+
+    def _include_right(self, file_name):
+        for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
+            curves.include_side(file_name, "Right")
+
+    def _exclude_right(self, file_name):
+        for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
+            curves.exclude_side(file_name, "Right")
+
 
 class GaitCurves(defaultdict):
 
@@ -972,15 +992,24 @@ class GaitCurves(defaultdict):
         self._selected_curves = []
 
     def include_trial(self, file_name):
-        for cycle, lines in self[file_name].items():
-            self._excluded_cycles.difference_update([(file_name, cycle), ])
+        for cycle in self[file_name].keys():
             colour = 'red' if "Left" in cycle else 'blue'
-            for line in lines:
-                line.set_linestyle('solid')
-                line.set_color(colour)
-                line.set_zorder(2)
-
+            self._include_cycle(file_name, cycle, colour)
         self._canvas.draw()
+
+    def include_side(self, file_name, side):
+        colour = 'red' if side == "Left" else 'blue'
+        for cycle in self[file_name].keys():
+            if side in cycle:
+                self._include_cycle(file_name, cycle, colour)
+        self._canvas.draw()
+
+    def _include_cycle(self, file_name, cycle, colour):
+        self._excluded_cycles.difference_update([(file_name, cycle), ])
+        for line in self[file_name][cycle]:
+            line.set_linestyle('solid')
+            line.set_color(colour)
+            line.set_zorder(2)
 
     def update_line_width(self, line_width):
         for cycles in self.values():
@@ -1008,15 +1037,24 @@ class GaitCurves(defaultdict):
         self._selected_curves = []
 
     def exclude_trial(self, file_name):
-        for cycle, lines in self[file_name].items():
-            self._excluded_cycles.update([(file_name, cycle)], )
+        for cycle in self[file_name].keys():
             colour = 'red' if "Left" in cycle else 'blue'
-            for line in lines:
-                line.set_linestyle('dotted')
-                line.set_color(colour)
-                line.set_zorder(1)
-
+            self._exclude_cycle(file_name, cycle, colour)
         self._canvas.draw()
+
+    def exclude_side(self, file_name, side):
+        colour = 'red' if side == "Left" else 'blue'
+        for cycle in self[file_name].keys():
+            if side in cycle:
+                self._exclude_cycle(file_name, cycle, colour)
+        self._canvas.draw()
+
+    def _exclude_cycle(self, file_name, cycle, colour):
+        self._excluded_cycles.update([(file_name, cycle)], )
+        for line in self[file_name][cycle]:
+            line.set_linestyle('dotted')
+            line.set_color(colour)
+            line.set_zorder(1)
 
     def get_excluded_cycles(self):
         return self._excluded_cycles
