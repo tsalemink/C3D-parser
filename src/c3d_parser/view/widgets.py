@@ -7,6 +7,8 @@ from PySide6.QtGui import QAction
 class CustomListWidget(QListWidget):
     include_trial = Signal(str)
     exclude_trial = Signal(str)
+    include_kinetics = Signal(str)
+    exclude_kinetics = Signal(str)
     category_changed = Signal()
 
     def __init__(self, parent=None):
@@ -29,11 +31,19 @@ class CustomListWidget(QListWidget):
                 include_trial_action.triggered.connect(lambda: self.include_trial.emit(item.text()))
                 exclude_trial_action.triggered.connect(lambda: self.exclude_trial.emit(item.text()))
 
+                include_kinetics_action = QAction("Include Kinetics", self)
+                exclude_kinetics_action = QAction("Exclude Kinetics", self)
+                include_kinetics_action.triggered.connect(lambda: self.include_kinetics.emit(item.text()))
+                exclude_kinetics_action.triggered.connect(lambda: self.exclude_kinetics.emit(item.text()))
+
                 menu.addAction(static_action)
                 menu.addAction(dynamic_action)
                 menu.addSeparator()
                 menu.addAction(include_trial_action)
                 menu.addAction(exclude_trial_action)
+                menu.addSeparator()
+                menu.addAction(include_kinetics_action)
+                menu.addAction(exclude_kinetics_action)
 
                 menu.exec_(event.globalPos())
 

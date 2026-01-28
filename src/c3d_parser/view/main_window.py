@@ -279,6 +279,8 @@ class MainWindow(QMainWindow):
 
         self._ui.listWidgetFiles.include_trial.connect(self._include_trial)
         self._ui.listWidgetFiles.exclude_trial.connect(self._exclude_trial)
+        self._ui.listWidgetFiles.include_kinetics.connect(self._include_kinetics)
+        self._ui.listWidgetFiles.exclude_kinetics.connect(self._exclude_kinetics)
         self._ui.listWidgetFiles.category_changed.connect(self._update_subject_info)
 
     def _validate_input_directory(self):
@@ -849,6 +851,12 @@ class MainWindow(QMainWindow):
     def _exclude_trial(self, file_name):
         for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
             curves.exclude_trial(file_name)
+
+    def _include_kinetics(self, file_name):
+        self._kinetic_curves.include_trial(file_name)
+
+    def _exclude_kinetics(self, file_name):
+        self._kinetic_curves.exclude_trial(file_name)
 
 
 class GaitCurves(defaultdict):
