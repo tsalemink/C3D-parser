@@ -408,7 +408,7 @@ def resample_data(frame_data, data_rate, frequency=100):
 
     start_time = frame_data.iloc[:, 0].iat[0]
     end_time = frame_data.iloc[:, 0].iat[-1]
-    number_of_frames = round(end_time * frequency) - round(start_time * frequency) + 1
+    number_of_frames = round((end_time - start_time) * frequency) + 1
     time_array = np.linspace(start_time, end_time, number_of_frames)
 
     resampled_frame_data = pd.DataFrame(columns=frame_data.columns)
