@@ -1139,7 +1139,7 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
             columns = [i for i in range(data.shape[1]) if i not in model.get_excluded_cycles()]
 
             def draw_box(min_value, max_value, mean, total, side=None):
-                if pd.isna(mean):
+                if pd.isna(mean) or pd.isna(total):
                     return
 
                 margin = 4
