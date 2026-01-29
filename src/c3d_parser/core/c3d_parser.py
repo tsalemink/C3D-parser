@@ -552,9 +552,12 @@ def extract_data(file_path, start_frame, end_frame):
 
         for i in range(event_count):
             foot = contexts[i].strip()
-            label = labels[i].strip()
-            event_time = times[i][1]
-            events[foot][event_time] = label
+            if foot:
+                label = labels[i].strip()
+                event_time = times[i][1]
+                events[foot][event_time] = label
+        if not any(events.values()):
+            raise ParserError("Event context (side) missing.")
 
         for foot in events.keys():
             events[foot] = dict(sorted(events[foot].items()))
