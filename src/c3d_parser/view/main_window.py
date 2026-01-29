@@ -1173,7 +1173,7 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
                     painter.drawLine(left, centre_y, right, centre_y)
 
             # Calculate slightly-arbitrary max value for meter metrics.
-            max_value = data.iloc[:2, :-1].max().max() + 0.40
+            max_value = data.iloc[:2, :].max().max() + 0.40
             if index.row() in [5, 6, 7, 8]:
                 max_value = 100
             else:
