@@ -76,11 +76,11 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         grf_file_paths[trial] = grf_file_path
         deidentified_file_names[trial] = os.path.basename(trc_file_path).rsplit(".", 1)[0]
 
-    dynamic_trc_path = list(trc_file_paths.values())[0] if dynamic_trials else ""
+    dynamic_trc_path = list(trc_file_paths.values())[0] if trc_file_paths else ""
     osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, marker_diameter, static_data,
                                    output_directory, optimise_knee_axis, progress_tracker)
 
-    if not dynamic_trials:
+    if not trc_file_paths:
         raise CancelException("No dynamic trials found.")
 
     progress_tracker.progress.emit("Running IK and ID", "black")
