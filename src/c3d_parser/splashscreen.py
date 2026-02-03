@@ -21,9 +21,16 @@ class SplashScreen(QSplashScreen):
         self._progress_bar = QProgressBar()
         self._progress_bar.setRange(0, 100)
         self._progress_bar.setTextVisible(False)
-        self._progress_bar.setStyleSheet("QProgressBar { background: transparent; }")
-        self._progress_bar.setGeometry(self._margin, 0, pixmap.width() - (2 * self._margin), 8)
-        self._bar_position = QPoint(self._margin, pixmap.height() - self._margin - 4)
+        self._progress_bar.setGeometry(self._margin, 0, pixmap.width() - (2 * self._margin), 4)
+        self._progress_bar.setStyleSheet("""
+            QProgressBar { background: transparent; }
+            QProgressBar::chunk {
+                background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #68A4D8, stop:1 #49C5D0);
+                border-radius: 2px;
+            }
+        """)
+
+        self._bar_position = QPoint(self._margin, pixmap.height() - self._margin - 2)
         self._text_y = pixmap.height() - int(60 * self.devicePixelRatioF())
         self._text_height = int(30 * self.devicePixelRatioF())
 
