@@ -92,10 +92,15 @@ class MainWindow(QMainWindow):
         self._kinetic_curves = GaitCurves(self._kinetic_canvas)
 
     def _setup_progress_bar(self):
-        self._timer = QTimer(self)
-        self._timer.timeout.connect(self._animate_progress_bar)
         self._progress_text = ""
-        self._dots = 0
+        self._progress_value = 0
+        self._ui.progressBar.setVisible(False)
+
+    def _clear_progress_bar(self):
+        self._progress_text = ""
+        self._ui.labelProgress.setText("")
+        self._progress_value = 0
+        self._ui.progressBar.setValue(0)
 
     def _setup_combo_boxes(self):
         self._reset_lab_combo_box()
@@ -490,7 +495,8 @@ class MainWindow(QMainWindow):
 
         self._progress_tracker = ProgressTracker()
         self._progress_tracker.progress.connect(self._update_progress)
-        self._start_progress_animation()
+        self._clear_progress_bar()
+        self._ui.progressBar.setVisible(True)
 
         self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, input_directory,
                                    self._output_directory, lab, marker_diameter, static_data,
@@ -510,19 +516,18 @@ class MainWindow(QMainWindow):
         self._visualise_spatiotemporal_data()
 
         self._show_selected_trials()
-        self._stop_progress_animation()
         self._progress_tracker.progress.emit("Process completed successfully", "green")
 
         self._ui.pushButtonParseData.setEnabled(True)
         self._ui.pushButtonHarmonise.setEnabled(True)
+        self._ui.progressBar.setVisible(False)
 
     def _parse_cancelled(self, e):
         logger.info(e)
-
-        self._stop_progress_animation()
         self._progress_tracker.progress.emit("Completed", "green")
 
         self._ui.pushButtonParseData.setEnabled(True)
+        self._ui.progressBar.setVisible(False)
 
     @handle_runtime_error
     def _parse_failed(self, e):
@@ -530,21 +535,13 @@ class MainWindow(QMainWindow):
 
         raise e
 
-    def _start_progress_animation(self):
-        self._timer.start(500)
-
-    def _stop_progress_animation(self):
-        self._timer.stop()
-
-    def _animate_progress_bar(self):
-        self._dots = (self._dots + 1) % 4
-        self._ui.labelProgress.setText(f"{self._progress_text}{'.' * self._dots}")
-
     def _update_progress(self, message, color):
         self._ui.labelProgress.setText(message)
         self._progress_text = message
-        self._dots = 0
         self._ui.labelProgress.setStyleSheet(f"color: {color};")
+
+        self._progress_value = min(self._progress_value + 20, 100)
+        self._ui.progressBar.setValue(self._progress_value)
 
     @handle_runtime_error
     def _harmonise_data(self):

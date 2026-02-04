@@ -19,8 +19,9 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
 from PySide6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox, QFrame,
     QGroupBox, QHBoxLayout, QLabel, QLineEdit,
     QListWidgetItem, QMainWindow, QMenu, QMenuBar,
-    QPushButton, QScrollArea, QSizePolicy, QSpinBox,
-    QSplitter, QTabWidget, QVBoxLayout, QWidget)
+    QProgressBar, QPushButton, QScrollArea, QSizePolicy,
+    QSpacerItem, QSpinBox, QSplitter, QTabWidget,
+    QVBoxLayout, QWidget)
 
 from c3d_parser.view.widgets import CustomListWidget
 from . import resources_rc
@@ -463,8 +464,9 @@ class Ui_MainWindow(object):
         self.frameVisualisation.setFrameShape(QFrame.Shape.StyledPanel)
         self.frameVisualisation.setFrameShadow(QFrame.Shadow.Raised)
         self.verticalLayout_3 = QVBoxLayout(self.frameVisualisation)
+        self.verticalLayout_3.setSpacing(3)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 4)
         self.tabWidget = QTabWidget(self.frameVisualisation)
         self.tabWidget.setObjectName(u"tabWidget")
         self.tabKinematic = QWidget()
@@ -510,7 +512,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaSpatiotemporal = QWidget()
         self.scrollAreaSpatiotemporal.setObjectName(u"scrollAreaSpatiotemporal")
-        self.scrollAreaSpatiotemporal.setGeometry(QRect(0, 0, 1193, 668))
+        self.scrollAreaSpatiotemporal.setGeometry(QRect(0, 0, 1193, 667))
         self.verticalLayout_5 = QVBoxLayout(self.scrollAreaSpatiotemporal)
         self.verticalLayout_5.setSpacing(40)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
@@ -524,8 +526,13 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.tabWidget)
 
         self.horizontalLayout_7 = QHBoxLayout()
+        self.horizontalLayout_7.setSpacing(8)
         self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
-        self.horizontalLayout_7.setContentsMargins(6, -1, -1, -1)
+        self.horizontalLayout_7.setContentsMargins(6, 1, 16, -1)
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+
+        self.horizontalLayout_7.addItem(self.horizontalSpacer)
+
         self.labelProgress = QLabel(self.frameVisualisation)
         self.labelProgress.setObjectName(u"labelProgress")
         sizePolicy6 = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
@@ -536,6 +543,18 @@ class Ui_MainWindow(object):
         self.labelProgress.setMinimumSize(QSize(0, 24))
 
         self.horizontalLayout_7.addWidget(self.labelProgress)
+
+        self.progressBar = QProgressBar(self.frameVisualisation)
+        self.progressBar.setObjectName(u"progressBar")
+        self.progressBar.setEnabled(True)
+        sizePolicy2.setHeightForWidth(self.progressBar.sizePolicy().hasHeightForWidth())
+        self.progressBar.setSizePolicy(sizePolicy2)
+        self.progressBar.setMinimumSize(QSize(200, 0))
+        self.progressBar.setValue(0)
+        self.progressBar.setTextVisible(False)
+        self.progressBar.setInvertedAppearance(False)
+
+        self.horizontalLayout_7.addWidget(self.progressBar)
 
 
         self.verticalLayout_3.addLayout(self.horizontalLayout_7)
