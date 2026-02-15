@@ -12,6 +12,8 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QMenu, QFileDialog, QL
                                QWidget, QVBoxLayout, QHBoxLayout)
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
+from pyvistaqt import QtInteractor
+from ll_visualiser.visualiser import visualise_model
 
 from c3d_parser.core.c3d_parser import (parse_session, extract_static_data, extract_marker_names, is_dynamic,
     CancelException, write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data)
@@ -86,6 +88,7 @@ class MainWindow(QMainWindow):
         self._load_settings()
         self._setup_progress_bar()
         self._validate_directory()
+        self._setup_visualiser()
 
         self._grf_curves = GaitCurves(self._grf_canvas)
         self._kinematic_curves = GaitCurves(self._kinematic_canvas)
@@ -95,6 +98,11 @@ class MainWindow(QMainWindow):
         self._progress_text = ""
         self._progress_value = 0
         self._ui.progressBar.setVisible(False)
+
+    def _setup_visualiser(self):
+        self._plotter = QtInteractor(self._ui.tabVisualiser)
+        self._plotter.set_background('#2b2b2b')
+        self._ui.tabVisualiser.layout().addWidget(self._plotter.interactor)
 
     def _clear_progress_bar(self):
         self._progress_text = ""
@@ -514,6 +522,7 @@ class MainWindow(QMainWindow):
         self._visualise_kinematic_data(self._kinematic_data)
         self._visualise_kinetic_data(self._kinetic_data)
         self._visualise_spatiotemporal_data()
+        self._visualise_model()
 
         self._show_selected_trials()
         self._progress_tracker.progress.emit("Process completed successfully", "green")
@@ -542,6 +551,12 @@ class MainWindow(QMainWindow):
 
         self._progress_value = min(self._progress_value + 20, 100)
         self._ui.progressBar.setValue(self._progress_value)
+
+    def _visualise_model(self):
+        model_directory = os.path.join(self._output_directory, "Models", "Meshes")
+        left_predicted_landmark_file = os.path.join(model_directory, 'predicted_lms_left.txt')
+        right_predicted_landmark_file = os.path.join(model_directory, 'predicted_lms_right.txt')
+        visualise_model(self._plotter, model_directory, left_predicted_landmark_file, right_predicted_landmark_file)
 
     @handle_runtime_error
     def _harmonise_data(self):

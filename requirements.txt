@@ -7,3 +7,4 @@ opensim-model-creator>=0.1.19
 PySide6
 matplotlib
 mplcursors
+pyvistaqt

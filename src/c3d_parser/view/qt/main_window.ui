@@ -894,6 +894,12 @@
             </item>
            </layout>
           </widget>
+          <widget class="QWidget" name="tabVisualiser">
+           <attribute name="title">
+            <string>Visualiser</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_13"/>
+          </widget>
          </widget>
         </item>
         <item>

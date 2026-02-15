@@ -522,6 +522,11 @@ class Ui_MainWindow(object):
         self.verticalLayout_8.addWidget(self.scrollArea)
 
         self.tabWidget.addTab(self.tabSpatiotemporal, "")
+        self.tabVisualiser = QWidget()
+        self.tabVisualiser.setObjectName(u"tabVisualiser")
+        self.verticalLayout_13 = QVBoxLayout(self.tabVisualiser)
+        self.verticalLayout_13.setObjectName(u"verticalLayout_13")
+        self.tabWidget.addTab(self.tabVisualiser, "")
 
         self.verticalLayout_3.addWidget(self.tabWidget)
 
@@ -638,6 +643,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinetic), QCoreApplication.translate("MainWindow", u"Kinetic", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSpatiotemporal), QCoreApplication.translate("MainWindow", u"Spatio-temporal", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabVisualiser), QCoreApplication.translate("MainWindow", u"Visualiser", None))
         self.labelProgress.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
