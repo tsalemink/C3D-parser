@@ -554,9 +554,12 @@ class MainWindow(QMainWindow):
 
     def _visualise_model(self):
         model_directory = os.path.join(self._output_directory, "Models", "Meshes")
+        left_original_landmark_file = os.path.join(model_directory, 'original_lms_left.txt')
+        right_original_landmark_file = os.path.join(model_directory, 'original_lms_right.txt')
         left_predicted_landmark_file = os.path.join(model_directory, 'predicted_lms_left.txt')
         right_predicted_landmark_file = os.path.join(model_directory, 'predicted_lms_right.txt')
-        visualise_model(self._plotter, model_directory, left_predicted_landmark_file, right_predicted_landmark_file)
+        visualise_model(self._plotter, model_directory, left_original_landmark_file, right_original_landmark_file,
+                        left_predicted_landmark_file, right_predicted_landmark_file)
 
     @handle_runtime_error
     def _harmonise_data(self):
