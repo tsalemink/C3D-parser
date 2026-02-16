@@ -104,6 +104,9 @@ class MainWindow(QMainWindow):
         self._plotter.set_background('#2b2b2b')
         self._ui.tabVisualiser.layout().addWidget(self._plotter.interactor)
 
+    def _clear_visualiser(self):
+        self._plotter.clear_actors()
+
     def _clear_progress_bar(self):
         self._progress_text = ""
         self._ui.labelProgress.setText("")
@@ -311,6 +314,7 @@ class MainWindow(QMainWindow):
             self._reset_kinematic_plots()
             self._reset_kinetic_plots()
             self._clear_spatiotemporal_data()
+            self._clear_visualiser()
 
     def _validate_directory(self):
         input_directory = self._ui.lineEditInputDirectory.text()
