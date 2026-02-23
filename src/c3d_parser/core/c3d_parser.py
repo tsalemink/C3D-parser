@@ -276,6 +276,8 @@ def set_marker_data(trc_data, frame_data, rate=100):
     trc_data['DataRate'] = rate
     trc_data['CameraRate'] = rate
     trc_data['NumFrames'] = frame_data.shape[0]
+    trc_data['OrigDataStartFrame'] = trc_data['Frame#'][0]
+    trc_data['OrigNumFrames'] = frame_data.shape[0]
 
 
 def write_trc_data(trc_data, file_name, output_directory):
