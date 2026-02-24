@@ -544,8 +544,11 @@ class MainWindow(QMainWindow):
 
     @handle_runtime_error
     def _parse_failed(self, e):
+        self._progress_tracker.progress.emit("Error encountered", "red")
+
         self._re_enable_list_items()
         self._ui.pushButtonParseData.setEnabled(True)
+        self._ui.progressBar.setVisible(False)
 
         raise e
 
