@@ -85,7 +85,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
 
     progress_tracker.progress.emit("Running IK and ID", "black")
 
-    for trial in dynamic_trials:
+    for trial in trc_file_paths.keys():
         ik_data, ik_output = run_ik(osim_model, trc_file_paths[trial], output_directory, marker_data_rate)
         ik_data = pd.concat([ik_data, foot_progression_data[trial]], axis=1)
         id_data = run_id(osim_model, ik_data, ik_output, grf_file_paths[trial], output_directory, marker_data_rate, event_data[trial], weight)
@@ -525,6 +525,12 @@ def extract_data(file_path, start_frame, end_frame):
         if 'EVENT' not in reader:
             raise ParserError("No events found in dynamic trial.")
 
+        def get_metadata(object, key):
+            value = object.get(key)
+            if value is None:
+                raise ParserError(f"Missing required metadata: {key}. Skipping trial.")
+            return value
+
         # Extract analog data
         time_increment = 1 / reader.analog_rate
         start = (start_frame - 1) / reader.point_rate
@@ -532,7 +538,7 @@ def extract_data(file_path, start_frame, end_frame):
         times = np.arange(start, stop, time_increment).tolist()
         analog_data = {'time': times}
 
-        labels = reader.get('ANALOG:LABELS').string_array
+        labels = get_metadata(reader, 'ANALOG:LABELS').string_array
         analog_data.update({label: [] for label in labels})
         for i, points, analog in reader.read_frames():
             if i < start_frame or end_frame < i:
@@ -545,11 +551,11 @@ def extract_data(file_path, start_frame, end_frame):
         analog_data = pd.DataFrame(analog_data)
 
         # Extract event information.
-        event_group = reader.get('EVENT')
-        event_count = event_group.get('USED').int8_value
-        contexts = event_group.get('CONTEXTS').string_array
-        labels = event_group.get('LABELS').string_array
-        times = event_group.get('TIMES').float_array
+        event_group = get_metadata(reader, 'EVENT')
+        event_count = get_metadata(event_group, 'USED').int8_value
+        contexts = get_metadata(event_group, 'CONTEXTS').string_array
+        labels = get_metadata(event_group, 'LABELS').string_array
+        times = get_metadata(event_group, 'TIMES').float_array
         events = {'Left': {}, 'Right': {}}
 
         for i in range(event_count):
@@ -591,10 +597,10 @@ def extract_data(file_path, start_frame, end_frame):
                                     f"of time stamps ({start}s - {stop}s).")
 
         # Get number of force plates.
-        plate_count = reader.get('FORCE_PLATFORM:USED').int8_value
+        plate_count = get_metadata(reader, 'FORCE_PLATFORM:USED').int8_value
 
         # Rotate GRF data to align with global CS.
-        corners = reader.get('FORCE_PLATFORM:CORNERS').float_array
+        corners = get_metadata(reader, 'FORCE_PLATFORM:CORNERS').float_array
 
     return analog_data, reader.analog_rate, trimmed_events, plate_count, corners
 
