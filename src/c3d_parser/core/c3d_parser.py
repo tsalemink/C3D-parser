@@ -7,6 +7,7 @@ import logging
 import numpy as np
 import pandas as pd
 
+from datetime import datetime
 from collections import defaultdict
 from scipy import signal, interpolate
 from scipy.spatial.transform import Rotation
@@ -75,6 +76,8 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         trc_file_paths[trial] = trc_file_path
         grf_file_paths[trial] = grf_file_path
         deidentified_file_names[trial] = os.path.basename(trc_file_path).rsplit(".", 1)[0]
+
+    write_c3d_parser_history(input_directory, static_trial, deidentified_file_names)
 
     dynamic_trc_path = list(trc_file_paths.values())[0] if trc_file_paths else ""
     osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, marker_diameter, static_data,
@@ -180,6 +183,26 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     s_t_data = calculate_spatiotemporal_data(frame_data, events, static_data)
 
     return analog_data, events, foot_progression, s_t_data, trc_file_path, grf_file_path
+
+
+def write_c3d_parser_history(input_directory, static_trial, deidentified_file_names):
+    log_path = os.path.join(input_directory, "c3d_parser_history.log")
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    try:
+        with open(log_path, "w", encoding="utf-8") as f:
+            f.write("C3D-Parser History\n")
+            f.write(f"Last Run: {timestamp}\n\n")
+
+            f.write(f"Static trial: {static_trial}\n\n")
+
+            if deidentified_file_names:
+                f.write("Deidentified file names:\n")
+                for original_name, updated_name in deidentified_file_names.items():
+                    f.write(f"{original_name}: {updated_name}\n")
+
+    except (OSError, IOError):
+        raise ParserError("Could not write c3d_parser_history.log")
 
 
 def run_ik(osim_model, trc_file_path, output_directory, marker_data_rate):
