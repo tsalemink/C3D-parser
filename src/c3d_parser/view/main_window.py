@@ -444,7 +444,6 @@ class MainWindow(QMainWindow):
                     static_trials.append(item.text())
             else:
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-                item.setData(Qt.ItemDataRole.UserRole, "")
 
         if len(static_trials) == 0:
             logger.error("No static trial found. You may need to classify one manually.")
@@ -539,14 +538,21 @@ class MainWindow(QMainWindow):
         logger.info(e)
         self._progress_tracker.progress.emit("Completed", "green")
 
+        self._re_enable_list_items()
         self._ui.pushButtonParseData.setEnabled(True)
         self._ui.progressBar.setVisible(False)
 
     @handle_runtime_error
     def _parse_failed(self, e):
+        self._re_enable_list_items()
         self._ui.pushButtonParseData.setEnabled(True)
 
         raise e
+
+    def _re_enable_list_items(self):
+        for i in range(self._ui.listWidgetFiles.count()):
+            item = self._ui.listWidgetFiles.item(i)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEnabled)
 
     def _update_progress(self, message, color):
         self._ui.labelProgress.setText(message)

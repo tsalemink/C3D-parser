@@ -1,6 +1,6 @@
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QListWidget, QMenu, QStyledItemDelegate
+from PySide6.QtWidgets import QListWidget, QMenu, QStyledItemDelegate, QStyle
 from PySide6.QtGui import QAction
 
 
@@ -75,6 +75,9 @@ class CustomListWidget(QListWidget):
 class CustomDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
+
+        if not (option.state & QStyle.StateFlag.State_Enabled):
+            return
 
         painter.save()
         category = index.data(Qt.UserRole)
