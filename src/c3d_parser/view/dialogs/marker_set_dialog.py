@@ -33,6 +33,10 @@ class MarkerSetDialog(QtWidgets.QDialog):
         self._ui.pushButtonImport.clicked.connect(self._import_marker_map)
         self._ui.pushButtonSave.clicked.connect(self._validate_marker_set)
 
+        for marker in markers:
+            combo_box = getattr(self._ui, f"comboBox{marker}")
+            combo_box.currentTextChanged.connect(self.update_combo_box_style)
+
     def set_marker_names(self, marker_names):
         for marker in markers:
             combo_box = getattr(self._ui, f"comboBox{marker}")
@@ -57,6 +61,14 @@ class MarkerSetDialog(QtWidgets.QDialog):
         for key, value in marker_mapping.items():
             combo_box = getattr(self._ui, f"comboBox{key}")
             combo_box.setCurrentText(value)
+
+    def update_combo_box_style(self, text):
+        combo_box = self.sender()
+        items = [combo_box.itemText(i) for i in range(combo_box.count())]
+        if text and text not in items:
+            combo_box.setStyleSheet(INVALID_STYLE_SHEET)
+        else:
+            combo_box.setStyleSheet(DEFAULT_STYLE_SHEET)
 
     def _import_marker_map(self):
         dlg = MarkerSetImportDialog(self)
