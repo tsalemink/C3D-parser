@@ -31,6 +31,7 @@ class CancelException(Exception):
     pass
 
 
+torso_markers = ["C7", "T2", "T10", "MAN"]
 required_markers = [{"LASI", "RASI"}, {"LKNE", "RKNE"}, {"LANK", "RANK"}, {"LMED", "RMED"}, {"LHEE", "RHEE"},
                     ({"LPSI", "RPSI"}, {"SACR"}), ({"LKNEM", "RKNEM"}, {"LKAX", "RKAX"})]
 
@@ -378,7 +379,9 @@ def trim_frames(frame_data):
         for marker_index in range(1, len(frame)):
             coordinates = frame.iloc[marker_index]
             if math.isnan(coordinates[0]):
-                missing_markers.append(frame_data.columns[marker_index])
+                marker_name = frame_data.columns[marker_index]
+                if marker_name not in torso_markers:
+                    missing_markers.append(marker_name)
         if missing_markers:
             incomplete_frames[frame_number] = missing_markers
 
