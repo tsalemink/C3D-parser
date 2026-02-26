@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'options_dialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.1
+## Created by: Qt User Interface Compiler version 6.10.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -15,18 +15,74 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QAbstractButton, QApplication, QCheckBox, QDialog,
-    QDialogButtonBox, QDoubleSpinBox, QFormLayout, QGroupBox,
-    QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QSizePolicy, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QDoubleSpinBox,
+    QFormLayout, QGroupBox, QHBoxLayout, QLabel,
+    QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
+    QVBoxLayout, QWidget)
 
 class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         if not OptionsDialog.objectName():
             OptionsDialog.setObjectName(u"OptionsDialog")
-        OptionsDialog.resize(450, 234)
+        OptionsDialog.resize(450, 354)
         self.verticalLayout = QVBoxLayout(OptionsDialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
+        self.groupBox_3 = QGroupBox(OptionsDialog)
+        self.groupBox_3.setObjectName(u"groupBox_3")
+        self.formLayout_3 = QFormLayout(self.groupBox_3)
+        self.formLayout_3.setObjectName(u"formLayout_3")
+        self.labelInputDirectory = QLabel(self.groupBox_3)
+        self.labelInputDirectory.setObjectName(u"labelInputDirectory")
+
+        self.formLayout_3.setWidget(0, QFormLayout.ItemRole.LabelRole, self.labelInputDirectory)
+
+        self.labelOutputDirectory = QLabel(self.groupBox_3)
+        self.labelOutputDirectory.setObjectName(u"labelOutputDirectory")
+
+        self.formLayout_3.setWidget(1, QFormLayout.ItemRole.LabelRole, self.labelOutputDirectory)
+
+        self.horizontalLayout = QHBoxLayout()
+        self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.lineEditRootOutput = QLineEdit(self.groupBox_3)
+        self.lineEditRootOutput.setObjectName(u"lineEditRootOutput")
+
+        self.horizontalLayout.addWidget(self.lineEditRootOutput)
+
+        self.pushButtonRootOutputChooser = QPushButton(self.groupBox_3)
+        self.pushButtonRootOutputChooser.setObjectName(u"pushButtonRootOutputChooser")
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.pushButtonRootOutputChooser.sizePolicy().hasHeightForWidth())
+        self.pushButtonRootOutputChooser.setSizePolicy(sizePolicy)
+        self.pushButtonRootOutputChooser.setStyleSheet(u"padding: 3px 8px;")
+
+        self.horizontalLayout.addWidget(self.pushButtonRootOutputChooser)
+
+
+        self.formLayout_3.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout)
+
+        self.horizontalLayout_2 = QHBoxLayout()
+        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
+        self.lineEditRootInput = QLineEdit(self.groupBox_3)
+        self.lineEditRootInput.setObjectName(u"lineEditRootInput")
+
+        self.horizontalLayout_2.addWidget(self.lineEditRootInput)
+
+        self.pushButtonRootInputChooser = QPushButton(self.groupBox_3)
+        self.pushButtonRootInputChooser.setObjectName(u"pushButtonRootInputChooser")
+        sizePolicy.setHeightForWidth(self.pushButtonRootInputChooser.sizePolicy().hasHeightForWidth())
+        self.pushButtonRootInputChooser.setSizePolicy(sizePolicy)
+        self.pushButtonRootInputChooser.setStyleSheet(u"padding: 3px 8px;")
+
+        self.horizontalLayout_2.addWidget(self.pushButtonRootInputChooser)
+
+
+        self.formLayout_3.setLayout(0, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_2)
+
+
+        self.verticalLayout.addWidget(self.groupBox_3)
+
         self.groupBox = QGroupBox(OptionsDialog)
         self.groupBox.setObjectName(u"groupBox")
         self.formLayout = QFormLayout(self.groupBox)
@@ -42,54 +98,86 @@ class Ui_OptionsDialog(object):
 
         self.formLayout.setWidget(0, QFormLayout.ItemRole.FieldRole, self.doubleSpinBoxLineWidth)
 
-        self.labelInputDirectory = QLabel(self.groupBox)
-        self.labelInputDirectory.setObjectName(u"labelInputDirectory")
+        self.label = QLabel(self.groupBox)
+        self.label.setObjectName(u"label")
 
-        self.formLayout.setWidget(1, QFormLayout.ItemRole.LabelRole, self.labelInputDirectory)
+        self.formLayout.setWidget(2, QFormLayout.ItemRole.LabelRole, self.label)
 
-        self.horizontalLayout_2 = QHBoxLayout()
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.lineEditRootInput = QLineEdit(self.groupBox)
-        self.lineEditRootInput.setObjectName(u"lineEditRootInput")
+        self.label_2 = QLabel(self.groupBox)
+        self.label_2.setObjectName(u"label_2")
 
-        self.horizontalLayout_2.addWidget(self.lineEditRootInput)
+        self.formLayout.setWidget(4, QFormLayout.ItemRole.LabelRole, self.label_2)
 
-        self.pushButtonRootInputChooser = QPushButton(self.groupBox)
-        self.pushButtonRootInputChooser.setObjectName(u"pushButtonRootInputChooser")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pushButtonRootInputChooser.sizePolicy().hasHeightForWidth())
-        self.pushButtonRootInputChooser.setSizePolicy(sizePolicy)
-        self.pushButtonRootInputChooser.setStyleSheet(u"padding: 3px 8px;")
+        self.label_3 = QLabel(self.groupBox)
+        self.label_3.setObjectName(u"label_3")
 
-        self.horizontalLayout_2.addWidget(self.pushButtonRootInputChooser)
+        self.formLayout.setWidget(6, QFormLayout.ItemRole.LabelRole, self.label_3)
 
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.lineEditLeftColour = QLineEdit(self.groupBox)
+        self.lineEditLeftColour.setObjectName(u"lineEditLeftColour")
+        self.lineEditLeftColour.setMaxLength(7)
 
-        self.formLayout.setLayout(1, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_2)
+        self.horizontalLayout_4.addWidget(self.lineEditLeftColour)
 
-        self.labelOutputDirectory = QLabel(self.groupBox)
-        self.labelOutputDirectory.setObjectName(u"labelOutputDirectory")
+        self.labelLeftColour = QLabel(self.groupBox)
+        self.labelLeftColour.setObjectName(u"labelLeftColour")
+        sizePolicy.setHeightForWidth(self.labelLeftColour.sizePolicy().hasHeightForWidth())
+        self.labelLeftColour.setSizePolicy(sizePolicy)
+        self.labelLeftColour.setMinimumSize(QSize(18, 18))
+        self.labelLeftColour.setStyleSheet(u"border: 1px solid black;\n"
+"border-radius: 2px; \n"
+"background-color: #FFFFFF")
 
-        self.formLayout.setWidget(2, QFormLayout.ItemRole.LabelRole, self.labelOutputDirectory)
-
-        self.horizontalLayout = QHBoxLayout()
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.lineEditRootOutput = QLineEdit(self.groupBox)
-        self.lineEditRootOutput.setObjectName(u"lineEditRootOutput")
-
-        self.horizontalLayout.addWidget(self.lineEditRootOutput)
-
-        self.pushButtonRootOutputChooser = QPushButton(self.groupBox)
-        self.pushButtonRootOutputChooser.setObjectName(u"pushButtonRootOutputChooser")
-        sizePolicy.setHeightForWidth(self.pushButtonRootOutputChooser.sizePolicy().hasHeightForWidth())
-        self.pushButtonRootOutputChooser.setSizePolicy(sizePolicy)
-        self.pushButtonRootOutputChooser.setStyleSheet(u"padding: 3px 8px;")
-
-        self.horizontalLayout.addWidget(self.pushButtonRootOutputChooser)
+        self.horizontalLayout_4.addWidget(self.labelLeftColour)
 
 
-        self.formLayout.setLayout(2, QFormLayout.ItemRole.FieldRole, self.horizontalLayout)
+        self.formLayout.setLayout(2, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_4)
+
+        self.horizontalLayout_5 = QHBoxLayout()
+        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
+        self.lineEditRightColour = QLineEdit(self.groupBox)
+        self.lineEditRightColour.setObjectName(u"lineEditRightColour")
+        self.lineEditRightColour.setMaxLength(7)
+
+        self.horizontalLayout_5.addWidget(self.lineEditRightColour)
+
+        self.labelRightColour = QLabel(self.groupBox)
+        self.labelRightColour.setObjectName(u"labelRightColour")
+        sizePolicy.setHeightForWidth(self.labelRightColour.sizePolicy().hasHeightForWidth())
+        self.labelRightColour.setSizePolicy(sizePolicy)
+        self.labelRightColour.setMinimumSize(QSize(18, 18))
+        self.labelRightColour.setStyleSheet(u"border: 1px solid black;\n"
+"border-radius: 2px; \n"
+"background-color: #FFFFFF")
+
+        self.horizontalLayout_5.addWidget(self.labelRightColour)
+
+
+        self.formLayout.setLayout(4, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_5)
+
+        self.horizontalLayout_6 = QHBoxLayout()
+        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
+        self.lineEditSelectionColour = QLineEdit(self.groupBox)
+        self.lineEditSelectionColour.setObjectName(u"lineEditSelectionColour")
+        self.lineEditSelectionColour.setMaxLength(7)
+
+        self.horizontalLayout_6.addWidget(self.lineEditSelectionColour)
+
+        self.labelSelectionColour = QLabel(self.groupBox)
+        self.labelSelectionColour.setObjectName(u"labelSelectionColour")
+        sizePolicy.setHeightForWidth(self.labelSelectionColour.sizePolicy().hasHeightForWidth())
+        self.labelSelectionColour.setSizePolicy(sizePolicy)
+        self.labelSelectionColour.setMinimumSize(QSize(18, 18))
+        self.labelSelectionColour.setStyleSheet(u"border: 1px solid black;\n"
+"border-radius: 2px; \n"
+"background-color: #FFFFFF")
+
+        self.horizontalLayout_6.addWidget(self.labelSelectionColour)
+
+
+        self.formLayout.setLayout(6, QFormLayout.ItemRole.FieldRole, self.horizontalLayout_6)
 
 
         self.verticalLayout.addWidget(self.groupBox)
@@ -107,30 +195,54 @@ class Ui_OptionsDialog(object):
 
         self.verticalLayout.addWidget(self.groupBox_2)
 
-        self.buttonBox = QDialogButtonBox(OptionsDialog)
-        self.buttonBox.setObjectName(u"buttonBox")
-        self.buttonBox.setOrientation(Qt.Orientation.Horizontal)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.StandardButton.Cancel|QDialogButtonBox.StandardButton.Ok)
+        self.horizontalLayout_3 = QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
+        self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
-        self.verticalLayout.addWidget(self.buttonBox)
+        self.horizontalLayout_3.addItem(self.horizontalSpacer)
+
+        self.pushButtonOK = QPushButton(OptionsDialog)
+        self.pushButtonOK.setObjectName(u"pushButtonOK")
+
+        self.horizontalLayout_3.addWidget(self.pushButtonOK)
+
+        self.pushButtonCancel = QPushButton(OptionsDialog)
+        self.pushButtonCancel.setObjectName(u"pushButtonCancel")
+
+        self.horizontalLayout_3.addWidget(self.pushButtonCancel)
+
+
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
 
 
         self.retranslateUi(OptionsDialog)
-        self.buttonBox.accepted.connect(OptionsDialog.accept)
-        self.buttonBox.rejected.connect(OptionsDialog.reject)
+        self.pushButtonOK.clicked.connect(OptionsDialog.accept)
+        self.pushButtonCancel.clicked.connect(OptionsDialog.reject)
 
         QMetaObject.connectSlotsByName(OptionsDialog)
     # setupUi
 
     def retranslateUi(self, OptionsDialog):
         OptionsDialog.setWindowTitle(QCoreApplication.translate("OptionsDialog", u"Options", None))
-        self.groupBox.setTitle(QCoreApplication.translate("OptionsDialog", u"Plots", None))
-        self.labelLineWidth.setText(QCoreApplication.translate("OptionsDialog", u"Line Width:", None))
+        self.groupBox_3.setTitle(QCoreApplication.translate("OptionsDialog", u"File", None))
         self.labelInputDirectory.setText(QCoreApplication.translate("OptionsDialog", u"Input Data Directory:", None))
-        self.pushButtonRootInputChooser.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
         self.labelOutputDirectory.setText(QCoreApplication.translate("OptionsDialog", u"Output Data Directory:", None))
         self.pushButtonRootOutputChooser.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
+        self.pushButtonRootInputChooser.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
+        self.groupBox.setTitle(QCoreApplication.translate("OptionsDialog", u"Plots", None))
+        self.labelLineWidth.setText(QCoreApplication.translate("OptionsDialog", u"Line Width:", None))
+        self.label.setText(QCoreApplication.translate("OptionsDialog", u"Left Side Colour:", None))
+        self.label_2.setText(QCoreApplication.translate("OptionsDialog", u"Right Side Colour:", None))
+        self.label_3.setText(QCoreApplication.translate("OptionsDialog", u"Selection Colour:", None))
+        self.lineEditLeftColour.setText(QCoreApplication.translate("OptionsDialog", u"#d62728", None))
+        self.labelLeftColour.setText("")
+        self.lineEditRightColour.setText(QCoreApplication.translate("OptionsDialog", u"#1f77b4", None))
+        self.labelRightColour.setText("")
+        self.lineEditSelectionColour.setText(QCoreApplication.translate("OptionsDialog", u"#2ca02c", None))
+        self.labelSelectionColour.setText("")
         self.groupBox_2.setTitle(QCoreApplication.translate("OptionsDialog", u"OpenSim Model", None))
         self.checkBoxOptimiseKneeAxis.setText(QCoreApplication.translate("OptionsDialog", u"Perform knee-axis optimisation", None))
+        self.pushButtonOK.setText(QCoreApplication.translate("OptionsDialog", u"OK", None))
+        self.pushButtonCancel.setText(QCoreApplication.translate("OptionsDialog", u"Cancel", None))
     # retranslateUi
 
