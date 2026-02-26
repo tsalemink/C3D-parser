@@ -560,8 +560,9 @@ def extract_data(file_path, start_frame, end_frame):
         # Extract analog data
         time_increment = 1 / reader.analog_rate
         start = (start_frame - 1) / reader.point_rate
-        stop = end_frame / reader.point_rate - (time_increment / 2)
-        times = np.arange(start, stop, time_increment).tolist()
+        stop_analog = end_frame / reader.point_rate - (time_increment / 2)
+        stop_marker = (end_frame - 1) / reader.point_rate
+        times = np.arange(start, stop_analog, time_increment).tolist()
         analog_data = {'time': times}
 
         labels = get_metadata(reader, 'ANALOG:LABELS').string_array
@@ -589,6 +590,7 @@ def extract_data(file_path, start_frame, end_frame):
             if foot:
                 label = labels[i].strip()
                 event_time = times[i][1]
+                event_time = round(float(event_time), 4)
                 events[foot][event_time] = label
         if not any(events.values()):
             raise ParserError("Event context (side) missing.")
@@ -614,13 +616,13 @@ def extract_data(file_path, start_frame, end_frame):
         for foot, events in annotated_events.items():
             for stride_number, stride_events in events.items():
                 for event_time, event_type in stride_events.items():
-                    if start < event_time < stop:
+                    if start <= event_time <= stop_marker:
                         if stride_number not in trimmed_events[foot]:
                             trimmed_events[foot][stride_number] = {}
                         trimmed_events[foot][stride_number][event_time] = event_type
                     else:
                         logger.warn(f"Event at {event_time}s is outside the trial's valid range "
-                                    f"of time stamps ({start}s - {stop}s).")
+                                    f"of time stamps ({start}s - {stop_marker}s).")
 
         # Get number of force plates.
         plate_count = get_metadata(reader, 'FORCE_PLATFORM:USED').int8_value
