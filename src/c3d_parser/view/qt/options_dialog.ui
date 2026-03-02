@@ -129,7 +129,7 @@
         <item>
          <widget class="QLineEdit" name="lineEditLeftColour">
           <property name="text">
-           <string>#d62728</string>
+           <string>#FFFFFF</string>
           </property>
           <property name="maxLength">
            <number>7</number>
@@ -167,7 +167,7 @@ background-color: #FFFFFF</string>
         <item>
          <widget class="QLineEdit" name="lineEditRightColour">
           <property name="text">
-           <string>#1f77b4</string>
+           <string>#FFFFFF</string>
           </property>
           <property name="maxLength">
            <number>7</number>
@@ -205,7 +205,7 @@ background-color: #FFFFFF</string>
         <item>
          <widget class="QLineEdit" name="lineEditSelectionColour">
           <property name="text">
-           <string>#2ca02c</string>
+           <string>#FFFFFF</string>
           </property>
           <property name="maxLength">
            <number>7</number>

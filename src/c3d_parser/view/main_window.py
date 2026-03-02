@@ -71,6 +71,10 @@ class MainWindow(QMainWindow):
         self._output_data_directory = ''
         self._optimise_knee_axis = True
 
+        self._colour_left = '#D62728'
+        self._colour_right = '#1F77B4'
+        self._colour_selection = '#2CA02C'
+
         self._static_trial = None
         self._analog_data = None
         self._subject_weight = None
@@ -782,7 +786,10 @@ class MainWindow(QMainWindow):
             'line_width': self._line_width,
             'input_data_directory': self._input_data_directory,
             'output_data_directory': self._output_data_directory,
-            'optimise_knee_axis': self._optimise_knee_axis
+            'optimise_knee_axis': self._optimise_knee_axis,
+            'colour_left': self._colour_left,
+            'colour_right': self._colour_right,
+            'colour_selection': self._colour_selection
         }
 
         return options
@@ -792,6 +799,9 @@ class MainWindow(QMainWindow):
         self._input_data_directory = options['input_data_directory']
         self._output_data_directory = options['output_data_directory']
         self._optimise_knee_axis = options['optimise_knee_axis']
+        self._colour_left = options['colour_left']
+        self._colour_right = options['colour_right']
+        self._colour_selection = options['colour_selection']
 
     def _show_marker_set_dialog(self):
         static_trials = []
@@ -838,6 +848,9 @@ class MainWindow(QMainWindow):
         settings.setValue('input_data_directory', self._input_data_directory)
         settings.setValue('output_data_directory', self._output_data_directory)
         settings.setValue('optimise_knee_axis', self._optimise_knee_axis)
+        settings.setValue('colour_left', self._colour_left)
+        settings.setValue('colour_right', self._colour_right)
+        settings.setValue('colour_selection', self._colour_selection)
         settings.endGroup()
 
     def _load_settings(self):
@@ -866,6 +879,12 @@ class MainWindow(QMainWindow):
             self._output_data_directory = settings.value('output_data_directory')
         if settings.contains('optimise_knee_axis'):
             self._optimise_knee_axis = settings.value('optimise_knee_axis') == 'true'
+        if settings.contains('colour_left'):
+            self._colour_left = settings.value('colour_left')
+        if settings.contains('colour_right'):
+            self._colour_right = settings.value('colour_right')
+        if settings.contains('colour_selection'):
+            self._colour_selection = settings.value('colour_selection')
         settings.endGroup()
 
     def _quit_application(self):

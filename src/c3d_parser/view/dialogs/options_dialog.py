@@ -64,13 +64,19 @@ class OptionsDialog(QDialog):
         self._ui.lineEditRootInput.setText(options['input_data_directory'])
         self._ui.lineEditRootOutput.setText(options['output_data_directory'])
         self._ui.checkBoxOptimiseKneeAxis.setChecked(options['optimise_knee_axis'])
+        self._ui.lineEditLeftColour.setText(options['colour_left'])
+        self._ui.lineEditRightColour.setText(options['colour_right'])
+        self._ui.lineEditSelectionColour.setText(options['colour_selection'])
 
     def save(self):
         options = {
             'line_width': self._ui.doubleSpinBoxLineWidth.value(),
             'input_data_directory': self._ui.lineEditRootInput.text(),
             'output_data_directory': self._ui.lineEditRootOutput.text(),
-            'optimise_knee_axis': self._ui.checkBoxOptimiseKneeAxis.isChecked()
+            'optimise_knee_axis': self._ui.checkBoxOptimiseKneeAxis.isChecked(),
+            'colour_left': self._ui.lineEditLeftColour.text(),
+            'colour_right': self._ui.lineEditRightColour.text(),
+            'colour_selection': self._ui.lineEditSelectionColour.text()
         }
 
         return options
