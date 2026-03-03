@@ -782,10 +782,6 @@ class MainWindow(QMainWindow):
             self._set_options(dlg.save())
             self._update_curves()
 
-        colours = [self._colour_left, self._colour_right, self._colour_selection]
-        for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
-            curves.update_colours(colours)
-
     def _get_options(self):
         options = {
             'line_width': self._line_width,
@@ -834,8 +830,11 @@ class MainWindow(QMainWindow):
         dlg.exec()
 
     def _update_curves(self):
+        colours = [self._colour_left, self._colour_right, self._colour_selection]
         for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
             curves.update_line_width(self._line_width)
+            curves.update_colours(colours)
+            curves.draw_idle()
 
     def _save_settings(self):
         settings = QSettings()
@@ -948,23 +947,6 @@ class GaitCurves(defaultdict):
         self._colour_left = colours[0]
         self._colour_right = colours[1]
         self._colour_selection = colours[2]
-
-    def update_colours(self, colours):
-        self._colour_left = colours[0]
-        self._colour_right = colours[1]
-        self._colour_selection = colours[2]
-        self._update_lines()
-
-    def _update_lines(self):
-        for file_name, cycles in self.items():
-            for cycle, lines in cycles.items():
-                for line in lines:
-                    colour = self._colour_left if "Left" in cycle else self._colour_right
-                    identifier = (file_name, cycle)
-                    if identifier in self._selected_curves:
-                        colour = self._colour_selection
-                    line.set_color(colour)
-        self._canvas.draw_idle()
 
     def add_curve(self, file_name, cycle, curve):
         self[file_name][cycle].append(curve)
@@ -1090,7 +1072,22 @@ class GaitCurves(defaultdict):
                 for line in lines:
                     line.set_linewidth(line_width)
 
-        self._canvas.draw()
+    def update_colours(self, colours):
+        self._colour_left = colours[0]
+        self._colour_right = colours[1]
+        self._colour_selection = colours[2]
+
+        for file_name, cycles in self.items():
+            for cycle, lines in cycles.items():
+                for line in lines:
+                    colour = self._colour_left if "Left" in cycle else self._colour_right
+                    identifier = (file_name, cycle)
+                    if identifier in self._selected_curves:
+                        colour = self._colour_selection
+                    line.set_color(colour)
+
+    def draw_idle(self):
+        self._canvas.draw_idle()
 
     def exclude_curves(self):
         self._excluded_cycles.update(self._selected_curves)
