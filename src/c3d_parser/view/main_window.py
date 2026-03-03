@@ -71,9 +71,9 @@ class MainWindow(QMainWindow):
         self._output_data_directory = ''
         self._optimise_knee_axis = True
 
-        self._colour_left = '#D62728'
-        self._colour_right = '#1F77B4'
-        self._colour_selection = '#2CA02C'
+        self._colour_left = '#A52A2A'
+        self._colour_right = '#0F52BA'
+        self._colour_selection = '#FFAC1C'
 
         self._static_trial = None
         self._analog_data = None
