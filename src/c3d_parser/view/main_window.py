@@ -94,9 +94,10 @@ class MainWindow(QMainWindow):
         self._validate_directory()
         self._setup_visualiser()
 
-        self._grf_curves = GaitCurves(self._grf_canvas)
-        self._kinematic_curves = GaitCurves(self._kinematic_canvas)
-        self._kinetic_curves = GaitCurves(self._kinetic_canvas)
+        colours = [self._colour_left, self._colour_right, self._colour_selection]
+        self._grf_curves = GaitCurves(self._grf_canvas, colours)
+        self._kinematic_curves = GaitCurves(self._kinematic_canvas, colours)
+        self._kinetic_curves = GaitCurves(self._kinetic_canvas, colours)
 
     def _setup_progress_bar(self):
         self._progress_text = ""
@@ -603,7 +604,7 @@ class MainWindow(QMainWindow):
         self._plot_z.clear()
 
         for foot, files_dict in grf_data.items():
-            colour = 'r' if foot == "Left" else 'b'
+            colour = self._colour_left if foot == "Left" else self._colour_right
             for name, cycles in files_dict.items():
                 for cycle_number, cycle_data in cycles.items():
                     t_segment = np.linspace(0, 100, cycle_data.shape[1])
@@ -627,7 +628,7 @@ class MainWindow(QMainWindow):
             plot.clear()
 
         for foot, files_dict in kinematic_data.items():
-            colour = 'r' if foot == "Left" else 'b'
+            colour = self._colour_left if foot == "Left" else self._colour_right
             for name, cycles in files_dict.items():
                 for cycle_number, cycle_data in cycles.items():
                     t_segment = np.linspace(0, 100, cycle_data.shape[1])
@@ -648,7 +649,7 @@ class MainWindow(QMainWindow):
             plot.clear()
 
         for foot, files_dict in kinetic_data.items():
-            colour = 'r' if foot == "Left" else 'b'
+            colour = self._colour_left if foot == "Left" else self._colour_right
             for name, cycles in files_dict.items():
                 for cycle_number, cycle_data in cycles.items():
                     t_segment = np.linspace(0, 100, cycle_data.shape[1])
@@ -780,6 +781,10 @@ class MainWindow(QMainWindow):
         if dlg.exec():
             self._set_options(dlg.save())
             self._update_curves()
+
+        colours = [self._colour_left, self._colour_right, self._colour_selection]
+        for curves in [self._grf_curves, self._kinematic_curves, self._kinetic_curves]:
+            curves.update_colours(colours)
 
     def _get_options(self):
         options = {
@@ -928,7 +933,7 @@ class MainWindow(QMainWindow):
 
 class GaitCurves(defaultdict):
 
-    def __init__(self, canvas):
+    def __init__(self, canvas, colours):
         super().__init__(lambda: defaultdict(list))
 
         self._canvas = canvas
@@ -939,6 +944,27 @@ class GaitCurves(defaultdict):
         self._excluded_cycles = set()
 
         self._cursors = {}
+
+        self._colour_left = colours[0]
+        self._colour_right = colours[1]
+        self._colour_selection = colours[2]
+
+    def update_colours(self, colours):
+        self._colour_left = colours[0]
+        self._colour_right = colours[1]
+        self._colour_selection = colours[2]
+        self._update_lines()
+
+    def _update_lines(self):
+        for file_name, cycles in self.items():
+            for cycle, lines in cycles.items():
+                for line in lines:
+                    colour = self._colour_left if "Left" in cycle else self._colour_right
+                    identifier = (file_name, cycle)
+                    if identifier in self._selected_curves:
+                        colour = self._colour_selection
+                    line.set_color(colour)
+        self._canvas.draw_idle()
 
     def add_curve(self, file_name, cycle, curve):
         self[file_name][cycle].append(curve)
@@ -975,7 +1001,7 @@ class GaitCurves(defaultdict):
                     identifier = (file_name, cycle)
                     if identifier in self._selected_curves:
                         self._selected_curves.remove(identifier)
-                        colour = 'red' if "Left" in cycle else 'blue'
+                        colour = self._colour_left if "Left" in cycle else self._colour_right
                         z_order = 2
 
                         # Remove hover cursor from selected curve.
@@ -985,7 +1011,7 @@ class GaitCurves(defaultdict):
 
                     else:
                         self._selected_curves.append(identifier)
-                        colour = 'green'
+                        colour = self._colour_selection
                         z_order = 3
 
                         # Add hover cursor to selected curve.
@@ -1024,7 +1050,7 @@ class GaitCurves(defaultdict):
     def include_curves(self):
         self._excluded_cycles.difference_update(self._selected_curves)
         for file_name, cycle in self._selected_curves:
-            colour = 'red' if "Left" in cycle else 'blue'
+            colour = self._colour_left if "Left" in cycle else self._colour_right
             for line in self[file_name][cycle]:
                 line.set_linestyle('solid')
                 line.set_color(colour)
@@ -1040,12 +1066,12 @@ class GaitCurves(defaultdict):
 
     def include_trial(self, file_name):
         for cycle in self[file_name].keys():
-            colour = 'red' if "Left" in cycle else 'blue'
+            colour = self._colour_left if "Left" in cycle else self._colour_right
             self._include_cycle(file_name, cycle, colour)
         self._canvas.draw()
 
     def include_side(self, file_name, side):
-        colour = 'red' if side == "Left" else 'blue'
+        colour = self._colour_left if side == "Left" else self._colour_right
         for cycle in self[file_name].keys():
             if side in cycle:
                 self._include_cycle(file_name, cycle, colour)
@@ -1069,7 +1095,7 @@ class GaitCurves(defaultdict):
     def exclude_curves(self):
         self._excluded_cycles.update(self._selected_curves)
         for file_name, cycle in self._selected_curves:
-            colour = 'red' if "Left" in cycle else 'blue'
+            colour = self._colour_left if "Left" in cycle else self._colour_right
             for line in self[file_name][cycle]:
                 line.set_linestyle('dotted')
                 line.set_color(colour)
@@ -1085,12 +1111,12 @@ class GaitCurves(defaultdict):
 
     def exclude_trial(self, file_name):
         for cycle in self[file_name].keys():
-            colour = 'red' if "Left" in cycle else 'blue'
+            colour = self._colour_left if "Left" in cycle else self._colour_right
             self._exclude_cycle(file_name, cycle, colour)
         self._canvas.draw()
 
     def exclude_side(self, file_name, side):
-        colour = 'red' if side == "Left" else 'blue'
+        colour = self._colour_left if side == "Left" else self._colour_right
         for cycle in self[file_name].keys():
             if side in cycle:
                 self._exclude_cycle(file_name, cycle, colour)
@@ -1108,7 +1134,7 @@ class GaitCurves(defaultdict):
 
     def clear_selected(self):
         for (file_name, cycle) in self._selected_curves:
-            colour = 'red' if "Left" in cycle else 'blue'
+            colour = self._colour_left if "Left" in cycle else self._colour_right
             for line in self[file_name][cycle]:
                 line.set_color(colour)
                 line.set_zorder(2)
