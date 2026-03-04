@@ -98,6 +98,7 @@ class MainWindow(QMainWindow):
         self._grf_curves = GaitCurves(self._grf_canvas, colours)
         self._kinematic_curves = GaitCurves(self._kinematic_canvas, colours)
         self._kinetic_curves = GaitCurves(self._kinetic_canvas, colours)
+        self._boxes = None
 
     def _setup_progress_bar(self):
         self._progress_text = ""
@@ -219,7 +220,8 @@ class MainWindow(QMainWindow):
         # Create spatio-temporal tables.
         for trial, df in self._s_t_data.items():
             df_renamed = df.rename(index=lambda idx: f"{idx}").round(3)
-            table = CustomTableView(trial)
+            colours = [self._colour_left, self._colour_right, self._colour_selection]
+            table = CustomTableView(trial, colours)
             model = SpatiotemporalModel(df_renamed.T)
             table.setModel(model)
 
@@ -234,7 +236,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(6)
         legend.resize(100, 50)
 
-        for color, text in [("firebrick", "Left"), ("cornflowerblue", "Right")]:
+        for color, text in [(self._colour_left, "Left"), (self._colour_right, "Right")]:
             row_layout = QHBoxLayout()
             box = QLabel()
             box.setFixedSize(15, 15)
@@ -245,12 +247,20 @@ class MainWindow(QMainWindow):
             row_layout.addWidget(label)
             layout.addLayout(row_layout)
 
+            self._boxes = {"Left": [], "Right": []}
+            self._boxes[text].append(box)
+
         def reposition():
             legend.move(self._ui.tabSpatiotemporal.width() - legend.width() - 10, 10)
             legend.raise_()
 
         self._ui.tabSpatiotemporal.resizeEvent = lambda e: reposition()
         reposition()
+
+    def _update_s_t_colours(self):
+        colours = [self._colour_left, self._colour_right, self._colour_selection]
+        for table in self._spatiotemporal_tables:
+            table.update_colours(colours)
 
     def _update_s_t_data_from_tables(self):
         for table in self._spatiotemporal_tables:
@@ -781,6 +791,15 @@ class MainWindow(QMainWindow):
         if dlg.exec():
             self._set_options(dlg.save())
             self._update_curves()
+            self._update_s_t_colours()
+            self._update_legend()
+
+    def _update_legend(self):
+        if self._boxes:
+            for side, boxes in self._boxes.items():
+                colour = self._colour_left if side == "Left" else self._colour_right
+                for box in boxes:
+                    box.setStyleSheet(f"background-color: {colour}; border: 1px solid black;")
 
     def _get_options(self):
         options = {
@@ -1197,6 +1216,16 @@ class SpatiotemporalModel(QAbstractTableModel):
 
 
 class SpatiotemporalTableDelegate(QStyledItemDelegate):
+    def __init__(self, colours, parent=None):
+        super().__init__(parent)
+
+        self._colour_left = colours[0]
+        self._colour_right = colours[1]
+
+    def update_colours(self, colours):
+        self._colour_left = colours[0]
+        self._colour_right = colours[1]
+
     def paint(self, painter, option, index):
         super().paint(painter, option, index)
         model = index.model()
@@ -1218,13 +1247,10 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
                 box_width = int(rect.width() * (mean / total))
                 box_height = (rect.height() - 2 * margin) // (2 if side else 1)
                 if side == 'left':
-                    colour = QColor("firebrick")
+                    colour = QColor(self._colour_left)
                 elif side == 'right':
-                    colour = QColor("cornflowerblue")
+                    colour = QColor(self._colour_right)
                     y_offset = box_height
-                else:
-                    colour = QColor("mediumpurple")
-                    whisker_width = 4
                 cell_left = rect.left() + 1
 
                 # Draw box.
@@ -1279,7 +1305,7 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
 
 
 class CustomTableView(QTableView):
-    def __init__(self, trial_name, parent=None):
+    def __init__(self, trial_name, colours, parent=None):
         super().__init__(parent)
 
         self._trial_name = trial_name
@@ -1306,7 +1332,7 @@ class CustomTableView(QTableView):
             border-left: 0px; border-right: 0px; border-top: 0px; border-bottom: 1px solid black;
         """)
 
-        delegate = SpatiotemporalTableDelegate()
+        delegate = SpatiotemporalTableDelegate(colours)
         self.setItemDelegate(delegate)
 
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
@@ -1315,6 +1341,11 @@ class CustomTableView(QTableView):
         self.horizontalHeader().customContextMenuRequested.connect(self._show_context_menu)
         self.verticalHeader().setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.verticalHeader().customContextMenuRequested.connect(self._show_context_menu)
+
+    def update_colours(self, colours):
+        item_delegate = self.itemDelegate()
+        if isinstance(item_delegate, SpatiotemporalTableDelegate):
+            item_delegate.update_colours(colours)
 
     def setModel(self, model):
         super().setModel(model)
