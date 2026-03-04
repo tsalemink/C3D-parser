@@ -236,6 +236,7 @@ class MainWindow(QMainWindow):
         layout.setSpacing(6)
         legend.resize(100, 50)
 
+        self._boxes = {"Left": [], "Right": []}
         for color, text in [(self._colour_left, "Left"), (self._colour_right, "Right")]:
             row_layout = QHBoxLayout()
             box = QLabel()
@@ -247,7 +248,6 @@ class MainWindow(QMainWindow):
             row_layout.addWidget(label)
             layout.addLayout(row_layout)
 
-            self._boxes = {"Left": [], "Right": []}
             self._boxes[text].append(box)
 
         def reposition():
