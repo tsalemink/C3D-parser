@@ -317,6 +317,7 @@ class MainWindow(QMainWindow):
         self._ui.listWidgetFiles.include_right.connect(self._include_right)
         self._ui.listWidgetFiles.exclude_right.connect(self._exclude_right)
         self._ui.listWidgetFiles.category_changed.connect(self._update_subject_info)
+        self._ui.listWidgetFiles.itemChanged.connect(self._update_subject_info)
 
     def _validate_input_directory(self):
         directory_valid = self._validate_directory()
@@ -387,7 +388,8 @@ class MainWindow(QMainWindow):
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
             if item.data(Qt.ItemDataRole.UserRole) == "Static":
-                static_trials.append(item.text())
+                if item.checkState() == Qt.CheckState.Checked:
+                    static_trials.append(item.text())
 
         if static_trials:
             static_trial = static_trials[0]
