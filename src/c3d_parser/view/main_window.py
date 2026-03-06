@@ -476,8 +476,8 @@ class MainWindow(QMainWindow):
         marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
 
         static_data = {
-            "Sex": self._ui.comboBoxSex.currentText(),
-            "Age": self._ui.spinBoxAge.value(),
+            'Sex': self._ui.comboBoxSex.currentText(),
+            'Age': self._ui.spinBoxAge.value(),
             'Height': self._ui.doubleSpinBoxHeight.value(),
             'Weight': self._ui.doubleSpinBoxBodyMass.value(),
             'ASIS Width': self._ui.doubleSpinBoxASISWidth.value(),
@@ -488,6 +488,10 @@ class MainWindow(QMainWindow):
             'Left Leg Length': self._ui.doubleSpinBoxLeftLegLength.value(),
             'Right Leg Length': self._ui.doubleSpinBoxRightLegLength.value(),
         }
+
+        # Cap age at 18.
+        # Current shape model is paediatric only, ages over 18 can give strange results.
+        static_data['Age'] = min(static_data['Age'], 18)
 
         missing = [key for key, value in static_data.items() if not value]
         if 'Left Leg Length' in missing or 'Right Leg Length' in missing:
