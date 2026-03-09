@@ -161,10 +161,12 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     analog_data = concatenate_grf_data(analog_data, events, mean_centre)
     scale_grf_data(analog_data)
 
-    # Rotate trials for +X walking direction.
+    # Rotate trials for +X walking direction and +Y vertical.
     rotation_matrix = get_global_rotation(frame_data)
     rotate_trc_data(frame_data, rotation_matrix)
     rotate_grf_data(analog_data, rotation_matrix)
+    rotate_trc_y_vertical(frame_data)
+    rotate_grf_y_vertical(analog_data)
 
     # Write GRF data.
     grf_directory = os.path.join(output_directory, 'grf')
@@ -494,6 +496,11 @@ def get_static_rotation(frame_data):
     raise ParserError("ASIS markers not found. Cannot determine static trial rotation.")
 
 
+def rotate_trc_y_vertical(frame_data):
+    rotation_matrix = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])
+    rotate_trc_data(frame_data, rotation_matrix)
+
+
 def rotate_trc_data(frame_data, rotation_matrix):
     identity_matrix = np.eye(3)
     if np.array_equal(rotation_matrix, identity_matrix):
@@ -503,6 +510,11 @@ def rotate_trc_data(frame_data, rotation_matrix):
         frame_data[column] = frame_data[column].apply(
             lambda x: rotation_matrix @ np.array(x)
         )
+
+
+def rotate_grf_y_vertical(analog_data):
+    rotation_matrix = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])
+    rotate_grf_data(analog_data, rotation_matrix)
 
 
 def rotate_grf_data(analog_data, rotation_matrix):
@@ -1054,9 +1066,8 @@ def normalise_kinematics(kinematic_data, events):
                     if foot == "Left":
                         data_segment["pelvis_rotation"] = -data_segment["pelvis_rotation"]
                     if foot == "Right":
-                        data_segment["pelvis_list"] = -(data_segment["pelvis_list"] - 180)
+                        data_segment["pelvis_list"] = -data_segment["pelvis_list"]
                     data_segment["pelvis_tilt"] = -data_segment["pelvis_tilt"]
-                    data_segment["pelvis_list"] -= 90
 
                     normalised_data[foot][file_name][stride_number - 1] = data_segment.values.T
                     start = data[data['time'] <= event_time].index[-1]
@@ -1328,7 +1339,7 @@ def calculate_distance_covered(frame_data, start_time=None, end_time=None):
 def calculate_walking_direction(frame_data):
     start_pos = frame_data[['LASI', 'RASI']].iloc[0].mean(axis=0)
     end_pos = frame_data[['LASI', 'RASI']].iloc[-1].mean(axis=0)
-    walking_direction = end_pos[:2] - start_pos[:2]
+    walking_direction = end_pos[[0, 2]] - start_pos[[0, 2]]
     walking_direction /= np.linalg.norm(walking_direction)
 
     return walking_direction
@@ -1341,15 +1352,15 @@ def calculate_foot_progression_angles(frame_data):
     foot_progression = pd.DataFrame()
     for foot in ['Left', 'Right']:
         side = foot[0]
-        heel_xy = np.stack(frame_data[f"{side}HEE"].values)[:, :2]
-        toe_xy = np.stack(frame_data[f"{side}TOE"].values)[:, :2]
+        heel_xz = np.stack(frame_data[f"{side}HEE"].values)[:, [0, 2]]
+        toe_xz = np.stack(frame_data[f"{side}TOE"].values)[:, [0, 2]]
 
-        foot_vectors = toe_xy - heel_xy
+        foot_vectors = toe_xz - heel_xz
         foot_unit_vectors = foot_vectors / np.linalg.norm(foot_vectors, axis=1, keepdims=True)
         foot_angles = np.arctan2(foot_unit_vectors[:, 1], foot_unit_vectors[:, 0])
         angles = np.degrees(foot_angles - walking_angle)
 
-        if foot == 'Left':
+        if foot == 'Right':
             angles = -angles
 
         foot_progression[f'foot_progression_{side.lower()}'] = angles
