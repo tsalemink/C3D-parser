@@ -1236,7 +1236,7 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                     step_length = heel_coordinates[0] - previous_coordinates[0]     # type: ignore
                     step_lengths[opposite_foot][stride_numbers[opposite_foot]] = step_length / 1000
 
-                    step_width = abs(heel_coordinates[1] - previous_coordinates[1])     # type: ignore
+                    step_width = abs(heel_coordinates[2] - previous_coordinates[2])     # type: ignore
                     step_widths[opposite_foot][stride_numbers[opposite_foot]] = step_width / 1000
 
             # Calculate stance and swing phases.
@@ -1327,11 +1327,11 @@ def calculate_distance_covered(frame_data, start_time=None, end_time=None):
 
     start_pos = frame_data.loc[start_frame, ['LASI', 'RASI']].mean()
     end_pos = frame_data.loc[end_frame, ['LASI', 'RASI']].mean()
-    walking_direction = end_pos[:2] - start_pos[:2]
+    walking_direction = end_pos[[0, 2]] - start_pos[[0, 2]]
     walking_direction /= np.linalg.norm(walking_direction)
 
     distance_vector = end_pos - start_pos
-    distance_travelled = np.dot(distance_vector[:2], walking_direction)
+    distance_travelled = np.dot(distance_vector[[0, 2]], walking_direction)
 
     return distance_travelled
 
