@@ -1012,6 +1012,8 @@
      <string>Marker</string>
     </property>
     <addaction name="actionCustomMarkerSet"/>
+    <addaction name="separator"/>
+    <addaction name="actionDeleteMarkerSet"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1050,6 +1052,11 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionDeleteMarkerSet">
+   <property name="text">
+    <string>Delete Marker Set</string>
    </property>
   </action>
  </widget>

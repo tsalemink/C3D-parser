@@ -22,6 +22,7 @@ from c3d_parser.settings.general import (APPLICATION_NAME, VERSION, DEFAULT_STYL
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
 from c3d_parser.view.dialogs.options_dialog import OptionsDialog
 from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
+from c3d_parser.view.dialogs.delete_marker_set_dialog import DeleteMarkerSetDialog
 from c3d_parser.view.dialogs.about_dialog import AboutDialog
 from c3d_parser.view.utils import handle_runtime_error
 from c3d_parser.settings.logging import logger
@@ -305,7 +306,8 @@ class MainWindow(QMainWindow):
         self._ui.actionQuit.triggered.connect(self._quit_application)
         self._ui.actionReloadInput.triggered.connect(self._validate_input_directory)
         self._ui.actionOptions.triggered.connect(self._show_options_dialog)
-        self._ui.actionCustomMarkerSet.triggered.connect(self._show_marker_set_dialog)
+        self._ui.actionCustomMarkerSet.triggered.connect(self._show_custom_marker_set_dialog)
+        self._ui.actionDeleteMarkerSet.triggered.connect(self._show_delete_marker_set_dialog)
         self._ui.actionAbout.triggered.connect(self._show_about_dialog)
 
         self._ui.listWidgetFiles.include_trial.connect(self._include_trial)
@@ -829,7 +831,7 @@ class MainWindow(QMainWindow):
         self._colour_right = options['colour_right']
         self._colour_selection = options['colour_selection']
 
-    def _show_marker_set_dialog(self):
+    def _show_custom_marker_set_dialog(self):
         static_trials = []
         for i in range(self._ui.listWidgetFiles.count()):
             item = self._ui.listWidgetFiles.item(i)
@@ -848,6 +850,16 @@ class MainWindow(QMainWindow):
         if dlg.exec():
             dlg.save()
             self._reset_lab_combo_box()
+
+    def _show_delete_marker_set_dialog(self):
+        dlg = DeleteMarkerSetDialog(self)
+        dlg.setModal(True)
+        dlg.error_occurred.connect(self._handle_error)
+        if dlg.exec():
+            self._reset_lab_combo_box()
+
+    def _handle_error(self, e):
+        raise e
 
     def _show_about_dialog(self):
         dlg = AboutDialog(self)
