@@ -889,7 +889,9 @@ class MainWindow(QMainWindow):
         if settings.contains('size'):
             self.resize(settings.value('size'))
         if settings.contains('pos'):
-            self.move(settings.value('pos'))
+            pos = settings.value('pos')
+            if pos.x() >= 0 and pos.y() >= 0:
+                self.move(pos)
         if settings.contains('is_maximized'):
             if settings.value('is_maximized', 'true') == 'true':
                 self.showMaximized()
