@@ -855,8 +855,8 @@ class MainWindow(QMainWindow):
         dlg = DeleteMarkerSetDialog(self)
         dlg.setModal(True)
         dlg.error_occurred.connect(self._handle_error)
-        if dlg.exec():
-            self._reset_lab_combo_box()
+        dlg.exec()
+        self._reset_lab_combo_box()
 
     def _handle_error(self, e):
         raise e
