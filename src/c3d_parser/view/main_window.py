@@ -627,7 +627,7 @@ class MainWindow(QMainWindow):
                 for cycle_number, cycle_data in cycles.items():
                     t_segment = np.linspace(0, 100, cycle_data.shape[1])
 
-                    for j, plot in enumerate([self._plot_x, self._plot_y, self._plot_z]):
+                    for j, plot in enumerate([self._plot_x, self._plot_z, self._plot_y]):
                         line, = plot.plot(t_segment, cycle_data[j], color=colour, linewidth=self._line_width)
                         line.set_picker(True)
                         self._grf_curves.add_curve(name, f"{foot}_{cycle_number}", line)
