@@ -28,7 +28,7 @@ from c3d_parser.view.utils import handle_runtime_error
 from c3d_parser.settings.logging import logger
 
 
-output_direcory_name = 'c3d_parser_output'
+output_directory_name = 'c3d_parser_output'
 
 
 class _ExecThread(QThread):
@@ -371,8 +371,8 @@ class MainWindow(QMainWindow):
         self._ui.listWidgetFiles.clear()
         self._static_trial = None
         for root, dirs, files in os.walk(directory):
-            if output_direcory_name in dirs:
-                dirs.remove(output_direcory_name)
+            if output_directory_name in dirs:
+                dirs.remove(output_directory_name)
             for file in files:
                 if file.lower().endswith('.c3d'):
                     path = os.path.join(root, file)
@@ -441,7 +441,7 @@ class MainWindow(QMainWindow):
         input_directory = self._ui.lineEditInputDirectory.text()
         output_directory = self._ui.lineEditOutputDirectory.text()
         session_name = os.path.basename(input_directory)
-        self._output_directory = os.path.join(output_directory, output_direcory_name)
+        self._output_directory = os.path.join(output_directory, output_directory_name)
 
         if os.path.exists(self._output_directory):
             reply = QMessageBox.warning(self, "Warning",
