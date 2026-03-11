@@ -302,7 +302,7 @@ class MainWindow(QMainWindow):
         self._ui.pushButtonInputDirectoryChooser.clicked.connect(self._open_input_directory_chooser)
         self._ui.pushButtonOutputDirectoryChooser.clicked.connect(self._open_output_directory_chooser)
         self._ui.pushButtonParseData.clicked.connect(self._parse_c3d_data)
-        self._ui.pushButtonHarmonise.clicked.connect(self._harmonise_data)
+        self._ui.pushButtonFinalise.clicked.connect(self._harmonise_data)
         self._ui.actionQuit.triggered.connect(self._quit_application)
         self._ui.actionReloadInput.triggered.connect(self._validate_input_directory)
         self._ui.actionOptions.triggered.connect(self._show_options_dialog)
@@ -344,7 +344,7 @@ class MainWindow(QMainWindow):
         self._ui.lineEditOutputDirectory.setStyleSheet(DEFAULT_STYLE_SHEET if output_directory_valid else INVALID_STYLE_SHEET)
 
         self._ui.pushButtonParseData.setEnabled(input_directory_valid and output_directory_valid)
-        self._ui.pushButtonHarmonise.setEnabled(False)
+        self._ui.pushButtonFinalise.setEnabled(False)
 
         return input_directory_valid
 
@@ -554,7 +554,7 @@ class MainWindow(QMainWindow):
         self._progress_tracker.progress.emit("Process completed successfully", "green")
 
         self._ui.pushButtonParseData.setEnabled(True)
-        self._ui.pushButtonHarmonise.setEnabled(True)
+        self._ui.pushButtonFinalise.setEnabled(True)
         self._ui.progressBar.setVisible(False)
 
     def _parse_cancelled(self, e):

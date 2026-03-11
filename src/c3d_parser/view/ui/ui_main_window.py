@@ -446,11 +446,11 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_2.addWidget(self.pushButtonParseData)
 
-        self.pushButtonHarmonise = QPushButton(self.frameTrial)
-        self.pushButtonHarmonise.setObjectName(u"pushButtonHarmonise")
-        self.pushButtonHarmonise.setEnabled(False)
+        self.pushButtonFinalise = QPushButton(self.frameTrial)
+        self.pushButtonFinalise.setObjectName(u"pushButtonFinalise")
+        self.pushButtonFinalise.setEnabled(False)
 
-        self.horizontalLayout_2.addWidget(self.pushButtonHarmonise)
+        self.horizontalLayout_2.addWidget(self.pushButtonFinalise)
 
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_2)
@@ -643,7 +643,7 @@ class Ui_MainWindow(object):
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Marker", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Marker Diameter (mm):", None))
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Process Data", None))
-        self.pushButtonHarmonise.setText(QCoreApplication.translate("MainWindow", u"Harmonise Data", None))
+        self.pushButtonFinalise.setText(QCoreApplication.translate("MainWindow", u"Finalise Outputs", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinematic), QCoreApplication.translate("MainWindow", u"Kinematic", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinetic), QCoreApplication.translate("MainWindow", u"Kinetic", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))

@@ -764,12 +764,12 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButtonHarmonise">
+           <widget class="QPushButton" name="pushButtonFinalise">
             <property name="enabled">
              <bool>false</bool>
             </property>
             <property name="text">
-             <string>Harmonise Data</string>
+             <string>Finalise Outputs</string>
             </property>
            </widget>
           </item>
