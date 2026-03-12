@@ -551,6 +551,8 @@ class Ui_MainWindow(object):
         self.tableLog.setAutoFillBackground(False)
         self.tableLog.setInputMethodHints(Qt.InputMethodHint.ImhNone)
         self.tableLog.setFrameShadow(QFrame.Shadow.Raised)
+        self.tableLog.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.tableLog.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.tableLog.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.tableLog.setTabKeyNavigation(False)
         self.tableLog.setProperty(u"showDropIndicator", False)
