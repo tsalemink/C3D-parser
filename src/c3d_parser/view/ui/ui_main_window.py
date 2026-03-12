@@ -16,13 +16,13 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QDoubleSpinBox,
-    QFrame, QGroupBox, QHBoxLayout, QHeaderView,
-    QLabel, QLineEdit, QListWidgetItem, QMainWindow,
-    QMenu, QMenuBar, QProgressBar, QPushButton,
-    QScrollArea, QSizePolicy, QSpacerItem, QSpinBox,
-    QSplitter, QTabWidget, QTableWidget, QTableWidgetItem,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QComboBox,
+    QDoubleSpinBox, QFrame, QGroupBox, QHBoxLayout,
+    QHeaderView, QLabel, QLineEdit, QListWidgetItem,
+    QMainWindow, QMenu, QMenuBar, QProgressBar,
+    QPushButton, QScrollArea, QSizePolicy, QSpacerItem,
+    QSpinBox, QSplitter, QTabWidget, QTableWidget,
+    QTableWidgetItem, QVBoxLayout, QWidget)
 
 from c3d_parser.view.widgets import CustomListWidget
 from . import resources_rc
@@ -578,6 +578,16 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_14.addWidget(self.tableLog)
 
+        self.horizontalLayout_18 = QHBoxLayout()
+        self.horizontalLayout_18.setObjectName(u"horizontalLayout_18")
+        self.checkBoxSuppressWarnings = QCheckBox(self.tabLog)
+        self.checkBoxSuppressWarnings.setObjectName(u"checkBoxSuppressWarnings")
+
+        self.horizontalLayout_18.addWidget(self.checkBoxSuppressWarnings)
+
+
+        self.verticalLayout_14.addLayout(self.horizontalLayout_18)
+
         self.tabWidget.addTab(self.tabLog, "")
 
         self.verticalLayout_3.addWidget(self.tabWidget)
@@ -707,6 +717,7 @@ class Ui_MainWindow(object):
         ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Level", None));
         ___qtablewidgetitem3 = self.tableLog.horizontalHeaderItem(3)
         ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Description", None));
+        self.checkBoxSuppressWarnings.setText(QCoreApplication.translate("MainWindow", u"Suppress warnings", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabLog), QCoreApplication.translate("MainWindow", u"Log", None))
         self.labelProgress.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))

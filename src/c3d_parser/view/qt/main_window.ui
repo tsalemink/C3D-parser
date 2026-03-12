@@ -1016,6 +1016,17 @@
               </column>
              </widget>
             </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_18">
+              <item>
+               <widget class="QCheckBox" name="checkBoxSuppressWarnings">
+                <property name="text">
+                 <string>Suppress warnings</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
            </layout>
           </widget>
          </widget>

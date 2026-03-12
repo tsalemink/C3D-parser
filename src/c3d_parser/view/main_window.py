@@ -94,6 +94,7 @@ class MainWindow(QMainWindow):
         self._setup_progress_bar()
         self._validate_directory()
         self._setup_visualiser()
+        self._setup_log_tab()
 
         colours = [self._colour_left, self._colour_right, self._colour_selection]
         self._grf_curves = GaitCurves(self._grf_canvas, colours)
@@ -110,6 +111,28 @@ class MainWindow(QMainWindow):
         self._plotter = QtInteractor(self._ui.tabVisualiser)
         self._plotter.set_background('#2b2b2b')
         self._ui.tabVisualiser.layout().addWidget(self._plotter.interactor)
+
+    def _setup_log_tab(self):
+        logger.emitter.log_received.connect(self._write_log)
+        self._ui.checkBoxSuppressWarnings.stateChanged.connect(self._filter_log)
+
+    def _write_log(self, date, time, level, message):
+        row = self._ui.tableLog.rowCount()
+        suppress = self._ui.checkBoxSuppressWarnings.isChecked()
+
+        self._ui.tableLog.insertRow(row)
+        self._ui.tableLog.setItem(row, 0, QTableWidgetItem(date))
+        self._ui.tableLog.setItem(row, 1, QTableWidgetItem(time))
+        self._ui.tableLog.setItem(row, 2, QTableWidgetItem(level))
+        self._ui.tableLog.setItem(row, 3, QTableWidgetItem(message))
+        self._ui.tableLog.setRowHidden(row, suppress and level == 'WARNING')
+        self._ui.tableLog.scrollToBottom()
+
+    def _filter_log(self):
+        suppress = self._ui.checkBoxSuppressWarnings.isChecked()
+        for row in range(self._ui.tableLog.rowCount()):
+            row_level = self._ui.tableLog.item(row, 2).text()
+            self._ui.tableLog.setRowHidden(row, suppress and row_level == 'WARNING')
 
     def _clear_visualiser(self):
         self._plotter.clear_actors()
@@ -321,8 +344,6 @@ class MainWindow(QMainWindow):
         self._ui.listWidgetFiles.category_changed.connect(self._update_subject_info)
         self._ui.listWidgetFiles.itemChanged.connect(self._update_subject_info)
 
-        logger.emitter.log_received.connect(self._write_log)
-
     def _validate_input_directory(self):
         directory_valid = self._validate_directory()
 
@@ -386,15 +407,6 @@ class MainWindow(QMainWindow):
                     self._ui.listWidgetFiles.addItem(item)
 
         self._update_subject_info()
-
-    def _write_log(self, date, time, level, message):
-        row = self._ui.tableLog.rowCount()
-        self._ui.tableLog.insertRow(row)
-        self._ui.tableLog.setItem(row, 0, QTableWidgetItem(date))
-        self._ui.tableLog.setItem(row, 1, QTableWidgetItem(time))
-        self._ui.tableLog.setItem(row, 2, QTableWidgetItem(level))
-        self._ui.tableLog.setItem(row, 3, QTableWidgetItem(message))
-        self._ui.tableLog.scrollToBottom()
 
     def _update_subject_info(self):
         static_trials = []
