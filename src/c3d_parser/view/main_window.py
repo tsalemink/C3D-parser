@@ -441,7 +441,7 @@ class MainWindow(QMainWindow):
         input_directory = self._ui.lineEditInputDirectory.text()
         output_directory = self._ui.lineEditOutputDirectory.text()
         session_name = os.path.basename(input_directory)
-        self._output_directory = os.path.join(output_directory, output_directory_name)
+        self._output_directory = os.path.normpath(os.path.join(output_directory, output_directory_name))
 
         if os.path.exists(self._output_directory):
             reply = QMessageBox.warning(self, "Warning",
@@ -607,6 +607,8 @@ class MainWindow(QMainWindow):
         write_normalised_kinematics(self._kinematic_data, selected_trials, kinematic_exclusions, self._output_directory)
         write_normalised_kinetics(self._kinetic_data, selected_trials, kinetic_exclusions, self._output_directory)
         write_spatiotemporal_data(self._s_t_data, selected_trials, self._output_directory)
+
+        self._progress_tracker.progress.emit(f"Final outputs written to {self._output_directory}", "green")
 
     def _reset_grf_plots(self):
         self._plot_x.clear()
