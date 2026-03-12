@@ -3,9 +3,17 @@ import os
 import logging
 import warnings
 
+from PySide6.QtGui import QColor
 from PySide6.QtCore import QObject, Signal
 
 from c3d_parser.settings.general import APPLICATION_NAME, get_app_directory
+
+
+log_colours = {
+    "ERROR": QColor(255, 200, 200),
+    "WARNING": QColor(255, 240, 180),
+    "INFO": QColor(255, 255, 255),
+}
 
 
 class FilteredLogger:

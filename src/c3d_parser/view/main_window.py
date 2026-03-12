@@ -25,7 +25,7 @@ from c3d_parser.view.dialogs.marker_set_dialog import MarkerSetDialog
 from c3d_parser.view.dialogs.delete_marker_set_dialog import DeleteMarkerSetDialog
 from c3d_parser.view.dialogs.about_dialog import AboutDialog
 from c3d_parser.view.utils import handle_runtime_error
-from c3d_parser.settings.logging import logger
+from c3d_parser.settings.logging import logger, log_colours
 
 
 output_directory_name = 'c3d_parser_output'
@@ -121,10 +121,11 @@ class MainWindow(QMainWindow):
         suppress = self._ui.checkBoxSuppressWarnings.isChecked()
 
         self._ui.tableLog.insertRow(row)
-        self._ui.tableLog.setItem(row, 0, QTableWidgetItem(date))
-        self._ui.tableLog.setItem(row, 1, QTableWidgetItem(time))
-        self._ui.tableLog.setItem(row, 2, QTableWidgetItem(level))
-        self._ui.tableLog.setItem(row, 3, QTableWidgetItem(message))
+        colour = log_colours.get(level, QColor(255, 255, 255))
+        for column, text in enumerate([date, time, level, message]):
+            item = QTableWidgetItem(text)
+            item.setBackground(colour)
+            self._ui.tableLog.setItem(row, column, item)
         self._ui.tableLog.setRowHidden(row, suppress and level == 'WARNING')
         self._ui.tableLog.scrollToBottom()
 
