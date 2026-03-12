@@ -16,11 +16,12 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QComboBox, QDoubleSpinBox, QFrame,
-    QGroupBox, QHBoxLayout, QLabel, QLineEdit,
-    QListWidgetItem, QMainWindow, QMenu, QMenuBar,
-    QProgressBar, QPushButton, QScrollArea, QSizePolicy,
-    QSpacerItem, QSpinBox, QSplitter, QTabWidget,
+from PySide6.QtWidgets import (QAbstractItemView, QApplication, QComboBox, QDoubleSpinBox,
+    QFrame, QGroupBox, QHBoxLayout, QHeaderView,
+    QLabel, QLineEdit, QListWidgetItem, QMainWindow,
+    QMenu, QMenuBar, QProgressBar, QPushButton,
+    QScrollArea, QSizePolicy, QSpacerItem, QSpinBox,
+    QSplitter, QTabWidget, QTableWidget, QTableWidgetItem,
     QVBoxLayout, QWidget)
 
 from c3d_parser.view.widgets import CustomListWidget
@@ -529,6 +530,55 @@ class Ui_MainWindow(object):
         self.verticalLayout_13 = QVBoxLayout(self.tabVisualiser)
         self.verticalLayout_13.setObjectName(u"verticalLayout_13")
         self.tabWidget.addTab(self.tabVisualiser, "")
+        self.tabLog = QWidget()
+        self.tabLog.setObjectName(u"tabLog")
+        self.verticalLayout_14 = QVBoxLayout(self.tabLog)
+        self.verticalLayout_14.setObjectName(u"verticalLayout_14")
+        self.tableLog = QTableWidget(self.tabLog)
+        if (self.tableLog.columnCount() < 4):
+            self.tableLog.setColumnCount(4)
+        __qtablewidgetitem = QTableWidgetItem()
+        self.tableLog.setHorizontalHeaderItem(0, __qtablewidgetitem)
+        __qtablewidgetitem1 = QTableWidgetItem()
+        self.tableLog.setHorizontalHeaderItem(1, __qtablewidgetitem1)
+        __qtablewidgetitem2 = QTableWidgetItem()
+        self.tableLog.setHorizontalHeaderItem(2, __qtablewidgetitem2)
+        __qtablewidgetitem3 = QTableWidgetItem()
+        self.tableLog.setHorizontalHeaderItem(3, __qtablewidgetitem3)
+        self.tableLog.setObjectName(u"tableLog")
+        self.tableLog.setEnabled(True)
+        self.tableLog.setMouseTracking(False)
+        self.tableLog.setAutoFillBackground(False)
+        self.tableLog.setInputMethodHints(Qt.InputMethodHint.ImhNone)
+        self.tableLog.setFrameShadow(QFrame.Shadow.Raised)
+        self.tableLog.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.tableLog.setTabKeyNavigation(False)
+        self.tableLog.setProperty(u"showDropIndicator", False)
+        self.tableLog.setDragDropOverwriteMode(False)
+        self.tableLog.setAlternatingRowColors(False)
+        self.tableLog.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.tableLog.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.tableLog.setShowGrid(False)
+        self.tableLog.setGridStyle(Qt.PenStyle.NoPen)
+        self.tableLog.setSortingEnabled(True)
+        self.tableLog.setCornerButtonEnabled(False)
+        self.tableLog.setRowCount(0)
+        self.tableLog.setColumnCount(4)
+        self.tableLog.horizontalHeader().setVisible(True)
+        self.tableLog.horizontalHeader().setCascadingSectionResizes(True)
+        self.tableLog.horizontalHeader().setMinimumSectionSize(75)
+        self.tableLog.horizontalHeader().setDefaultSectionSize(75)
+        self.tableLog.horizontalHeader().setHighlightSections(True)
+        self.tableLog.horizontalHeader().setProperty(u"showSortIndicator", True)
+        self.tableLog.horizontalHeader().setStretchLastSection(True)
+        self.tableLog.verticalHeader().setVisible(False)
+        self.tableLog.verticalHeader().setMinimumSectionSize(15)
+        self.tableLog.verticalHeader().setDefaultSectionSize(20)
+        self.tableLog.verticalHeader().setHighlightSections(False)
+
+        self.verticalLayout_14.addWidget(self.tableLog)
+
+        self.tabWidget.addTab(self.tabLog, "")
 
         self.verticalLayout_3.addWidget(self.tabWidget)
 
@@ -599,7 +649,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(5)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -649,6 +699,15 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabGRF), QCoreApplication.translate("MainWindow", u"GRF", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabSpatiotemporal), QCoreApplication.translate("MainWindow", u"Spatio-temporal", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabVisualiser), QCoreApplication.translate("MainWindow", u"Visualiser", None))
+        ___qtablewidgetitem = self.tableLog.horizontalHeaderItem(0)
+        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"Date", None));
+        ___qtablewidgetitem1 = self.tableLog.horizontalHeaderItem(1)
+        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"Time", None));
+        ___qtablewidgetitem2 = self.tableLog.horizontalHeaderItem(2)
+        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"Level", None));
+        ___qtablewidgetitem3 = self.tableLog.horizontalHeaderItem(3)
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"Description", None));
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabLog), QCoreApplication.translate("MainWindow", u"Log", None))
         self.labelProgress.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))

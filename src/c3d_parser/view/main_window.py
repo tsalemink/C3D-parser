@@ -9,7 +9,7 @@ from PySide6.QtGui import QPen, QColor, QFontMetrics
 from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QTimer, QAbstractTableModel, QRect
 from PySide6.QtWidgets import (QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog,
                                QMessageBox, QTableView, QLabel, QAbstractButton, QHeaderView, QStyledItemDelegate,
-                               QWidget, QVBoxLayout, QHBoxLayout)
+                               QWidget, QVBoxLayout, QHBoxLayout, QTableWidgetItem)
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from pyvistaqt import QtInteractor
@@ -321,6 +321,8 @@ class MainWindow(QMainWindow):
         self._ui.listWidgetFiles.category_changed.connect(self._update_subject_info)
         self._ui.listWidgetFiles.itemChanged.connect(self._update_subject_info)
 
+        logger.emitter.log_received.connect(self._write_log)
+
     def _validate_input_directory(self):
         directory_valid = self._validate_directory()
 
@@ -384,6 +386,15 @@ class MainWindow(QMainWindow):
                     self._ui.listWidgetFiles.addItem(item)
 
         self._update_subject_info()
+
+    def _write_log(self, date, time, level, message):
+        row = self._ui.tableLog.rowCount()
+        self._ui.tableLog.insertRow(row)
+        self._ui.tableLog.setItem(row, 0, QTableWidgetItem(date))
+        self._ui.tableLog.setItem(row, 1, QTableWidgetItem(time))
+        self._ui.tableLog.setItem(row, 2, QTableWidgetItem(level))
+        self._ui.tableLog.setItem(row, 3, QTableWidgetItem(message))
+        self._ui.tableLog.scrollToBottom()
 
     def _update_subject_info(self):
         static_trials = []
