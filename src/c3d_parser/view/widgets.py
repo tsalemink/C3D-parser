@@ -19,6 +19,8 @@ class CustomListWidget(QListWidget):
         super().__init__(parent)
         self.setItemDelegate(CustomDelegate())
 
+        self.setStyleSheet("QListWidget { padding-top: 5px; padding-right: 3px; }")
+
     def contextMenuEvent(self, event):
         item = self.itemAt(event.pos())
         if item:
@@ -90,3 +92,8 @@ class CustomDelegate(QStyledItemDelegate):
         rect = option.rect.adjusted(0, 0, -5, 0)
         painter.drawText(rect, Qt.AlignRight, category)
         painter.restore()
+
+    def sizeHint(self, option, index):
+        size = super().sizeHint(option, index)
+        size.setHeight(20)
+        return size
