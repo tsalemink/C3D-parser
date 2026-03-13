@@ -41,6 +41,8 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
 
     clear_directory(output_directory)
 
+    logger.info(f"Processing session {os.path.normpath(input_directory)}.")
+
     file_path = os.path.normpath(os.path.join(input_directory, static_trial))
     frame, static_trc_path, height, weight = parse_static_trial(file_path, lab, marker_diameter, output_directory,
                                                                 static_data)
@@ -80,6 +82,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
 
     write_c3d_parser_history(input_directory, static_trial, deidentified_file_names)
 
+    logger.info("Fitting shape model.")
     dynamic_trc_path = list(trc_file_paths.values())[0] if trc_file_paths else ""
     osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, marker_diameter, static_data,
                                    output_directory, optimise_knee_axis, progress_tracker)
@@ -90,6 +93,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     progress_tracker.progress.emit("Running IK and ID", "black")
 
     for trial in trc_file_paths.keys():
+        logger.info(f"Running IK and ID for {trial}.")
         ik_data, ik_output = run_ik(osim_model, trc_file_paths[trial], output_directory, marker_data_rate)
         ik_data = pd.concat([ik_data, foot_progression_data[trial]], axis=1)
         id_data = run_id(osim_model, ik_data, ik_output, grf_file_paths[trial], output_directory, marker_data_rate, event_data[trial], weight)
@@ -105,7 +109,8 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
 
 
 def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_data):
-    logger.info(f"Parsing static trial: {c3d_file}")
+    file_name = os.path.basename(c3d_file)
+    logger.info(f"Parsing static trial: {file_name}.")
 
     output_file_name = 'static'
     de_identify_c3d(c3d_file, output_directory, output_file_name)
@@ -130,7 +135,8 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_
 
 
 def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_data_rate, static_data):
-    logger.info(f"Parsing dynamic trial: {c3d_file}")
+    file_name = os.path.basename(c3d_file)
+    logger.info(f"Parsing dynamic trial: {file_name}.")
 
     output_file_name = f'dynamic_{trial_index}'
     de_identify_c3d(c3d_file, output_directory, output_file_name)

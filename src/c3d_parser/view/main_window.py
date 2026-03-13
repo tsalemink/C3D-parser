@@ -575,6 +575,7 @@ class MainWindow(QMainWindow):
         self._visualise_model()
 
         self._show_selected_trials()
+        logger.info("Process completed successfully.")
         self._progress_tracker.progress.emit("Process completed successfully", "green")
 
         self._ui.pushButtonParseData.setEnabled(True)
@@ -632,6 +633,7 @@ class MainWindow(QMainWindow):
         write_normalised_kinetics(self._kinetic_data, selected_trials, kinetic_exclusions, self._output_directory)
         write_spatiotemporal_data(self._s_t_data, selected_trials, self._output_directory)
 
+        logger.info(f"Final outputs written to {self._output_directory}.")
         self._progress_tracker.progress.emit(f"Final outputs written to {self._output_directory}", "green")
 
     def _reset_grf_plots(self):
