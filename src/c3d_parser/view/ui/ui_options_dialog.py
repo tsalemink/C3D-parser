@@ -16,15 +16,15 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QDoubleSpinBox,
-    QFormLayout, QGroupBox, QHBoxLayout, QLabel,
-    QLineEdit, QPushButton, QSizePolicy, QSpacerItem,
-    QVBoxLayout, QWidget)
+    QFormLayout, QGridLayout, QGroupBox, QHBoxLayout,
+    QLabel, QLineEdit, QPushButton, QSizePolicy,
+    QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         if not OptionsDialog.objectName():
             OptionsDialog.setObjectName(u"OptionsDialog")
-        OptionsDialog.resize(450, 354)
+        OptionsDialog.resize(450, 468)
         self.verticalLayout = QVBoxLayout(OptionsDialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.groupBox_3 = QGroupBox(OptionsDialog)
@@ -195,6 +195,23 @@ class Ui_OptionsDialog(object):
 
         self.verticalLayout.addWidget(self.groupBox_2)
 
+        self.groupBox_4 = QGroupBox(OptionsDialog)
+        self.groupBox_4.setObjectName(u"groupBox_4")
+        self.gridLayout = QGridLayout(self.groupBox_4)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.checkBoxFilterTRC = QCheckBox(self.groupBox_4)
+        self.checkBoxFilterTRC.setObjectName(u"checkBoxFilterTRC")
+
+        self.gridLayout.addWidget(self.checkBoxFilterTRC, 0, 0, 1, 1)
+
+        self.checkBoxFilterGRF = QCheckBox(self.groupBox_4)
+        self.checkBoxFilterGRF.setObjectName(u"checkBoxFilterGRF")
+
+        self.gridLayout.addWidget(self.checkBoxFilterGRF, 1, 0, 1, 1)
+
+
+        self.verticalLayout.addWidget(self.groupBox_4)
+
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
@@ -242,6 +259,9 @@ class Ui_OptionsDialog(object):
         self.labelSelectionColour.setText("")
         self.groupBox_2.setTitle(QCoreApplication.translate("OptionsDialog", u"OpenSim Model", None))
         self.checkBoxOptimiseKneeAxis.setText(QCoreApplication.translate("OptionsDialog", u"Perform knee-axis optimisation", None))
+        self.groupBox_4.setTitle(QCoreApplication.translate("OptionsDialog", u"Filtering", None))
+        self.checkBoxFilterTRC.setText(QCoreApplication.translate("OptionsDialog", u"Filter TRC data", None))
+        self.checkBoxFilterGRF.setText(QCoreApplication.translate("OptionsDialog", u"Filter GRF data", None))
         self.pushButtonOK.setText(QCoreApplication.translate("OptionsDialog", u"OK", None))
         self.pushButtonCancel.setText(QCoreApplication.translate("OptionsDialog", u"Cancel", None))
     # retranslateUi

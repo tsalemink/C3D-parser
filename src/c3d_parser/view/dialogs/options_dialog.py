@@ -67,6 +67,8 @@ class OptionsDialog(QDialog):
         self._ui.lineEditLeftColour.setText(options['colour_left'])
         self._ui.lineEditRightColour.setText(options['colour_right'])
         self._ui.lineEditSelectionColour.setText(options['colour_selection'])
+        self._ui.checkBoxFilterTRC.setChecked(options['filter_trc'])
+        self._ui.checkBoxFilterGRF.setChecked(options['filter_grf'])
 
     def save(self):
         options = {
@@ -76,7 +78,9 @@ class OptionsDialog(QDialog):
             'optimise_knee_axis': self._ui.checkBoxOptimiseKneeAxis.isChecked(),
             'colour_left': self._ui.lineEditLeftColour.text(),
             'colour_right': self._ui.lineEditRightColour.text(),
-            'colour_selection': self._ui.lineEditSelectionColour.text()
+            'colour_selection': self._ui.lineEditSelectionColour.text(),
+            'filter_trc': self._ui.checkBoxFilterTRC.isChecked(),
+            'filter_grf': self._ui.checkBoxFilterGRF.isChecked(),
         }
 
         return options

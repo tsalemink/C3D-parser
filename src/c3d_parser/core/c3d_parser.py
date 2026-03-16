@@ -37,7 +37,7 @@ required_markers = [{"LASI", "RASI"}, {"LKNE", "RKNE"}, {"LANK", "RANK"}, {"LMED
 
 
 def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, static_data,
-                  optimise_knee_axis, progress_tracker):
+                  optimise_knee_axis, filter_trc, filter_grf, progress_tracker):
 
     clear_directory(output_directory)
 
@@ -66,7 +66,8 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         file_path = os.path.normpath(os.path.join(input_directory, trial))
         try:
             analog_data, events, foot_progression, s_t_data, trc_file_path, grf_file_path = \
-                parse_dynamic_trial(file_path, lab, output_directory, trial_index, marker_data_rate, static_data)
+                parse_dynamic_trial(file_path, lab, output_directory, trial_index, marker_data_rate, static_data,
+                                    filter_trc, filter_grf)
         except ParserError as e:
             logger.error(e)
             continue
@@ -134,7 +135,7 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_
     return frame, trc_file_path, height, weight
 
 
-def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_data_rate, static_data):
+def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_data_rate, static_data, filter_trc, filter_grf):
     file_name = os.path.basename(c3d_file)
     logger.info(f"Parsing dynamic trial: {file_name}.")
 
@@ -149,7 +150,8 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
 
     # Extract GRF data from C3D file.
     start_frame, end_frame = trim_frames(frame_data)
-    filter_data(frame_data, trc_data['DataRate'])
+    if filter_trc:
+        filter_data(frame_data, trc_data['DataRate'])
     frame_data = resample_data(frame_data, trc_data['DataRate'], marker_data_rate)
     analog_data, data_rate, events, plate_count, corners = extract_data(c3d_file, start_frame, end_frame)
 
@@ -158,7 +160,8 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     validate_foot_strikes(events)
 
     # Harmonise GRF data.
-    filter_data(analog_data, data_rate)
+    if filter_grf:
+        filter_data(analog_data, data_rate)
     analog_data = resample_data(analog_data, data_rate, frequency=1000)
     zero_grf_data(analog_data, plate_count)
     analog_data = calculate_force_and_couple(analog_data, plate_count)

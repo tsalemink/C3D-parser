@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>354</height>
+    <height>468</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -254,6 +254,29 @@ background-color: #FFFFFF</string>
         </property>
         <property name="checked">
          <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="title">
+      <string>Filtering</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QCheckBox" name="checkBoxFilterTRC">
+        <property name="text">
+         <string>Filter TRC data</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="checkBoxFilterGRF">
+        <property name="text">
+         <string>Filter GRF data</string>
         </property>
        </widget>
       </item>

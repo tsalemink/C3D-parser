@@ -71,6 +71,8 @@ class MainWindow(QMainWindow):
         self._input_data_directory = ''
         self._output_data_directory = ''
         self._optimise_knee_axis = True
+        self._filter_trc = True
+        self._filter_grf = True
 
         self._colour_left = '#A52A2A'
         self._colour_right = '#0F52BA'
@@ -558,7 +560,7 @@ class MainWindow(QMainWindow):
 
         self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, input_directory,
                                    self._output_directory, lab, marker_diameter, static_data,
-                                   optimise_knee_axis, self._progress_tracker)
+                                   optimise_knee_axis, self._filter_trc, self._filter_grf, self._progress_tracker)
         self._worker.finished.connect(self._parse_finished)
         self._worker.cancelled.connect(self._parse_cancelled)
         self._worker.failed.connect(self._parse_failed)
@@ -845,7 +847,9 @@ class MainWindow(QMainWindow):
             'optimise_knee_axis': self._optimise_knee_axis,
             'colour_left': self._colour_left,
             'colour_right': self._colour_right,
-            'colour_selection': self._colour_selection
+            'colour_selection': self._colour_selection,
+            'filter_trc': self._filter_trc,
+            'filter_grf': self._filter_grf,
         }
 
         return options
@@ -858,6 +862,8 @@ class MainWindow(QMainWindow):
         self._colour_left = options['colour_left']
         self._colour_right = options['colour_right']
         self._colour_selection = options['colour_selection']
+        self._filter_trc = options['filter_trc']
+        self._filter_grf = options['filter_grf']
 
     def _show_custom_marker_set_dialog(self):
         static_trials = []
@@ -920,6 +926,8 @@ class MainWindow(QMainWindow):
         settings.setValue('colour_left', self._colour_left)
         settings.setValue('colour_right', self._colour_right)
         settings.setValue('colour_selection', self._colour_selection)
+        settings.setValue('filter_trc', self._filter_trc)
+        settings.setValue('filter_grf', self._filter_grf)
         settings.endGroup()
 
     def _load_settings(self):
@@ -956,6 +964,10 @@ class MainWindow(QMainWindow):
             self._colour_right = settings.value('colour_right')
         if settings.contains('colour_selection'):
             self._colour_selection = settings.value('colour_selection')
+        if settings.contains('filter_trc'):
+            self._filter_trc = settings.value('filter_trc') == 'true'
+        if settings.contains('filter_grf'):
+            self._filter_grf = settings.value('filter_grf') == 'true'
         settings.endGroup()
 
     def _quit_application(self):
