@@ -70,7 +70,7 @@ def perform_id(osim_file, ik_file, grf_file, output_file):
     id_tool.setExternalLoadsFileName(external_loads_file)
     id_tool.setResultsDir(output_directory)
     id_tool.setOutputGenForceFileName(output_file_name)
-    id_tool.setLowpassCutoffFrequency(6)
+    id_tool.setLowpassCutoffFrequency(8)
     id_tool.setStartTime(time_values[0])
     id_tool.setEndTime(time_values[-1])
     id_tool.run()
