@@ -4,23 +4,56 @@ import copy
 import opensim as osim
 import xml.etree.ElementTree as ET
 
+from c3d_parser.settings.logging import logger
+
 
 osim_resources = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'osim_resources')
 EXTERNAL_LOADS_TEMPLATE = ET.parse(os.path.join(osim_resources, 'external_loads_template.xml'))
 IK_TASK_SET = os.path.join(osim_resources, 'ik_task_set.xml')
+osim.Logger.setLevel(osim.Logger.Level_Off)
 
 
 def perform_ik(osim_file, trc_file, output_file):
     model = osim.Model(osim_file)
     model.initSystem()
 
+    ik_directory = os.path.dirname(output_file)
+    error_file = os.path.join(ik_directory, '_ik_marker_errors.sto')
+
     ik_tool = osim.InverseKinematicsTool()
     ik_tool.setModel(model)
     ik_tool.setMarkerDataFileName(trc_file)
     ik_tool.set_IKTaskSet(osim.IKTaskSet(IK_TASK_SET))
     ik_tool.setOutputMotionFileName(output_file)
-    ik_tool.set_report_errors(False)
+    ik_tool.setResultsDir(ik_directory)
+    ik_tool.set_report_errors(True)
     ik_tool.run()
+
+    log_ik_errors(error_file)
+
+
+def log_ik_errors(output_file):
+    error_file = os.path.join(os.path.dirname(output_file), "_ik_marker_errors.sto")
+    if not os.path.isfile(error_file):
+        logger.warning(f"Could not find IK marker errors file: {error_file}.")
+    storage = osim.Storage(error_file)
+
+    rms_array = osim.ArrayDouble()
+    max_array = osim.ArrayDouble()
+    storage.getDataColumn("marker_error_RMS", rms_array)
+    storage.getDataColumn("marker_error_max", max_array)
+
+    rms_values = [rms_array.get(i) for i in range(rms_array.getSize())]
+    max_values = [max_array.get(i) for i in range(max_array.getSize())]
+    total_rmse = round((sum(v**2 for v in rms_values) / len(rms_values)) ** 0.5 * 1000, 1)
+    max_error = round(max(max_values) * 1000, 1)
+
+    logger.info(f"Total RMSE (IK): {total_rmse}mm. Max error (IK): {max_error}mm.")
+
+    try:
+        os.remove(error_file)
+    except Exception as e:
+        logger.warning(f"Unable to delete IK marker errors file: {error_file}. {e}")
 
 
 def perform_id(osim_file, ik_file, grf_file, output_file):
