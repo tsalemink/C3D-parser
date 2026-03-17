@@ -24,7 +24,7 @@ class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         if not OptionsDialog.objectName():
             OptionsDialog.setObjectName(u"OptionsDialog")
-        OptionsDialog.resize(450, 468)
+        OptionsDialog.resize(450, 562)
         self.verticalLayout = QVBoxLayout(OptionsDialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.groupBox_3 = QGroupBox(OptionsDialog)
@@ -212,6 +212,41 @@ class Ui_OptionsDialog(object):
 
         self.verticalLayout.addWidget(self.groupBox_4)
 
+        self.groupBox_5 = QGroupBox(OptionsDialog)
+        self.groupBox_5.setObjectName(u"groupBox_5")
+        self.verticalLayout_2 = QVBoxLayout(self.groupBox_5)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.checkBoxCustomTaskSet = QCheckBox(self.groupBox_5)
+        self.checkBoxCustomTaskSet.setObjectName(u"checkBoxCustomTaskSet")
+
+        self.verticalLayout_2.addWidget(self.checkBoxCustomTaskSet)
+
+        self.horizontalLayout_7 = QHBoxLayout()
+        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.labelIKTaskSet = QLabel(self.groupBox_5)
+        self.labelIKTaskSet.setObjectName(u"labelIKTaskSet")
+
+        self.horizontalLayout_7.addWidget(self.labelIKTaskSet)
+
+        self.lineEditIKTaskSet = QLineEdit(self.groupBox_5)
+        self.lineEditIKTaskSet.setObjectName(u"lineEditIKTaskSet")
+
+        self.horizontalLayout_7.addWidget(self.lineEditIKTaskSet)
+
+        self.pushButtonIKTaskSetChooser = QPushButton(self.groupBox_5)
+        self.pushButtonIKTaskSetChooser.setObjectName(u"pushButtonIKTaskSetChooser")
+        sizePolicy.setHeightForWidth(self.pushButtonIKTaskSetChooser.sizePolicy().hasHeightForWidth())
+        self.pushButtonIKTaskSetChooser.setSizePolicy(sizePolicy)
+        self.pushButtonIKTaskSetChooser.setStyleSheet(u"padding: 3px 8px;")
+
+        self.horizontalLayout_7.addWidget(self.pushButtonIKTaskSetChooser)
+
+
+        self.verticalLayout_2.addLayout(self.horizontalLayout_7)
+
+
+        self.verticalLayout.addWidget(self.groupBox_5)
+
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
@@ -262,6 +297,10 @@ class Ui_OptionsDialog(object):
         self.groupBox_4.setTitle(QCoreApplication.translate("OptionsDialog", u"Filtering", None))
         self.checkBoxFilterTRC.setText(QCoreApplication.translate("OptionsDialog", u"Filter TRC data", None))
         self.checkBoxFilterGRF.setText(QCoreApplication.translate("OptionsDialog", u"Filter GRF data", None))
+        self.groupBox_5.setTitle(QCoreApplication.translate("OptionsDialog", u"Inverse Kinematics", None))
+        self.checkBoxCustomTaskSet.setText(QCoreApplication.translate("OptionsDialog", u"Use custom IK task set file", None))
+        self.labelIKTaskSet.setText(QCoreApplication.translate("OptionsDialog", u"IK task set file:", None))
+        self.pushButtonIKTaskSetChooser.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
         self.pushButtonOK.setText(QCoreApplication.translate("OptionsDialog", u"OK", None))
         self.pushButtonCancel.setText(QCoreApplication.translate("OptionsDialog", u"Cancel", None))
     # retranslateUi

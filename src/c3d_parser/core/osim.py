@@ -9,11 +9,11 @@ from c3d_parser.settings.logging import logger
 
 osim_resources = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'osim_resources')
 EXTERNAL_LOADS_TEMPLATE = ET.parse(os.path.join(osim_resources, 'external_loads_template.xml'))
-IK_TASK_SET = os.path.join(osim_resources, 'ik_task_set.xml')
+DEFAULT_IK_TASK_SET = os.path.join(osim_resources, 'ik_task_set.xml')
 osim.Logger.setLevel(osim.Logger.Level_Off)
 
 
-def perform_ik(osim_file, trc_file, output_file):
+def perform_ik(osim_file, trc_file, output_file, ik_task_set=None):
     model = osim.Model(osim_file)
     model.initSystem()
 
@@ -23,7 +23,10 @@ def perform_ik(osim_file, trc_file, output_file):
     ik_tool = osim.InverseKinematicsTool()
     ik_tool.setModel(model)
     ik_tool.setMarkerDataFileName(trc_file)
-    ik_tool.set_IKTaskSet(osim.IKTaskSet(IK_TASK_SET))
+    if ik_task_set:
+        ik_tool.set_IKTaskSet(osim.IKTaskSet(ik_task_set))
+    else:
+        ik_tool.set_IKTaskSet(osim.IKTaskSet(DEFAULT_IK_TASK_SET))
     ik_tool.setOutputMotionFileName(output_file)
     ik_tool.setResultsDir(ik_directory)
     ik_tool.set_report_errors(True)

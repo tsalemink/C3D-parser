@@ -37,7 +37,7 @@ required_markers = [{"LASI", "RASI"}, {"LKNE", "RKNE"}, {"LANK", "RANK"}, {"LMED
 
 
 def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, static_data,
-                  optimise_knee_axis, filter_trc, filter_grf, progress_tracker):
+                  optimise_knee_axis, filter_trc, filter_grf, ik_task_set, progress_tracker):
 
     clear_directory(output_directory)
 
@@ -95,7 +95,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
 
     for trial in trc_file_paths.keys():
         logger.info(f"Running IK and ID for {trial}.")
-        ik_data, ik_output = run_ik(osim_model, trc_file_paths[trial], output_directory, marker_data_rate)
+        ik_data, ik_output = run_ik(osim_model, trc_file_paths[trial], output_directory, marker_data_rate, ik_task_set)
         ik_data = pd.concat([ik_data, foot_progression_data[trial]], axis=1)
         id_data = run_id(osim_model, ik_data, ik_output, grf_file_paths[trial], output_directory, marker_data_rate, event_data[trial], weight)
 
@@ -217,14 +217,14 @@ def write_c3d_parser_history(input_directory, static_trial, deidentified_file_na
         raise ParserError("Could not write c3d_parser_history.log")
 
 
-def run_ik(osim_model, trc_file_path, output_directory, marker_data_rate):
+def run_ik(osim_model, trc_file_path, output_directory, marker_data_rate, ik_task_set):
     # Perform inverse kinematics.
     file_name = os.path.splitext(os.path.basename(trc_file_path))[0]
     ik_directory = os.path.join(output_directory, 'ik')
     if not os.path.exists(ik_directory):
         os.makedirs(ik_directory)
     ik_output = os.path.join(ik_directory, f"{file_name}_IK.mot")
-    perform_ik(osim_model, trc_file_path, ik_output)
+    perform_ik(osim_model, trc_file_path, ik_output, ik_task_set)
     ik_data = read_data(ik_output)
     filter_data(ik_data, marker_data_rate)
 

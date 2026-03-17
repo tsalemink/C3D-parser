@@ -23,6 +23,7 @@ class OptionsDialog(QDialog):
         }
 
         self._setup_colour_settings()
+        self._setup_ik_settings()
         self._disable_default_button_selection()
 
         self._make_connections()
@@ -32,6 +33,9 @@ class OptionsDialog(QDialog):
         self._ui.lineEditRootOutput.textChanged.connect(self._validate_data_directory)
         self._ui.pushButtonRootInputChooser.clicked.connect(self._open_input_directory_chooser)
         self._ui.pushButtonRootOutputChooser.clicked.connect(self._open_output_directory_chooser)
+        self._ui.checkBoxCustomTaskSet.toggled.connect(self._toggle_ik_task_set)
+        self._ui.lineEditIKTaskSet.textChanged.connect(self._validate_ik_task_set_path)
+        self._ui.pushButtonIKTaskSetChooser.clicked.connect(self._open_ik_task_set_chooser)
 
     def _setup_colour_settings(self):
         self._validator = QRegularExpressionValidator(QRegularExpression("^#[0-9A-Fa-f]{6}$"))
@@ -41,6 +45,9 @@ class OptionsDialog(QDialog):
         self._ui.lineEditRightColour.textChanged.connect(self._colour_code_changed)
         self._ui.lineEditSelectionColour.setValidator(self._validator)
         self._ui.lineEditSelectionColour.textChanged.connect(self._colour_code_changed)
+
+    def _setup_ik_settings(self):
+        self._toggle_ik_task_set(self._ui.checkBoxCustomTaskSet.isChecked())
 
     def _colour_code_changed(self, text):
         line_edit = self.sender()
@@ -58,6 +65,17 @@ class OptionsDialog(QDialog):
         self._ui.pushButtonCancel.setAutoDefault(False)
         self._ui.pushButtonRootInputChooser.setAutoDefault(False)
         self._ui.pushButtonRootOutputChooser.setAutoDefault(False)
+        self._ui.pushButtonIKTaskSetChooser.setAutoDefault(False)
+
+    def _toggle_ik_task_set(self, checked):
+        self._ui.labelIKTaskSet.setEnabled(checked)
+        self._ui.lineEditIKTaskSet.setEnabled(checked)
+        self._ui.pushButtonIKTaskSetChooser.setEnabled(checked)
+
+    def _validate_ik_task_set_path(self):
+        path = self._ui.lineEditIKTaskSet.text()
+        valid = os.path.isfile(path) and path.lower().endswith(".xml")
+        self._ui.lineEditIKTaskSet.setStyleSheet(DEFAULT_STYLE_SHEET if valid else INVALID_STYLE_SHEET)
 
     def load(self, options):
         self._ui.doubleSpinBoxLineWidth.setValue(options['line_width'])
@@ -69,6 +87,8 @@ class OptionsDialog(QDialog):
         self._ui.lineEditSelectionColour.setText(options['colour_selection'])
         self._ui.checkBoxFilterTRC.setChecked(options['filter_trc'])
         self._ui.checkBoxFilterGRF.setChecked(options['filter_grf'])
+        self._ui.checkBoxCustomTaskSet.setChecked(options['use_custom_ik_task_set'])
+        self._ui.lineEditIKTaskSet.setText(options['ik_task_set_path'])
 
     def save(self):
         options = {
@@ -81,6 +101,8 @@ class OptionsDialog(QDialog):
             'colour_selection': self._ui.lineEditSelectionColour.text(),
             'filter_trc': self._ui.checkBoxFilterTRC.isChecked(),
             'filter_grf': self._ui.checkBoxFilterGRF.isChecked(),
+            'use_custom_ik_task_set': self._ui.checkBoxCustomTaskSet.isChecked(),
+            'ik_task_set_path': self._ui.lineEditIKTaskSet.text(),
         }
 
         return options
@@ -107,3 +129,14 @@ class OptionsDialog(QDialog):
 
         if directory:
             line_edit.setText(directory)
+
+    def _open_ik_task_set_chooser(self):
+        current_path = self._ui.lineEditIKTaskSet.text()
+        if not os.path.isfile(current_path):
+            current_path = ''
+
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, 'Select File', current_path, 'XML Files (*.xml)')
+
+        if file_path:
+            self._ui.lineEditIKTaskSet.setText(file_path)

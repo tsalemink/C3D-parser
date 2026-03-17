@@ -73,6 +73,8 @@ class MainWindow(QMainWindow):
         self._optimise_knee_axis = True
         self._filter_trc = True
         self._filter_grf = True
+        self._use_custom_ik_task_set = False
+        self._ik_task_set_path = ''
 
         self._colour_left = '#A52A2A'
         self._colour_right = '#0F52BA'
@@ -558,9 +560,11 @@ class MainWindow(QMainWindow):
         self._clear_progress_bar()
         self._ui.progressBar.setVisible(True)
 
+        ik_task_set = self._ik_task_set_path if self._use_custom_ik_task_set else None
         self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, input_directory,
                                    self._output_directory, lab, marker_diameter, static_data,
-                                   optimise_knee_axis, self._filter_trc, self._filter_grf, self._progress_tracker)
+                                   optimise_knee_axis, self._filter_trc, self._filter_grf, ik_task_set,
+                                   self._progress_tracker)
         self._worker.finished.connect(self._parse_finished)
         self._worker.cancelled.connect(self._parse_cancelled)
         self._worker.failed.connect(self._parse_failed)
@@ -850,6 +854,8 @@ class MainWindow(QMainWindow):
             'colour_selection': self._colour_selection,
             'filter_trc': self._filter_trc,
             'filter_grf': self._filter_grf,
+            'use_custom_ik_task_set': self._use_custom_ik_task_set,
+            'ik_task_set_path': self._ik_task_set_path,
         }
 
         return options
@@ -864,6 +870,8 @@ class MainWindow(QMainWindow):
         self._colour_selection = options['colour_selection']
         self._filter_trc = options['filter_trc']
         self._filter_grf = options['filter_grf']
+        self._use_custom_ik_task_set = options['use_custom_ik_task_set']
+        self._ik_task_set_path = options['ik_task_set_path']
 
     def _show_custom_marker_set_dialog(self):
         static_trials = []
@@ -928,6 +936,8 @@ class MainWindow(QMainWindow):
         settings.setValue('colour_selection', self._colour_selection)
         settings.setValue('filter_trc', self._filter_trc)
         settings.setValue('filter_grf', self._filter_grf)
+        settings.setValue('use_custom_ik_task_set', self._use_custom_ik_task_set)
+        settings.setValue('ik_task_set_path', self._ik_task_set_path)
         settings.endGroup()
 
     def _load_settings(self):
@@ -968,6 +978,10 @@ class MainWindow(QMainWindow):
             self._filter_trc = settings.value('filter_trc') == 'true'
         if settings.contains('filter_grf'):
             self._filter_grf = settings.value('filter_grf') == 'true'
+        if settings.contains('use_custom_ik_task_set'):
+            self._use_custom_ik_task_set = settings.value('use_custom_ik_task_set') == 'true'
+        if settings.contains('ik_task_set_path'):
+            self._ik_task_set_path = settings.value('ik_task_set_path')
         settings.endGroup()
 
     def _quit_application(self):
