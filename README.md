@@ -21,13 +21,13 @@ The entire process runs locally and offline.
 
 ## Installation
 
-### Installing the Windows executable (recommended):
+#### Installing the Windows executable (recommended):
 
 The latest release of the C3D-Parser includes a Windows installer for setting up an executable
 version of the application. Simply download and run _C3D-Parser-{release-version}.exe_ for any
 release in the GitHub repository [_Releases_](https://github.com/tsalemink/C3D-parser/releases).
 
-### Installing the Python package:
+#### Installing the Python package:
 
 It is recommended that you create a new virtual environment before installing this package, to
 avoid any potential dependency conflicts with the packages already installed in your Python
@@ -70,10 +70,37 @@ output files will be produced. All outputs are written to the user-defined outpu
 
 ## Options
 
-A number of user settings are available under "View" -> "Options". The "Line Width" option refers
-to the width of the lines displayed on the graphs in the visualisation tabs. Both "Data
-Directories" define the starting directories used when choosing the "Input" and "Output" paths in
-the main window. These settings are retained after you close the application.
+User settings are available under _View_ -> _Options_.
+All settings are retained after you close the application.
+
+<p align="center">
+  <img src="res/images/Options.png" alt="Options Screenshot"/>
+</p>
+
+**File**  
+_Input Data Directory_ and _Output Data Directory_ define the default starting directories for the
+_Input_ and _Output_ directory choosers on the main window.
+
+**Plots**  
+_Line Width_ refers to the width of the lines displayed on the graphs in the visualisation tabs.
+
+Plot colours can be adjusted using colour hex codes. Please ensure the selection colour is
+distinct from the left and right side colours.
+
+**OpenSim Model**  
+After creating the initial OpenSim model, an optional knee axis optimisation can be run to refine
+the model prior to analysis. This process is time-consuming and can be disabled for testing
+purposes.
+
+**Filtering**  
+If the filtering check boxes are selected, the C3D-Parser will filter (8Hz Butterworth low-pass)
+the TRC and GRF inputs before running the rest of the workflow. If your inputs are pre-filtered,
+please deselect these options.
+
+**Inverse Kinematics**  
+If you wish to define custom marker weights, you may do so by providing your own IK task set file.
+Please follow the format used in the C3D-Parser
+[default IK task set](src/c3d_parser/core/osim_resources/ik_task_set.xml).
 
 
 ## Custom Marker Sets
