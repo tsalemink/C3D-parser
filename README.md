@@ -1,4 +1,31 @@
-# C3D-parser
+# C3D-Parser
+
+The C3D-Parser is a Python desktop application for gait analysis.
+
+Given a C3D motion capture session, the C3D-Parser generates a personalised OpenSim lower-limb
+model using an articulated shape model. It then uses this model to run inverse kinematics,
+inverse dynamics, and spatio-temporal analysis using the OpenSim API.
+
+The entire process runs locally and offline.
+
+
+## Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Options](#options)
+- [Custom Marker Sets](#custom-marker-sets)
+- [Input Requirements](#input-requirements)
+- [Feature Requests and Bug Reports](#feature-requests-and-bug-reports)
+
+
+## Installation
+
+### Installing the Windows executable (recommended):
+
+The latest release of the C3D-Parser includes a Windows installer for setting up an executable
+version of the application. Simply download and run _C3D-Parser-{release-version}.exe_ for any
+release in the GitHub repository [_Releases_](https://github.com/tsalemink/C3D-parser/releases).
 
 ### Installing the Python package:
 
@@ -17,14 +44,7 @@ After activating your Python environment and installing OpenSim you can run
 `c3d_parser`.
 
 
-### Installing the Windows executable:
-
-The latest release of the C3D-Parser also provides a Windows installer for setting up an executable
-version of the application. Simply download and run _C3D-Parser-{release-version}.exe_ for any
-release in the GitHub repository [_Releases_](https://github.com/tsalemink/C3D-parser/releases).
-
-
-### Usage:
+## Usage
 
 To process and analyse a session of gait data, first select your lab's marker-set using the "Lab"
 drop-down (if your lab is not shown, or you require a marker set other than the one we provide
@@ -48,7 +68,7 @@ Once the "Harmonise Data" button is pressed, the user exclusions will be conside
 output files will be produced. All outputs are written to the user-defined output directory.
 
 
-### Options:
+## Options
 
 A number of user settings are available under "View" -> "Options". The "Line Width" option refers
 to the width of the lines displayed on the graphs in the visualisation tabs. Both "Data
@@ -56,7 +76,7 @@ Directories" define the starting directories used when choosing the "Input" and 
 the main window. These settings are retained after you close the application.
 
 
-### Custom marker sets:
+## Custom Marker Sets
 
 The application pre-defines a number of lab-specific marker sets. If the marker sets we provide do
 not fit your needs you can adjust one of the existing marker sets or create a new one from scratch
@@ -75,7 +95,7 @@ Your custom marker set must define: "ASI", "KNE", "ANK", "MED", "HEE", either "P
 either "KNEM" or "KAX".
 
 
-### Valid input data:
+## Input Requirements
 
 To be able to create an OpenSim model from your static C3D file, it must contain either: medial
 knee markers; or KAD markers as well as knee-width values in the C3D metadata PROCESSING section
@@ -92,7 +112,8 @@ that stance phase. This will also affect which gait cycles are considered valid 
 the results from ID.
 
 
-### Feature Requests and Bug Reports:
+## Feature Requests and Bug Reports
+
 If you would like to suggest a new feature for this application or report a bug you have discovered, please create a
 "New Issue" using the appropriate template found in this repository's 
 [_Issues_](https://github.com/tsalemink/C3D-parser/issues) page. Please check that your request does not match any 
