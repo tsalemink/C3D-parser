@@ -105,12 +105,12 @@ select "Exclude Selected Cycles". Similarly, it is also possible to exclude/incl
 sections of data for specific trials by right-clicking on the trial name in the list of trials.
 
 <p align="center">
-  <img src="res/images/Exclusion_01.png" alt="Exclusion_01"/>
-  <img src="res/images/Exclusion_02.png" alt="Exclusion_02"/>
+  <img src="res/images/Exclusion_01.png" alt="Exclusion 01"/>
+  <img src="res/images/Exclusion_02.png" alt="Exclusion 02"/>
 </p>
 <p align="center">
-  <img src="res/images/Exclusion_03.png" alt="Exclusion_03"/>
-  <img src="res/images/Exclusion_04.png" alt="Exclusion_04"/>
+  <img src="res/images/Exclusion_03.png" alt="Exclusion 03"/>
+  <img src="res/images/Exclusion_04.png" alt="Exclusion 04"/>
 </p>
 
 The "Spatio-temporal" tab supports exclusions in the same manner.
@@ -158,6 +158,10 @@ Please follow the format used in the C3D-Parser
 The application pre-defines a number of lab-specific marker sets. If the marker sets we provide do
 not fit your needs you can adjust one of the existing marker sets or create a new one from scratch
 using the custom marker set dialog under "Marker" -> "Custom Marker Set".
+
+<p align="center">
+  <img src="res/images/Custom_Marker_Set.png" alt="Custom Marker Set Screenshot"/>
+</p>
 
 You can import an initial mapping from one of the existing marker sets using the "Import" button.
 
