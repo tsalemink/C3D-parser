@@ -46,26 +46,55 @@ After activating your Python environment and installing OpenSim you can run
 
 ## Usage
 
-To process and analyse a session of gait data, first select your lab's marker-set using the "Lab"
-drop-down (if your lab is not shown, or you require a marker set other than the one we provide
-please see the section on [custom marker sets](#custom-marker-sets)). Next, select the local gait
-session directory using the "Input" line-edit or associated directory chooser, and select a
-directory to output the results. Each trial in the session will be automatically classified as
-"Static" or "Dynamic", but you can override these classifications by right-clicking on the item
-in question. You can exclude specific trials from the analysis by using the check-boxes provided.
+**Setup**  
+Before you can start processing a gait session, you need to define your lab's marker-set using the
+"Lab" drop-down on the main-window. If this is your first time using the C3D-Parser please read
+the section on [custom marker sets](#custom-marker-sets). 
 
-Finally, the application also requires a collection of subject information for the processing step,
-including height, weight, knee-widths and leg-lengths. This information will be automatically
-filled using the metadata contained in your static C3D file, but you should check these values to
-make sure they are accurate. Once you are ready, click "Process Data" to begin.
 
-The application will create an OpenSim model using the input data and will run IK and ID. The
+**1. Select Input Session**
+Select your gait session using the "Input" line-edit or associated directory chooser. Each trial
+in the session will be automatically classified as "Static" or "Dynamic", but you can override
+these classifications by right-clicking on the item in question. You can exclude specific trials
+from the analysis by using the check-boxes provided.
+
+You can also specify an "Output" directory if you wish. By default, an output structure will be
+created in your input directory.
+
+
+**2. Confirm Anthropometric Data**  
+Next, check the subject's anthropometric measurements. This information should be automatically
+filled using the metadata in your static C3D file. Confirm these values are accurate and fill in
+any gaps.
+
+
+**3. Processing**  
+Click "Process Data" to begin.
+
+The application will create an OpenSim model using your input data and will run IK and ID. The
 results from IK and ID will be displayed in the "Kinematic" and "Kinetic" tabs respectively.
-You can select specific gait cycles and can choose to exclude them from the combined, normalised
-results that are created at the end of the harmonisation process.
+The visualisation tab displays the generated model and the predicted landmark positions, comparing
+these against the (skin-padding adjusted) experimental marker positions.
 
-Once the "Harmonise Data" button is pressed, the user exclusions will be considered and the final
-output files will be produced. All outputs are written to the user-defined output directory.
+
+**4. Quality Control**  
+
+Check that the model looks sensible and that the differences in marker positions aren't too large.
+Note that the width values provided here are between bone-surface landmarks, so should be slightly
+smaller than your experimental measurements.
+
+The last thing to do is to decide which gait cycles you wish to include in your final outputs.
+By default, your results will include the data produced for every gait cycle in your session.
+If it looks like there are cycles missing, please read the section on
+[input requirements](#input-requirements).
+
+To exclude a gait cycle from your results: click on the curve, right-click the plot area, and
+select "Exclude Selected Cycles". Similarly, it is also possible to exclude/include entire
+sections of data for specific trials by right-clicking on the trial name in the list of trials.
+
+The "Spatio-temporal" tab supports exclusions in the same manner.
+
+Click "Finalise Outputs" to produce the final results.
 
 
 ## Options
