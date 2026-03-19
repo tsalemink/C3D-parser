@@ -52,11 +52,15 @@ Before you can start processing a gait session, you need to define your lab's ma
 the section on [custom marker sets](#custom-marker-sets). 
 
 
-**1. Select Input Session**
+**1. Select Input Session**  
 Select your gait session using the "Input" line-edit or associated directory chooser. Each trial
 in the session will be automatically classified as "Static" or "Dynamic", but you can override
 these classifications by right-clicking on the item in question. You can exclude specific trials
 from the analysis by using the check-boxes provided.
+
+<p align="center">
+  <img src="res/images/Inputs.png" alt="Inputs Screenshot"/>
+</p>
 
 You can also specify an "Output" directory if you wish. By default, an output structure will be
 created in your input directory.
@@ -67,6 +71,10 @@ Next, check the subject's anthropometric measurements. This information should b
 filled using the metadata in your static C3D file. Confirm these values are accurate and fill in
 any gaps.
 
+<p align="center">
+  <img src="res/images/Anthropometrics.png" alt="Anthropometrics Screenshot"/>
+</p>
+
 
 **3. Processing**  
 Click "Process Data" to begin.
@@ -75,6 +83,10 @@ The application will create an OpenSim model using your input data and will run 
 results from IK and ID will be displayed in the "Kinematic" and "Kinetic" tabs respectively.
 The visualisation tab displays the generated model and the predicted landmark positions, comparing
 these against the (skin-padding adjusted) experimental marker positions.
+
+<p align="center">
+  <img src="res/images/Visualiser.png" alt="Visualiser Screenshot"/>
+</p>
 
 
 **4. Quality Control**  
@@ -91,6 +103,15 @@ If it looks like there are cycles missing, please read the section on
 To exclude a gait cycle from your results: click on the curve, right-click the plot area, and
 select "Exclude Selected Cycles". Similarly, it is also possible to exclude/include entire
 sections of data for specific trials by right-clicking on the trial name in the list of trials.
+
+<p align="center">
+  <img src="res/images/Exclusion_01.png" alt="Exclusion_01"/>
+  <img src="res/images/Exclusion_02.png" alt="Exclusion_02"/>
+</p>
+<p align="center">
+  <img src="res/images/Exclusion_03.png" alt="Exclusion_03"/>
+  <img src="res/images/Exclusion_04.png" alt="Exclusion_04"/>
+</p>
 
 The "Spatio-temporal" tab supports exclusions in the same manner.
 
