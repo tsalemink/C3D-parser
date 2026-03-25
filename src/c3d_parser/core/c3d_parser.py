@@ -86,7 +86,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     logger.info("Fitting shape model.")
     dynamic_trc_path = list(trc_file_paths.values())[0] if trc_file_paths else ""
     osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, marker_diameter, static_data,
-                                   output_directory, optimise_knee_axis, progress_tracker)
+                                   output_directory, foot_flat, optimise_knee_axis, progress_tracker)
 
     if not trc_file_paths:
         raise CancelException("No dynamic trials found.")
@@ -1463,7 +1463,7 @@ def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marke
 
 
 def create_osim_model(static_trc, dynamic_trc, static_marker_data, marker_diameter, static_data,
-                      output_directory, optimise_knee_axis, progress_tracker):
+                      output_directory, foot_flat, optimise_knee_axis, progress_tracker):
 
     static_marker_data = static_marker_data.drop("Time").to_dict()
     rotation_matrix = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])
@@ -1472,7 +1472,8 @@ def create_osim_model(static_trc, dynamic_trc, static_marker_data, marker_diamet
     marker_radius = marker_diameter / 2
 
     model_path = create_model(static_trc, dynamic_trc, output_directory, static_marker_data, subject_info,
-                              marker_radius, optimise_knee_axis=optimise_knee_axis, progress_tracker=progress_tracker)
+                              marker_radius, foot_flat, optimise_knee_axis=optimise_knee_axis,
+                              progress_tracker=progress_tracker)
 
     return model_path
 
