@@ -445,6 +445,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_15.setContentsMargins(6, 6, 3, 6)
         self.checkBoxFootFlat = QCheckBox(self.groupBox_5)
         self.checkBoxFootFlat.setObjectName(u"checkBoxFootFlat")
+        self.checkBoxFootFlat.setChecked(True)
 
         self.verticalLayout_15.addWidget(self.checkBoxFootFlat)
 

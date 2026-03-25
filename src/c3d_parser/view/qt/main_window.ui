@@ -768,6 +768,9 @@
              <property name="text">
               <string>Foot Flat</string>
              </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
             </widget>
            </item>
           </layout>
