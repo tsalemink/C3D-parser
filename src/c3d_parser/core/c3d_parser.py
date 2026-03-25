@@ -37,7 +37,7 @@ required_markers = [{"LASI", "RASI"}, {"LKNE", "RKNE"}, {"LANK", "RANK"}, {"LMED
 
 
 def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, static_data,
-                  optimise_knee_axis, filter_trc, filter_grf, ik_task_set, progress_tracker):
+                  foot_flat, optimise_knee_axis, filter_trc, filter_grf, ik_task_set, progress_tracker):
 
     clear_directory(output_directory)
 

@@ -438,6 +438,19 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addWidget(self.groupBox_4)
 
+        self.groupBox_5 = QGroupBox(self.frameTrial)
+        self.groupBox_5.setObjectName(u"groupBox_5")
+        self.verticalLayout_15 = QVBoxLayout(self.groupBox_5)
+        self.verticalLayout_15.setObjectName(u"verticalLayout_15")
+        self.verticalLayout_15.setContentsMargins(6, 6, 3, 6)
+        self.checkBoxFootFlat = QCheckBox(self.groupBox_5)
+        self.checkBoxFootFlat.setObjectName(u"checkBoxFootFlat")
+
+        self.verticalLayout_15.addWidget(self.checkBoxFootFlat)
+
+
+        self.verticalLayout_2.addWidget(self.groupBox_5)
+
         self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.horizontalLayout_2.setContentsMargins(5, -1, 5, -1)
@@ -704,6 +717,8 @@ class Ui_MainWindow(object):
         self.label_14.setText(QCoreApplication.translate("MainWindow", u"Ankle Width (mm):", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Marker", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Marker Diameter (mm):", None))
+        self.groupBox_5.setTitle("")
+        self.checkBoxFootFlat.setText(QCoreApplication.translate("MainWindow", u"Foot Flat", None))
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Process Data", None))
         self.pushButtonFinalise.setText(QCoreApplication.translate("MainWindow", u"Finalise Outputs", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinematic), QCoreApplication.translate("MainWindow", u"Kinematic", None))

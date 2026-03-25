@@ -504,6 +504,7 @@ class MainWindow(QMainWindow):
 
         lab = self._ui.comboBoxLab.currentText()
         marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
+        foot_flat = self._ui.checkBoxFootFlat.isChecked()
 
         static_data = {
             'Sex': self._ui.comboBoxSex.currentText(),
@@ -563,7 +564,7 @@ class MainWindow(QMainWindow):
         ik_task_set = self._ik_task_set_path if self._use_custom_ik_task_set else None
         self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, input_directory,
                                    self._output_directory, lab, marker_diameter, static_data,
-                                   optimise_knee_axis, self._filter_trc, self._filter_grf, ik_task_set,
+                                   foot_flat, optimise_knee_axis, self._filter_trc, self._filter_grf, ik_task_set,
                                    self._progress_tracker)
         self._worker.finished.connect(self._parse_finished)
         self._worker.cancelled.connect(self._parse_cancelled)
@@ -924,6 +925,7 @@ class MainWindow(QMainWindow):
         settings.setValue('is_maximized', self.isMaximized())
         settings.setValue('lab', self._ui.comboBoxLab.currentText())
         settings.setValue('marker_diameter', self._ui.doubleSpinBoxMarkerDiameter.value())
+        settings.setValue('foot_flat', self._ui.checkBoxFootFlat.isChecked())
         settings.endGroup()
 
         settings.beginGroup('Options')
@@ -957,6 +959,8 @@ class MainWindow(QMainWindow):
             self._ui.comboBoxLab.setCurrentText(settings.value('lab'))
         if settings.contains('marker_diameter'):
             self._ui.doubleSpinBoxMarkerDiameter.setValue(float(settings.value('marker_diameter')))
+        if settings.contains('foot_flat'):
+            self._ui.checkBoxFootFlat.setChecked(settings.value('foot_flat') == 'true')
         settings.endGroup()
 
         settings.beginGroup('Options')
