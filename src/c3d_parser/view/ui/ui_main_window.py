@@ -440,14 +440,20 @@ class Ui_MainWindow(object):
 
         self.groupBox_5 = QGroupBox(self.frameTrial)
         self.groupBox_5.setObjectName(u"groupBox_5")
-        self.verticalLayout_15 = QVBoxLayout(self.groupBox_5)
-        self.verticalLayout_15.setObjectName(u"verticalLayout_15")
-        self.verticalLayout_15.setContentsMargins(6, 6, 3, 6)
-        self.checkBoxFootFlat = QCheckBox(self.groupBox_5)
-        self.checkBoxFootFlat.setObjectName(u"checkBoxFootFlat")
-        self.checkBoxFootFlat.setChecked(True)
+        self.horizontalLayout_19 = QHBoxLayout(self.groupBox_5)
+        self.horizontalLayout_19.setObjectName(u"horizontalLayout_19")
+        self.horizontalLayout_19.setContentsMargins(6, 6, 3, 6)
+        self.checkBoxLeftFootFlat = QCheckBox(self.groupBox_5)
+        self.checkBoxLeftFootFlat.setObjectName(u"checkBoxLeftFootFlat")
+        self.checkBoxLeftFootFlat.setChecked(True)
 
-        self.verticalLayout_15.addWidget(self.checkBoxFootFlat)
+        self.horizontalLayout_19.addWidget(self.checkBoxLeftFootFlat)
+
+        self.checkBoxRightFootFlat = QCheckBox(self.groupBox_5)
+        self.checkBoxRightFootFlat.setObjectName(u"checkBoxRightFootFlat")
+        self.checkBoxRightFootFlat.setChecked(True)
+
+        self.horizontalLayout_19.addWidget(self.checkBoxRightFootFlat)
 
 
         self.verticalLayout_2.addWidget(self.groupBox_5)
@@ -719,7 +725,8 @@ class Ui_MainWindow(object):
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Marker", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Marker Diameter (mm):", None))
         self.groupBox_5.setTitle("")
-        self.checkBoxFootFlat.setText(QCoreApplication.translate("MainWindow", u"Foot Flat", None))
+        self.checkBoxLeftFootFlat.setText(QCoreApplication.translate("MainWindow", u"Left Foot Flat", None))
+        self.checkBoxRightFootFlat.setText(QCoreApplication.translate("MainWindow", u"Right Foot Flat", None))
         self.pushButtonParseData.setText(QCoreApplication.translate("MainWindow", u"Process Data", None))
         self.pushButtonFinalise.setText(QCoreApplication.translate("MainWindow", u"Finalise Outputs", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tabKinematic), QCoreApplication.translate("MainWindow", u"Kinematic", None))
