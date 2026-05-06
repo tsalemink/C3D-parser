@@ -651,6 +651,7 @@ def extract_data(file_path, start_frame, end_frame):
         stride_numbers = {"Left": 0, "Right": 0}
         for foot, event in events.items():
             for event_time, event_type in event.items():
+                event_type = event_type.title()
                 if event_type == "Foot Strike":
                     stride_numbers[foot] += 1
                 stride_number = stride_numbers[foot]
