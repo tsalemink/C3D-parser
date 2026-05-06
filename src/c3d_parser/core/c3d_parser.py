@@ -385,8 +385,8 @@ def harmonise_markers(frame_data, lab, required_markers):
     marker_set = get_marker_map(lab)
 
     # Harmonise marker labels.
-    reversed_mapping = {value: key for key, value in marker_set.items() if value is not None}
-    header_mapping = {header: reversed_mapping.get(header, None) for header in frame_data.columns[1:]}
+    reversed_mapping = {value.upper(): key for key, value in marker_set.items() if value is not None}
+    header_mapping = {header: reversed_mapping.get(header.upper(), None) for header in frame_data.columns[1:]}
     frame_data.rename(columns=header_mapping, inplace=True)
 
     # Filter out non-harmonised data points.
