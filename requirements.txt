@@ -2,7 +2,7 @@ scipy
 numpy==1.26.4
 pandas
 c3d==0.5.2
-trc-data-reader
+trc-data-reader>=0.4.1
 opensim-model-creator==0.7.0
 PySide6
 matplotlib
