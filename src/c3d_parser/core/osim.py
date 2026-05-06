@@ -1,8 +1,12 @@
 
 import os
 import copy
+import numpy as np
+import pandas as pd
 import opensim as osim
 import xml.etree.ElementTree as ET
+
+from scipy.spatial.transform import Rotation
 
 from c3d_parser.settings.logging import logger
 
@@ -95,3 +99,59 @@ def setup_external_loads(output_directory, grf_file):
     tree.write(external_loads_file)
 
     return external_loads_file
+
+
+def calculate_foot_progression_angles(model_file, ik_file):
+
+    # Load model information.
+    model = osim.Model(model_file)
+    model.initSystem()
+    coordinate_set = model.getCoordinateSet()
+    n_coordinates = coordinate_set.getSize()
+
+    # Load IK solution.
+    storage = osim.Storage(ik_file)
+    labels = storage.getColumnLabels()
+    n_frames = storage.getSize()
+
+    foot_progression = {"l": [], "r": []}
+    for i in range(n_frames):
+
+        # Build a state vector from the IK solution at this frame.
+        time_stamp = storage.getStateVector(i).getTime()
+        state = model.initSystem()
+        state.setTime(time_stamp)
+        ik_row = storage.getStateVector(i).getData()
+
+        # Set body coordinates from the IK solution.
+        for j in range(n_coordinates):
+            coordinate = coordinate_set.get(j)
+            coordinate_name = coordinate.getName()
+            column_index = labels.findIndex(coordinate_name)
+            if column_index >= 0:
+                value = ik_row.get(column_index - 1)
+
+                if coordinate.getMotionType() == osim.Coordinate.Rotational:
+                    value = np.deg2rad(value)
+                coordinate.setValue(state, value)
+        model.realizePosition(state)
+
+        # Extract foot segment rotation.
+        for side in foot_progression.keys():
+            foot_body = model.getBodySet().get(f"calcn_{side}")
+            transform = foot_body.getTransformInGround(state)
+
+            # Decompose rotation matrix into ZXY Euler angles.
+            rotation_matrix = np.array([[transform.R().get(row, col) for col in range(3)] for row in range(3)])
+            angles = Rotation.from_matrix(rotation_matrix).as_euler('ZXY')
+            foot_progression_angle = np.rad2deg(angles[2])
+
+            if side == "l":
+                foot_progression_angle = -foot_progression_angle
+            foot_progression[side].append(foot_progression_angle)
+
+    data_frame = pd.DataFrame({
+        "foot_progression_l": foot_progression["l"],
+        "foot_progression_r": foot_progression["r"],
+    })
+    return data_frame

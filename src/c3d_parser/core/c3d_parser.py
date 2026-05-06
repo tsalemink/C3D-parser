@@ -18,7 +18,7 @@ from opensim_model_creator.Create_Model import create_model
 
 from c3d_parser.core.c3d_patch import c3d
 from c3d_parser.core.utils import clear_directory
-from c3d_parser.core.osim import perform_ik, perform_id
+from c3d_parser.core.osim import perform_ik, perform_id, calculate_foot_progression_angles
 from c3d_parser.settings.general import get_marker_maps_dir
 from c3d_parser.settings.logging import logger
 from c3d_parser.settings.general import VERSION
@@ -53,7 +53,6 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     grf_data = {}
     event_data = {}
     spatiotemporal_data = {}
-    foot_progression_data = {}
     kinematic_data = {}
     kinetic_data = {}
 
@@ -66,7 +65,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     for trial_index, trial in enumerate(dynamic_trials, start=1):
         file_path = os.path.normpath(os.path.join(input_directory, trial))
         try:
-            analog_data, events, foot_progression, s_t_data, trc_file_path, grf_file_path = \
+            analog_data, events, s_t_data, trc_file_path, grf_file_path = \
                 parse_dynamic_trial(file_path, lab, output_directory, trial_index, marker_data_rate, static_data,
                                     filter_trc, filter_grf)
         except ParserError as e:
@@ -76,7 +75,6 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         grf_data[trial] = analog_data
         event_data[trial] = events
         spatiotemporal_data[trial] = s_t_data
-        foot_progression_data[trial] = foot_progression
 
         trc_file_paths[trial] = trc_file_path
         grf_file_paths[trial] = grf_file_path
@@ -96,9 +94,12 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
 
     for trial in trc_file_paths.keys():
         logger.info(f"Running IK and ID for {trial}.")
-        ik_data, ik_output = run_ik(osim_model, trc_file_paths[trial], output_directory, marker_data_rate, ik_task_set)
-        ik_data = pd.concat([ik_data, foot_progression_data[trial]], axis=1)
-        id_data = run_id(osim_model, ik_data, ik_output, grf_file_paths[trial], output_directory, marker_data_rate, event_data[trial], weight)
+        ik_data, ik_output = run_ik(osim_model, trc_file_paths[trial], output_directory, ik_task_set)
+        foot_progression = calculate_foot_progression_angles(osim_model, ik_output)
+        ik_data = pd.concat([ik_data, foot_progression], axis=1)
+        filter_data(ik_data, marker_data_rate)
+
+        id_data = run_id(osim_model, ik_data, ik_output, grf_file_paths[trial], output_directory, event_data[trial], weight)
 
         kinematic_data[trial] = ik_data
         kinetic_data[trial] = id_data
@@ -220,12 +221,9 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     set_marker_data(trc_data, frame_data, rate=marker_data_rate)
     trc_file_path = write_trc_data(trc_data, output_file_name, output_directory)
 
-    foot_progression = calculate_foot_progression_angles(frame_data)
-    resample_data(foot_progression, trc_data['DataRate'], marker_data_rate)
-
     s_t_data = calculate_spatiotemporal_data(frame_data, events, static_data)
 
-    return analog_data, events, foot_progression, s_t_data, trc_file_path, grf_file_path
+    return analog_data, events, s_t_data, trc_file_path, grf_file_path
 
 
 def write_c3d_parser_history(input_directory, static_trial, deidentified_file_names):
@@ -248,7 +246,7 @@ def write_c3d_parser_history(input_directory, static_trial, deidentified_file_na
         raise ParserError("Could not write c3d_parser_history.log")
 
 
-def run_ik(osim_model, trc_file_path, output_directory, marker_data_rate, ik_task_set):
+def run_ik(osim_model, trc_file_path, output_directory, ik_task_set):
     # Perform inverse kinematics.
     file_name = os.path.splitext(os.path.basename(trc_file_path))[0]
     ik_directory = os.path.join(output_directory, 'ik')
@@ -257,12 +255,11 @@ def run_ik(osim_model, trc_file_path, output_directory, marker_data_rate, ik_tas
     ik_output = os.path.join(ik_directory, f"{file_name}_IK.mot")
     perform_ik(osim_model, trc_file_path, ik_output, ik_task_set)
     ik_data = read_data(ik_output)
-    filter_data(ik_data, marker_data_rate)
 
     return ik_data, ik_output
 
 
-def run_id(osim_model, ik_data, ik_output, grf_file_path, output_directory, marker_data_rate, events, subject_mass):
+def run_id(osim_model, ik_data, ik_output, grf_file_path, output_directory, events, subject_mass):
     # Perform inverse dynamics.
     file_name = os.path.basename(grf_file_path).replace("_grf.mot", "")
     id_directory = os.path.join(output_directory, 'id')
@@ -1406,29 +1403,6 @@ def calculate_walking_direction(frame_data):
     walking_direction /= np.linalg.norm(walking_direction)
 
     return walking_direction
-
-
-def calculate_foot_progression_angles(frame_data):
-    walking_direction = calculate_walking_direction(frame_data)
-    walking_angle = np.arctan2(walking_direction[1], walking_direction[0])
-
-    foot_progression = pd.DataFrame()
-    for foot in ['Left', 'Right']:
-        side = foot[0]
-        heel_xz = np.stack(frame_data[f"{side}HEE"].values)[:, [0, 2]]
-        toe_xz = np.stack(frame_data[f"{side}TOE"].values)[:, [0, 2]]
-
-        foot_vectors = toe_xz - heel_xz
-        foot_unit_vectors = foot_vectors / np.linalg.norm(foot_vectors, axis=1, keepdims=True)
-        foot_angles = np.arctan2(foot_unit_vectors[:, 1], foot_unit_vectors[:, 0])
-        angles = np.degrees(foot_angles - walking_angle)
-
-        if foot == 'Right':
-            angles = -angles
-
-        foot_progression[f'foot_progression_{side.lower()}'] = angles
-
-    return foot_progression
 
 
 def normalise_angle(angle):
