@@ -708,13 +708,13 @@ def extract_static_data(file_path):
             return None, None, None, None, None, None, None, None, None
 
         processing_group = reader.get('PROCESSING')
-        height = weight = asis_width = left_knee_width = right_knee_width = None
+        height = mass = asis_width = left_knee_width = right_knee_width = None
         left_ankle_width = right_ankle_width = left_leg_length = right_leg_length = None
 
         if 'HEIGHT' in processing_group:
             height = reader.get('PROCESSING:Height').float_value
         if 'BODYMASS' in processing_group:
-            weight = reader.get('PROCESSING:Bodymass').float_value
+            mass = reader.get('PROCESSING:Bodymass').float_value
         if 'INTERASISDISTANCE' in processing_group:
             asis_width = reader.get('PROCESSING:InterAsisDistance').float_value
         if 'LKNEEWIDTH' in processing_group:
@@ -730,7 +730,10 @@ def extract_static_data(file_path):
         if 'RLEGLENGTH' in processing_group:
             right_leg_length = reader.get('PROCESSING:RLegLength').float_value
 
-    return (height, weight, asis_width, left_knee_width, right_knee_width,
+        if mass > 200:
+            mass = mass / 9.81
+
+    return (height, mass, asis_width, left_knee_width, right_knee_width,
             left_ankle_width, right_ankle_width, left_leg_length, right_leg_length)
 
 
