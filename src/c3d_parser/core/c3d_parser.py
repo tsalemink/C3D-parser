@@ -221,6 +221,9 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     set_marker_data(trc_data, frame_data, rate=marker_data_rate)
     trc_file_path = write_trc_data(trc_data, output_file_name, output_directory)
 
+    # Write gait event data.
+    write_event_data(events, output_file_name, output_directory)
+
     s_t_data = calculate_spatiotemporal_data(frame_data, events, static_data)
 
     return analog_data, events, s_t_data, trc_file_path, grf_file_path
@@ -244,6 +247,24 @@ def write_c3d_parser_history(input_directory, static_trial, deidentified_file_na
 
     except (OSError, IOError):
         raise ParserError("Could not write c3d_parser_history.log")
+
+
+def write_event_data(events, file_name, output_directory):
+    event_directory = os.path.join(output_directory, "events")
+    if not os.path.exists(event_directory):
+        os.makedirs(event_directory)
+    event_file_path = os.path.join(event_directory, f"{file_name}.json")
+
+    simplified_events = {
+        side: {
+            cycle: {time: event[0] for time, event in times.items()}
+            for cycle, times in cycles.items()
+        }
+        for side, cycles in events.items()
+    }
+
+    with open(event_file_path, 'w') as f:
+        json.dump(simplified_events, f, indent=2)
 
 
 def run_ik(osim_model, trc_file_path, output_directory, ik_task_set):
