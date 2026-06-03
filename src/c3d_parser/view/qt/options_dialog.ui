@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>450</width>
-    <height>624</height>
+    <height>686</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -339,6 +339,22 @@ background-color: #FFFFFF</string>
        <widget class="QCheckBox" name="checkBoxApproximateAnthropometrics">
         <property name="text">
          <string>Approximate missing anthropometrics</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_7">
+     <property name="title">
+      <string>Experimental</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QCheckBox" name="checkBoxRunningGait">
+        <property name="text">
+         <string>Running gait</string>
         </property>
        </widget>
       </item>

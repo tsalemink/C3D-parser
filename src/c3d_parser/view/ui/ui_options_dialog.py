@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'options_dialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.10.2
+## Created by: Qt User Interface Compiler version 6.9.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -24,7 +24,7 @@ class Ui_OptionsDialog(object):
     def setupUi(self, OptionsDialog):
         if not OptionsDialog.objectName():
             OptionsDialog.setObjectName(u"OptionsDialog")
-        OptionsDialog.resize(450, 624)
+        OptionsDialog.resize(450, 686)
         self.verticalLayout = QVBoxLayout(OptionsDialog)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.groupBox_3 = QGroupBox(OptionsDialog)
@@ -259,6 +259,18 @@ class Ui_OptionsDialog(object):
 
         self.verticalLayout.addWidget(self.groupBox_6)
 
+        self.groupBox_7 = QGroupBox(OptionsDialog)
+        self.groupBox_7.setObjectName(u"groupBox_7")
+        self.verticalLayout_4 = QVBoxLayout(self.groupBox_7)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.checkBoxRunningGait = QCheckBox(self.groupBox_7)
+        self.checkBoxRunningGait.setObjectName(u"checkBoxRunningGait")
+
+        self.verticalLayout_4.addWidget(self.checkBoxRunningGait)
+
+
+        self.verticalLayout.addWidget(self.groupBox_7)
+
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
         self.horizontalSpacer = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
@@ -315,6 +327,8 @@ class Ui_OptionsDialog(object):
         self.pushButtonIKTaskSetChooser.setText(QCoreApplication.translate("OptionsDialog", u"...", None))
         self.groupBox_6.setTitle(QCoreApplication.translate("OptionsDialog", u"Anthropometrics", None))
         self.checkBoxApproximateAnthropometrics.setText(QCoreApplication.translate("OptionsDialog", u"Approximate missing anthropometrics", None))
+        self.groupBox_7.setTitle(QCoreApplication.translate("OptionsDialog", u"Experimental", None))
+        self.checkBoxRunningGait.setText(QCoreApplication.translate("OptionsDialog", u"Running gait", None))
         self.pushButtonOK.setText(QCoreApplication.translate("OptionsDialog", u"OK", None))
         self.pushButtonCancel.setText(QCoreApplication.translate("OptionsDialog", u"Cancel", None))
     # retranslateUi

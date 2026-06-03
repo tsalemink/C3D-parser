@@ -38,7 +38,8 @@ required_markers = [{"LASI", "RASI"}, {"LKNE", "RKNE"}, {"LANK", "RANK"}, {"LMED
 
 
 def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, static_data,
-                  left_foot_flat, right_foot_flat, optimise_knee_axis, filter_trc, filter_grf, ik_task_set, progress_tracker):
+                  left_foot_flat, right_foot_flat, optimise_knee_axis, filter_trc, filter_grf, ik_task_set,
+                  running_gait, progress_tracker):
 
     clear_directory(output_directory)
 
@@ -67,7 +68,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         try:
             analog_data, events, s_t_data, trc_file_path, grf_file_path = \
                 parse_dynamic_trial(file_path, lab, output_directory, trial_index, marker_data_rate, static_data,
-                                    filter_trc, filter_grf)
+                                    filter_trc, filter_grf, running_gait)
         except ParserError as e:
             logger.error(e)
             continue
@@ -167,7 +168,9 @@ def parse_static_trial(c3d_file, lab, marker_diameter, output_directory, static_
     return frame, trc_file_path, height, weight
 
 
-def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_data_rate, static_data, filter_trc, filter_grf):
+def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_data_rate, static_data, filter_trc,
+                        filter_grf, running_gait):
+
     file_name = os.path.basename(c3d_file)
     logger.info(f"Parsing dynamic trial: {file_name}.")
 
@@ -224,7 +227,10 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     # Write gait event data.
     write_event_data(events, output_file_name, output_directory)
 
-    s_t_data = calculate_spatiotemporal_data(frame_data, events, static_data)
+    # Disable spatio-temporal analysis for running gait.
+    s_t_data = {}
+    if not running_gait:
+        s_t_data = calculate_spatiotemporal_data(frame_data, events, static_data)
 
     return analog_data, events, s_t_data, trc_file_path, grf_file_path
 

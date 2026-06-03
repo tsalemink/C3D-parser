@@ -77,6 +77,7 @@ class MainWindow(QMainWindow):
         self._use_custom_ik_task_set = False
         self._ik_task_set_path = ''
         self._approximate_anthropometrics = False
+        self._running_gait = False
 
         self._colour_left = '#A52A2A'
         self._colour_right = '#0F52BA'
@@ -245,6 +246,11 @@ class MainWindow(QMainWindow):
         self._spatiotemporal_tables = []
 
     def _visualise_spatiotemporal_data(self):
+
+        # Temporarily disable spatio-temporal visualisation for running gait.
+        if self._running_gait:
+            return
+
         layout = self._ui.scrollAreaSpatiotemporal.layout()
         self._clear_spatiotemporal_data()
 
@@ -597,7 +603,7 @@ class MainWindow(QMainWindow):
         self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, input_directory,
                                    self._output_directory, lab, marker_diameter, static_data,
                                    left_foot_flat, right_foot_flat, optimise_knee_axis, self._filter_trc,
-                                   self._filter_grf, ik_task_set, self._progress_tracker)
+                                   self._filter_grf, ik_task_set, self._running_gait, self._progress_tracker)
         self._worker.finished.connect(self._parse_finished)
         self._worker.cancelled.connect(self._parse_cancelled)
         self._worker.failed.connect(self._parse_failed)
@@ -890,6 +896,7 @@ class MainWindow(QMainWindow):
             'use_custom_ik_task_set': self._use_custom_ik_task_set,
             'ik_task_set_path': self._ik_task_set_path,
             'approximate_anthropometrics': self._approximate_anthropometrics,
+            'running_gait': self._running_gait,
         }
 
         return options
@@ -907,6 +914,7 @@ class MainWindow(QMainWindow):
         self._use_custom_ik_task_set = options['use_custom_ik_task_set']
         self._ik_task_set_path = options['ik_task_set_path']
         self._approximate_anthropometrics = options['approximate_anthropometrics']
+        self._running_gait = options['running_gait']
 
     def _show_custom_marker_set_dialog(self):
         static_trials = []
@@ -976,6 +984,7 @@ class MainWindow(QMainWindow):
         settings.setValue('use_custom_ik_task_set', self._use_custom_ik_task_set)
         settings.setValue('ik_task_set_path', self._ik_task_set_path)
         settings.setValue('approximate_anthropometrics', self._approximate_anthropometrics)
+        settings.setValue('running_gait', self._running_gait)
         settings.endGroup()
 
     def _load_settings(self):
@@ -1026,6 +1035,8 @@ class MainWindow(QMainWindow):
             self._ik_task_set_path = settings.value('ik_task_set_path')
         if settings.contains('approximate_anthropometrics'):
             self._approximate_anthropometrics = settings.value('approximate_anthropometrics') == 'true'
+        if settings.contains('running_gait'):
+            self._running_gait = settings.value('running_gait') == 'true'
         settings.endGroup()
 
     def _quit_application(self):
