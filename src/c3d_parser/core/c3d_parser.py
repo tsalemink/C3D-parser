@@ -751,7 +751,7 @@ def extract_static_data(file_path):
         if 'RLEGLENGTH' in processing_group:
             right_leg_length = reader.get('PROCESSING:RLegLength').float_value
 
-        if mass > 200:
+        if mass and mass > 200:
             mass = mass / 9.81
 
     return (height, mass, asis_width, left_knee_width, right_knee_width,
