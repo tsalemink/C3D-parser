@@ -640,8 +640,8 @@ def extract_data(file_path, start_frame, end_frame):
         times = np.arange(start, stop_analog, time_increment).tolist()
         analog_data = {'time': times}
 
-        labels = get_metadata(reader, 'ANALOG:LABELS').string_array
-        analog_data.update({label: [] for label in labels})
+        analog_labels = get_metadata(reader, 'ANALOG:LABELS').string_array
+        analog_data.update({label: [] for label in analog_labels})
         for i, points, analog in reader.read_frames():
             if i < start_frame or end_frame < i:
                 continue
@@ -656,14 +656,14 @@ def extract_data(file_path, start_frame, end_frame):
         event_group = get_metadata(reader, 'EVENT')
         event_count = get_metadata(event_group, 'USED').int8_value
         contexts = get_metadata(event_group, 'CONTEXTS').string_array
-        labels = get_metadata(event_group, 'LABELS').string_array
+        event_labels = get_metadata(event_group, 'LABELS').string_array
         times = get_metadata(event_group, 'TIMES').float_array
         events = {'Left': {}, 'Right': {}}
 
         for i in range(event_count):
             foot = contexts[i].strip()
             if foot:
-                label = labels[i].strip()
+                label = event_labels[i].strip()
                 event_time = times[i][1]
                 event_time = round(float(event_time), 4)
                 events[foot][event_time] = label
@@ -707,12 +707,20 @@ def extract_data(file_path, start_frame, end_frame):
         corners = get_metadata(reader, 'FORCE_PLATFORM:CORNERS').float_array
 
         try:
-            units = get_metadata(reader, 'ANALOG:UNITS').string_array
+            # Convert analog units in V (to N).
             channels = get_metadata(reader, 'FORCE_PLATFORM:CHANNEL').int16_array
-
+            units = get_metadata(reader, 'ANALOG:UNITS').string_array
             if all(units[i - 1] == 'V' for i in channels.flatten()):
                 calibration_matrix = get_metadata(reader, 'FORCE_PLATFORM:CAL_MATRIX').float_array
                 apply_calibration_matrix(plate_count, calibration_matrix, channels, analog_data)
+        except ParserError as e:
+            logger.warn(e)
+
+        try:
+            # Reorder analog channels according to metadata order.
+            channels = get_metadata(reader, 'FORCE_PLATFORM:CHANNEL').int16_array
+            selected_channels = [analog_labels[i - 1] for i in channels.flatten()]
+            analog_data = analog_data[['time'] + selected_channels]
         except ParserError as e:
             logger.warn(e)
 
@@ -804,14 +812,6 @@ def calculate_force_and_couple(analog_data, plate_count):
 
     for i in range(plate_count):
         start = 1 + (6 * i)
-
-        next_plate = 1 + (6 * (i + 1))
-        if next_plate < len(analog_data.columns):
-            channel = analog_data.columns[start]
-            next_channel = analog_data.columns[next_plate]
-            if channel.startswith('Fx_3') and next_channel.startswith('Fx_3_new'):
-                start = next_plate
-
         columns = list(range(start, start + 6))
         Fx, Fy, Fz, Mx, My, Mz = analog_data.iloc[:, columns].values.T.astype(float)
 
