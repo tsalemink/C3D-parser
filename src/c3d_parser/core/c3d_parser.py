@@ -1382,7 +1382,10 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     s_t_data["Normalised Step Length"] = normalised_step_lengths
     s_t_data["Step Width (m)"] = step_widths
 
-    # Determine phase percentages.
+    # Determine phase times and percentages.
+    stride_durations = {"Left": {}, "Right": {}}
+    stance_durations = {"Left": {}, "Right": {}}
+    swing_durations = {"Left": {}, "Right": {}}
     stance_phases = {"Left": {}, "Right": {}}
     swing_phases = {"Left": {}, "Right": {}}
     single_support_phases = {"Left": {}, "Right": {}}
@@ -1394,10 +1397,19 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
                 stance_phases[side][cycle_number] = (cycle["Stance"] / total_time) * 100
                 swing_phases[side][cycle_number] = (cycle["Swing"] / total_time) * 100
 
+                stride_durations[side][cycle_number] = total_time
+                stance_durations[side][cycle_number] = cycle["Stance"]
+                swing_durations[side][cycle_number] = cycle["Swing"]
+
                 if "Initial-DS" in cycle and "Terminal-DS" in cycle:
                     ds_time = cycle["Initial-DS"] + cycle["Terminal-DS"]
                     single_support_phases[side][cycle_number] = ((cycle["Stance"] - ds_time) / total_time) * 100
                     double_support_phases[side][cycle_number] = (ds_time / total_time) * 100
+
+    # Define time based measurements.
+    s_t_data["Stride Duration (s)"] = stride_durations
+    s_t_data["Stance Duration (s)"] = stance_durations
+    s_t_data["Swing Duration (s)"] = swing_durations
 
     # Assign phase percentages.
     s_t_data["Stance Phase %"] = stance_phases

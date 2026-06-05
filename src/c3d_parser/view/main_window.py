@@ -1397,16 +1397,21 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
                     painter.drawLine(right, centre_y + whisker_width, right, centre_y - whisker_width)
                     painter.drawLine(left, centre_y, right, centre_y)
 
-            # Calculate slightly-arbitrary max value for meter metrics.
-            max_value = data.iloc[:2, :].max().max() + 0.40
-            if index.row() in [5, 6, 7, 8]:
+            # Calculate slightly-arbitrary max value for meter and second metrics.
+            max_meter_value = data.iloc[:2, :].max().max() + 0.40
+            max_time_value = data.iloc[3:5, :].max().max() + 0.40
+            if index.row() in [0, 1, 2, 3, 4]:
+                max_value = max_meter_value
+            elif index.row() in [5, 6, 7]:
+                max_value = max_time_value
+            elif index.row() in [8, 9, 10, 11]:
                 max_value = 100
             else:
-                if index.row() == 9:
+                if index.row() == 12:
                     max_value = 3.0
-                elif index.row() == 10:
+                elif index.row() == 13:
                     max_value = 1.5
-                elif index.row() == 11:
+                elif index.row() == 14:
                     max_value = 240
 
             left_columns = [i for i in columns if "Left" in data.columns[i]]
