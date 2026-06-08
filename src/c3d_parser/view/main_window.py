@@ -1399,7 +1399,7 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
 
             # Calculate slightly-arbitrary max value for meter and second metrics.
             max_meter_value = data.iloc[:2, :].max().max() + 0.40
-            max_time_value = data.iloc[3:5, :].max().max() + 0.40
+            max_time_value = data.iloc[5:7, :].max().max() + 0.40
             if index.row() in [0, 1, 2, 3, 4]:
                 max_value = max_meter_value
             elif index.row() in [5, 6, 7]:
