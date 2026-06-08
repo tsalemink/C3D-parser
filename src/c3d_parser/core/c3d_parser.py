@@ -1,6 +1,7 @@
 
 import os
 import re
+import copy
 import math
 import json
 import logging
@@ -1287,6 +1288,9 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     phases = {"Left": {}, "Right": {}}
     gait_speeds = {"Left": {}, "Right": {}}
     cadences = {"Left": {}, "Right": {}}
+    initial_contact_times = {"Left": {}, "Right": {}}
+    toe_off_times = {"Left": {}, "Right": {}}
+    terminal_contact_times = {"Left": {}, "Right": {}}
     strike_count = 0
 
     left_leg_length = static_data['Left Leg Length'] / 1000
@@ -1298,6 +1302,27 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
         for stride_number, stride_events in foot_events.items():
             for event_time, (event_type, event_plate) in stride_events.items():
                 time_ordered_events[event_time][foot] = [event_type, stride_number]
+
+    # Add terminal foot-strike to events for each cycle.
+    full_cycle_events = copy.deepcopy(events)
+    for foot, foot_events in full_cycle_events.items():
+        for stride_number, stride_events in foot_events.items():
+            if len(stride_events) == 2 and (stride_number + 1) in foot_events:
+                event_list = list(stride_events.values())
+                next_event_time, next_event = next(iter(foot_events[stride_number + 1].items()))
+                if event_list[0][0] == "Foot Strike" and event_list[1][0] == "Foot Off":
+                    if next_event[0] == "Foot Strike":
+                        stride_events[next_event_time] = ["Terminal Foot Strike", next_event[1]]
+
+    # Extract event times.
+    for foot, foot_events in full_cycle_events.items():
+        for stride_number, stride_events in foot_events.items():
+            if len(stride_events) == 3:
+                (strike_time, strike), (off_time, off), (terminal_time, terminal) = stride_events.items()
+                if strike[0] == "Foot Strike" and off[0] == "Foot Off" and terminal[0] == "Terminal Foot Strike":
+                    initial_contact_times[foot][stride_number] = strike_time
+                    toe_off_times[foot][stride_number] = off_time
+                    terminal_contact_times[foot][stride_number] = terminal_time
 
     opposite_side = {"Left": "Right", "Right": "Left"}
     strike_position = {"Left": None, "Right": None}
@@ -1419,6 +1444,11 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
     s_t_data["Gait Speed (m/s)"] = gait_speeds
     s_t_data["Normalised Gait Speed"] = normalised_gait_speeds
     s_t_data["Cadence (steps/min)"] = cadences
+
+    # Assign event times.
+    s_t_data["Initial Foot Contact (t)"] = initial_contact_times
+    s_t_data["Foot Contact (t)"] = toe_off_times
+    s_t_data["Terminal Foot Contact (t)"] = terminal_contact_times
 
     data_frame = convert_to_data_frame(s_t_data)
 

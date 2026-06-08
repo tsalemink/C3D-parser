@@ -1406,23 +1406,22 @@ class SpatiotemporalTableDelegate(QStyledItemDelegate):
                 max_value = max_time_value
             elif index.row() in [8, 9, 10, 11]:
                 max_value = 100
-            else:
-                if index.row() == 12:
-                    max_value = 3.0
-                elif index.row() == 13:
-                    max_value = 1.5
-                elif index.row() == 14:
-                    max_value = 240
+            elif index.row() == 12:
+                max_value = 3.0
+            elif index.row() == 13:
+                max_value = 1.5
+            elif index.row() == 14:
+                max_value = 240
 
             left_columns = [i for i in columns if "Left" in data.columns[i]]
             right_columns = [i for i in columns if "Right" in data.columns[i]]
             left_values = data.iloc[index.row(), left_columns]
             right_values = data.iloc[index.row(), right_columns]
 
-            if not left_values.empty:
+            if not left_values.empty and index.row() < 15:
                 l_min, l_max, l_mean = left_values.min(), left_values.max(), left_values.mean()
                 draw_box(l_min, l_max, l_mean, max_value, side='left')
-            if not right_values.empty:
+            if not right_values.empty and index.row() < 15:
                 r_min, r_max, r_mean = right_values.min(), right_values.max(), right_values.mean()
                 draw_box(r_min, r_max, r_mean, max_value, side='right')
 
