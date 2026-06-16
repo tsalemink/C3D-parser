@@ -1046,6 +1046,15 @@ def is_dynamic(file_path):
         finally:
             logging.disable(logging.NOTSET)
 
+        if 'PROCESSING' in reader:
+            processing_group = reader.get('PROCESSING')
+            if 'MEASUREMENT TYPE' in processing_group:
+                measurement_type = reader.get('PROCESSING:Measurement type').string_value.strip().capitalize()
+                if measurement_type == 'Dynamic':
+                    return True
+                elif measurement_type == 'Static':
+                    return False
+
         if reader.analog_used > 0 and reader.frame_count > 100:
             return True
         else:
