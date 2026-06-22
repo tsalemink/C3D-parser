@@ -16,8 +16,8 @@ from pyvistaqt import QtInteractor
 from ll_visualiser.visualiser import visualise_model
 
 from c3d_parser.core.c3d_parser import (parse_session, extract_static_data, extract_marker_names, is_dynamic,
-    CancelException, write_normalised_kinematics, write_normalised_kinetics, write_spatiotemporal_data,
-    approximate_anthropometrics)
+    CancelException, write_normalised_grfs, write_normalised_kinematics, write_normalised_kinetics,
+    write_spatiotemporal_data, approximate_anthropometrics)
 from c3d_parser.settings.general import (APPLICATION_NAME, VERSION, DEFAULT_STYLE_SHEET, INVALID_STYLE_SHEET,
                                          get_marker_maps_dir)
 from c3d_parser.view.ui.ui_main_window import Ui_MainWindow
@@ -87,6 +87,7 @@ class MainWindow(QMainWindow):
         self._static_trial = None
         self._analog_data = None
         self._subject_weight = None
+        self._grf_data = {}
         self._kinematic_data = {}
         self._kinetic_data = {}
         self._s_t_data = {}
@@ -612,9 +613,9 @@ class MainWindow(QMainWindow):
 
     @handle_runtime_error
     def _parse_finished(self, result):
-        grf_data, self._kinematic_data, self._kinetic_data, self._s_t_data, self._deidentified_file_names = result
+        self._grf_data, self._kinematic_data, self._kinetic_data, self._s_t_data, self._deidentified_file_names = result
 
-        self._visualise_grf_data(grf_data)
+        self._visualise_grf_data(self._grf_data)
         self._visualise_kinematic_data(self._kinematic_data)
         self._visualise_kinetic_data(self._kinetic_data)
         self._visualise_spatiotemporal_data()
@@ -675,6 +676,7 @@ class MainWindow(QMainWindow):
         kinematic_exclusions = self._kinematic_curves.get_excluded_cycles()
         kinetic_exclusions = self._kinetic_curves.get_excluded_cycles()
         self._update_s_t_data_from_tables()
+        write_normalised_grfs(self._grf_data, selected_trials, self._output_directory)
         write_normalised_kinematics(self._kinematic_data, selected_trials, kinematic_exclusions, self._output_directory)
         write_normalised_kinetics(self._kinetic_data, selected_trials, kinetic_exclusions, self._output_directory)
         write_spatiotemporal_data(self._s_t_data, selected_trials, self._output_directory)
