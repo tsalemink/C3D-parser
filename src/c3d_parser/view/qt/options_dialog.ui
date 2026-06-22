@@ -358,6 +358,13 @@ background-color: #FFFFFF</string>
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="checkBoxOutputGRFs">
+        <property name="text">
+         <string>Output GRF data to CSV</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>

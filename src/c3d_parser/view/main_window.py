@@ -78,6 +78,7 @@ class MainWindow(QMainWindow):
         self._ik_task_set_path = ''
         self._approximate_anthropometrics = False
         self._running_gait = False
+        self._output_grf = False
 
         self._colour_left = '#A52A2A'
         self._colour_right = '#0F52BA'
@@ -897,6 +898,7 @@ class MainWindow(QMainWindow):
             'ik_task_set_path': self._ik_task_set_path,
             'approximate_anthropometrics': self._approximate_anthropometrics,
             'running_gait': self._running_gait,
+            'output_grf': self._output_grf,
         }
 
         return options
@@ -915,6 +917,7 @@ class MainWindow(QMainWindow):
         self._ik_task_set_path = options['ik_task_set_path']
         self._approximate_anthropometrics = options['approximate_anthropometrics']
         self._running_gait = options['running_gait']
+        self._output_grf = options['output_grf']
 
     def _show_custom_marker_set_dialog(self):
         static_trials = []
@@ -985,6 +988,7 @@ class MainWindow(QMainWindow):
         settings.setValue('ik_task_set_path', self._ik_task_set_path)
         settings.setValue('approximate_anthropometrics', self._approximate_anthropometrics)
         settings.setValue('running_gait', self._running_gait)
+        settings.setValue('output_grf', self._output_grf)
         settings.endGroup()
 
     def _load_settings(self):
@@ -1037,6 +1041,8 @@ class MainWindow(QMainWindow):
             self._approximate_anthropometrics = settings.value('approximate_anthropometrics') == 'true'
         if settings.contains('running_gait'):
             self._running_gait = settings.value('running_gait') == 'true'
+        if settings.contains('output_grf'):
+            self._output_grf = settings.value('output_grf') == 'true'
         settings.endGroup()
 
     def _quit_application(self):

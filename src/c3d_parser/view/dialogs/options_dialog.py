@@ -91,6 +91,7 @@ class OptionsDialog(QDialog):
         self._ui.lineEditIKTaskSet.setText(options['ik_task_set_path'])
         self._ui.checkBoxApproximateAnthropometrics.setChecked(options['approximate_anthropometrics'])
         self._ui.checkBoxRunningGait.setChecked(options['running_gait'])
+        self._ui.checkBoxOutputGRFs.setChecked(options['output_grf'])
 
     def save(self):
         options = {
@@ -107,6 +108,7 @@ class OptionsDialog(QDialog):
             'ik_task_set_path': self._ui.lineEditIKTaskSet.text(),
             'approximate_anthropometrics': self._ui.checkBoxApproximateAnthropometrics.isChecked(),
             'running_gait': self._ui.checkBoxRunningGait.isChecked(),
+            'output_grf': self._ui.checkBoxOutputGRFs.isChecked(),
         }
 
         return options

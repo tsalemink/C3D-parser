@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'options_dialog.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.9.0
+## Created by: Qt User Interface Compiler version 6.10.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -268,6 +268,11 @@ class Ui_OptionsDialog(object):
 
         self.verticalLayout_4.addWidget(self.checkBoxRunningGait)
 
+        self.checkBoxOutputGRFs = QCheckBox(self.groupBox_7)
+        self.checkBoxOutputGRFs.setObjectName(u"checkBoxOutputGRFs")
+
+        self.verticalLayout_4.addWidget(self.checkBoxOutputGRFs)
+
 
         self.verticalLayout.addWidget(self.groupBox_7)
 
@@ -329,6 +334,7 @@ class Ui_OptionsDialog(object):
         self.checkBoxApproximateAnthropometrics.setText(QCoreApplication.translate("OptionsDialog", u"Approximate missing anthropometrics", None))
         self.groupBox_7.setTitle(QCoreApplication.translate("OptionsDialog", u"Experimental", None))
         self.checkBoxRunningGait.setText(QCoreApplication.translate("OptionsDialog", u"Running gait", None))
+        self.checkBoxOutputGRFs.setText(QCoreApplication.translate("OptionsDialog", u"Output GRF data to CSV", None))
         self.pushButtonOK.setText(QCoreApplication.translate("OptionsDialog", u"OK", None))
         self.pushButtonCancel.setText(QCoreApplication.translate("OptionsDialog", u"Cancel", None))
     # retranslateUi
