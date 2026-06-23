@@ -739,38 +739,34 @@ def extract_static_data(file_path):
     with open(file_path, 'rb') as handle:
         reader = c3d.Reader(handle)
 
+        static_data = {}
         if 'PROCESSING' not in reader:
             logger.warn("No processing section found in static trial.")
-            return None, None, None, None, None, None, None, None, None
-
+            return static_data
         processing_group = reader.get('PROCESSING')
-        height = mass = asis_width = left_knee_width = right_knee_width = None
-        left_ankle_width = right_ankle_width = left_leg_length = right_leg_length = None
 
         if 'HEIGHT' in processing_group:
-            height = reader.get('PROCESSING:Height').float_value
+            static_data['height'] = reader.get('PROCESSING:Height').float_value
         if 'BODYMASS' in processing_group:
-            mass = reader.get('PROCESSING:Bodymass').float_value
+            static_data['mass'] = reader.get('PROCESSING:Bodymass').float_value
+            if static_data['mass'] > 200:
+                static_data['mass'] = static_data['mass'] / 9.81
         if 'INTERASISDISTANCE' in processing_group:
-            asis_width = reader.get('PROCESSING:InterAsisDistance').float_value
+            static_data['asis_width'] = reader.get('PROCESSING:InterAsisDistance').float_value
         if 'LKNEEWIDTH' in processing_group:
-            left_knee_width = reader.get('PROCESSING:LKneeWidth').float_value
+            static_data['left_knee_width'] = reader.get('PROCESSING:LKneeWidth').float_value
         if 'RKNEEWIDTH' in processing_group:
-            right_knee_width = reader.get('PROCESSING:RKneeWidth').float_value
+            static_data['right_knee_width'] = reader.get('PROCESSING:RKneeWidth').float_value
         if 'LANKLEWIDTH' in processing_group:
-            left_ankle_width = reader.get('PROCESSING:LAnkleWidth').float_value
+            static_data['left_ankle_width'] = reader.get('PROCESSING:LAnkleWidth').float_value
         if 'RANKLEWIDTH' in processing_group:
-            right_ankle_width = reader.get('PROCESSING:RAnkleWidth').float_value
+            static_data['right_ankle_width'] = reader.get('PROCESSING:RAnkleWidth').float_value
         if 'LLEGLENGTH' in processing_group:
-            left_leg_length = reader.get('PROCESSING:LLegLength').float_value
+            static_data['left_leg_length'] = reader.get('PROCESSING:LLegLength').float_value
         if 'RLEGLENGTH' in processing_group:
-            right_leg_length = reader.get('PROCESSING:RLegLength').float_value
+            static_data['right_leg_length'] = reader.get('PROCESSING:RLegLength').float_value
 
-        if mass and mass > 200:
-            mass = mass / 9.81
-
-    return (height, mass, asis_width, left_knee_width, right_knee_width,
-            left_ankle_width, right_ankle_width, left_leg_length, right_leg_length)
+    return static_data
 
 
 def read_grf(file_path):

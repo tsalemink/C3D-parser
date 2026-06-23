@@ -480,28 +480,25 @@ class MainWindow(QMainWindow):
         self._ui.doubleSpinBoxRightLegLength.setValue(0)
 
     def _set_subject_info(self, static_trial):
+        field_map = {
+            'height': self._ui.doubleSpinBoxHeight,
+            'mass': self._ui.doubleSpinBoxBodyMass,
+            'asis_width': self._ui.doubleSpinBoxASISWidth,
+            'left_knee_width': self._ui.doubleSpinBoxLeftKneeWidth,
+            'right_knee_width': self._ui.doubleSpinBoxRightKneeWidth,
+            'left_ankle_width': self._ui.doubleSpinBoxLeftAnkleWidth,
+            'right_ankle_width': self._ui.doubleSpinBoxRightAnkleWidth,
+            'left_leg_length': self._ui.doubleSpinBoxLeftLegLength,
+            'right_leg_length': self._ui.doubleSpinBoxRightLegLength,
+        }
+
         input_directory = self._ui.lineEditInputDirectory.text()
         c3d_file = os.path.join(input_directory, static_trial)
-        static_data = list(extract_static_data(c3d_file))
-
-        if static_data[0] is not None:
-            self._ui.doubleSpinBoxHeight.setValue(static_data[0])
-        if static_data[1] is not None:
-            self._ui.doubleSpinBoxBodyMass.setValue(static_data[1])
-        if static_data[2] is not None:
-            self._ui.doubleSpinBoxASISWidth.setValue(static_data[2])
-        if static_data[3] is not None:
-            self._ui.doubleSpinBoxLeftKneeWidth.setValue(static_data[3])
-        if static_data[4] is not None:
-            self._ui.doubleSpinBoxRightKneeWidth.setValue(static_data[4])
-        if static_data[5] is not None:
-            self._ui.doubleSpinBoxLeftAnkleWidth.setValue(static_data[5])
-        if static_data[6] is not None:
-            self._ui.doubleSpinBoxRightAnkleWidth.setValue(static_data[6])
-        if static_data[7] is not None:
-            self._ui.doubleSpinBoxLeftLegLength.setValue(static_data[7])
-        if static_data[8] is not None:
-            self._ui.doubleSpinBoxRightLegLength.setValue(static_data[8])
+        static_data = extract_static_data(c3d_file)
+        for key, widget in field_map.items():
+            value = static_data.get(key)
+            if value is not None:
+                widget.setValue(value)
 
     @handle_runtime_error
     def _parse_c3d_data(self):
