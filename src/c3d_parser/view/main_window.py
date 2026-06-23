@@ -6,10 +6,10 @@ import pandas as pd
 from collections import defaultdict
 
 from PySide6.QtGui import QPen, QColor, QFontMetrics
-from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QTimer, QAbstractTableModel, QRect
+from PySide6.QtCore import Qt, QSettings, QPoint, QThread, Signal, QObject, QAbstractTableModel, QRect
 from PySide6.QtWidgets import (QApplication, QMainWindow, QMenu, QFileDialog, QListWidgetItem, QInputDialog,
                                QMessageBox, QTableView, QLabel, QAbstractButton, QHeaderView, QStyledItemDelegate,
-                               QWidget, QVBoxLayout, QHBoxLayout, QTableWidgetItem)
+                               QWidget, QVBoxLayout, QHBoxLayout, QTableWidgetItem, QComboBox, QSpinBox)
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from pyvistaqt import QtInteractor
@@ -481,6 +481,8 @@ class MainWindow(QMainWindow):
 
     def _set_subject_info(self, static_trial):
         field_map = {
+            'sex': self._ui.comboBoxSex,
+            'age': self._ui.spinBoxAge,
             'height': self._ui.doubleSpinBoxHeight,
             'mass': self._ui.doubleSpinBoxBodyMass,
             'asis_width': self._ui.doubleSpinBoxASISWidth,
@@ -498,7 +500,10 @@ class MainWindow(QMainWindow):
         for key, widget in field_map.items():
             value = static_data.get(key)
             if value is not None:
-                widget.setValue(value)
+                if isinstance(widget, QComboBox):
+                    widget.setCurrentText(value)
+                else:
+                    widget.setValue(value)
 
     @handle_runtime_error
     def _parse_c3d_data(self):

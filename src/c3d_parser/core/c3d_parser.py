@@ -745,6 +745,13 @@ def extract_static_data(file_path):
             return static_data
         processing_group = reader.get('PROCESSING')
 
+        if 'SUBJECT_INFO' in reader:
+            subject_info = reader.get('SUBJECT_INFO')
+            if 'SEX' in subject_info:
+                static_data['sex'] = subject_info.get('SEX').string_value.title()
+            if 'AGE' in subject_info:
+                static_data['age'] = int(subject_info.get('AGE').float_value)
+
         if 'HEIGHT' in processing_group:
             static_data['height'] = reader.get('PROCESSING:Height').float_value
         if 'BODYMASS' in processing_group:
