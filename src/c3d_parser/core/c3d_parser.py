@@ -82,7 +82,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         grf_file_paths[trial] = grf_file_path
         deidentified_file_names[trial] = os.path.basename(trc_file_path).rsplit(".", 1)[0]
 
-    write_c3d_parser_history(input_directory, static_trial, deidentified_file_names)
+    write_c3d_parser_history(input_directory, static_trial, deidentified_file_names, static_data)
 
     logger.info("Fitting shape model.")
     dynamic_trc_path = list(trc_file_paths.values())[0] if trc_file_paths else ""
@@ -236,7 +236,7 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     return analog_data, events, s_t_data, trc_file_path, grf_file_path
 
 
-def write_c3d_parser_history(input_directory, static_trial, deidentified_file_names):
+def write_c3d_parser_history(input_directory, static_trial, deidentified_file_names, static_data):
     log_path = os.path.join(input_directory, "c3d_parser_history.log")
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -251,6 +251,24 @@ def write_c3d_parser_history(input_directory, static_trial, deidentified_file_na
                 f.write("Deidentified file names:\n")
                 for original_name, updated_name in deidentified_file_names.items():
                     f.write(f"{original_name}: {updated_name}\n")
+                f.write("\n")
+
+            if static_data:
+                units = {
+                    "Height": "mm",
+                    "Weight": "kg",
+                    "ASIS Width": "mm",
+                    "Left Knee Width": "mm",
+                    "Right Knee Width": "mm",
+                    "Left Ankle Width": "mm",
+                    "Right Ankle Width": "mm",
+                    "Left Leg Length": "mm",
+                    "Right Leg Length": "mm",
+                }
+                f.write("Subject Information:\n")
+                for key, value in static_data.items():
+                    unit = f" {units[key]}" if key in units else ""
+                    f.write(f"{key}: {value}{unit}\n")
 
     except (OSError, IOError):
         raise ParserError("Could not write c3d_parser_history.log")
