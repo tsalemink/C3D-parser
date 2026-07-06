@@ -267,8 +267,9 @@ def write_c3d_parser_history(input_directory, static_trial, deidentified_file_na
                 }
                 f.write("Subject Information:\n")
                 for key, value in static_data.items():
+                    label = "Body Mass" if key == "Weight" else key
                     unit = f" {units[key]}" if key in units else ""
-                    f.write(f"{key}: {value}{unit}\n")
+                    f.write(f"{label}: {value}{unit}\n")
 
     except (OSError, IOError):
         raise ParserError("Could not write c3d_parser_history.log")
