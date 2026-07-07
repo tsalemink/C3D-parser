@@ -111,6 +111,11 @@ class MainWindow(QMainWindow):
         self._kinetic_curves = GaitCurves(self._kinetic_canvas, colours)
         self._boxes = None
 
+        self._kinematic_curves.signals.cycles_excluded.connect(self._kinetic_curves.exclude_cycles)
+        self._kinematic_curves.signals.cycles_excluded.connect(self._grf_curves.exclude_cycles)
+        self._kinematic_curves.signals.cycles_included.connect(self._kinetic_curves.include_cycles)
+        self._kinematic_curves.signals.cycles_included.connect(self._grf_curves.include_cycles)
+
     def _setup_progress_bar(self):
         self._progress_text = ""
         self._progress_value = 0
@@ -1088,6 +1093,11 @@ class MainWindow(QMainWindow):
             curves.exclude_side(file_name, "Right")
 
 
+class CurveSignals(QObject):
+    cycles_included = Signal(list)
+    cycles_excluded = Signal(list)
+
+
 class GaitCurves(defaultdict):
 
     def __init__(self, canvas, colours):
@@ -1096,6 +1106,8 @@ class GaitCurves(defaultdict):
         self._canvas = canvas
         self._canvas.mpl_connect('pick_event', lambda event: self.toggle_cycle(event))
         self._canvas.mpl_connect('button_press_event', lambda event: self.show_curve_menu(event))
+
+        self.signals = CurveSignals()
 
         self._selected_curves = []
         self._excluded_cycles = set()
@@ -1188,15 +1200,16 @@ class GaitCurves(defaultdict):
             context_menu.exec_(self._canvas.mapToGlobal(point))
 
     def include_curves(self):
-        self._excluded_cycles.difference_update(self._selected_curves)
-        for file_name, cycle in self._selected_curves:
-            colour = self._colour_left if "Left" in cycle else self._colour_right
-            for line in self[file_name][cycle]:
-                line.set_linestyle('solid')
-                line.set_color(colour)
-                line.set_zorder(2)
+        identifiers = list(self._selected_curves)
+        self.include_cycles(identifiers)
         self._selected_curves = []
 
+        self.signals.cycles_included.emit(identifiers)
+
+    def include_cycles(self, identifiers):
+        for file_name, cycle in identifiers:
+            colour = self._colour_left if "Left" in cycle else self._colour_right
+            self._include_cycle(file_name, cycle, colour)
         self._canvas.draw()
 
     def include_all(self):
@@ -1248,15 +1261,16 @@ class GaitCurves(defaultdict):
         self._canvas.draw_idle()
 
     def exclude_curves(self):
-        self._excluded_cycles.update(self._selected_curves)
-        for file_name, cycle in self._selected_curves:
-            colour = self._colour_left if "Left" in cycle else self._colour_right
-            for line in self[file_name][cycle]:
-                line.set_linestyle('dotted')
-                line.set_color(colour)
-                line.set_zorder(1)
+        identifiers = list(self._selected_curves)
+        self.exclude_cycles(identifiers)
         self._selected_curves = []
 
+        self.signals.cycles_excluded.emit(identifiers)
+
+    def exclude_cycles(self, identifiers):
+        for file_name, cycle in identifiers:
+            colour = self._colour_left if "Left" in cycle else self._colour_right
+            self._exclude_cycle(file_name, cycle, colour)
         self._canvas.draw()
 
     def exclude_all(self):
