@@ -115,6 +115,8 @@ class MainWindow(QMainWindow):
         self._kinematic_curves.signals.cycles_excluded.connect(self._grf_curves.exclude_cycles)
         self._kinematic_curves.signals.cycles_included.connect(self._kinetic_curves.include_cycles)
         self._kinematic_curves.signals.cycles_included.connect(self._grf_curves.include_cycles)
+        self._kinetic_curves.signals.cycles_excluded.connect(self._grf_curves.exclude_cycles)
+        self._kinetic_curves.signals.cycles_included.connect(self._grf_curves.include_cycles)
 
     def _setup_progress_bar(self):
         self._progress_text = ""
