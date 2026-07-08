@@ -16,6 +16,7 @@ from decimal import Decimal, ROUND_CEILING, ROUND_FLOOR
 
 from trc import TRCData
 from opensim_model_creator.Create_Model import create_model
+from ll_visualiser.utils import get_fit_metrics, load_landmarks, define_measurements
 
 from c3d_parser.core.c3d_patch import c3d
 from c3d_parser.core.utils import clear_directory
@@ -82,12 +83,12 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
         grf_file_paths[trial] = grf_file_path
         deidentified_file_names[trial] = os.path.basename(trc_file_path).rsplit(".", 1)[0]
 
-    write_c3d_parser_history(input_directory, static_trial, deidentified_file_names, static_data)
-
     logger.info("Fitting shape model.")
     dynamic_trc_path = list(trc_file_paths.values())[0] if trc_file_paths else ""
     osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, marker_diameter, static_data,
                                    output_directory, left_foot_flat, right_foot_flat, optimise_knee_axis, progress_tracker)
+
+    write_c3d_parser_history(input_directory, output_directory, static_trial, deidentified_file_names, static_data)
 
     if not trc_file_paths:
         raise CancelException("No dynamic trials found.")
@@ -236,7 +237,7 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     return analog_data, events, s_t_data, trc_file_path, grf_file_path
 
 
-def write_c3d_parser_history(input_directory, static_trial, deidentified_file_names, static_data):
+def write_c3d_parser_history(input_directory, output_directory, static_trial, deidentified_file_names, static_data):
     log_path = os.path.join(input_directory, "c3d_parser_history.log")
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -271,8 +272,34 @@ def write_c3d_parser_history(input_directory, static_trial, deidentified_file_na
                     unit = f" {units[key]}" if key in units else ""
                     f.write(f"{label}: {value}{unit}\n")
 
+            metrics, measurements = define_metrics_and_measurements(output_directory)
+            if metrics:
+                f.write("\n")
+                f.write("ASM Fit Metrics:\n")
+                for key, value in metrics.items():
+                    f.write(f"{key}: {value} mm\n")
+            if measurements:
+                f.write("\n")
+                f.write("Bone Surface Measurements:\n")
+                for key, value in measurements.items():
+                    f.write(f"{key}: {value} mm\n")
+
     except (OSError, IOError):
         raise ParserError("Could not write c3d_parser_history.log")
+
+
+def define_metrics_and_measurements(output_directory):
+    model_directory = os.path.join(output_directory, "Models", "Meshes")
+    left_predicted_landmark_file = os.path.join(model_directory, 'predicted_lms_left.txt')
+    right_predicted_landmark_file = os.path.join(model_directory, 'predicted_lms_right.txt')
+
+    left_predicted_landmarks = load_landmarks(left_predicted_landmark_file)
+    right_predicted_landmarks = load_landmarks(right_predicted_landmark_file)
+
+    metrics = get_fit_metrics(model_directory)
+    measurements = define_measurements(left_predicted_landmarks, right_predicted_landmarks)
+
+    return metrics, measurements
 
 
 def write_event_data(events, file_name, output_directory):
