@@ -71,7 +71,7 @@ class MainWindow(QMainWindow):
         self._line_width = 1.0
         self._input_data_directory = ''
         self._output_data_directory = ''
-        self._optimise_knee_axis = True
+        self._optimise_knee_axis = False
         self._filter_trc = True
         self._filter_grf = True
         self._use_custom_ik_task_set = False
