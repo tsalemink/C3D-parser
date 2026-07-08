@@ -1211,6 +1211,8 @@ class GaitCurves(defaultdict):
 
     def include_cycles(self, identifiers):
         for file_name, cycle in identifiers:
+            if file_name not in self or cycle not in self[file_name]:
+                continue
             colour = self._colour_left if "Left" in cycle else self._colour_right
             self._include_cycle(file_name, cycle, colour)
         self._canvas.draw()
@@ -1272,6 +1274,8 @@ class GaitCurves(defaultdict):
 
     def exclude_cycles(self, identifiers):
         for file_name, cycle in identifiers:
+            if file_name not in self or cycle not in self[file_name]:
+                continue
             colour = self._colour_left if "Left" in cycle else self._colour_right
             self._exclude_cycle(file_name, cycle, colour)
         self._canvas.draw()
