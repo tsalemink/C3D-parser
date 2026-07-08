@@ -684,8 +684,9 @@ class MainWindow(QMainWindow):
         selected_trials = {key: value for key, value in self._deidentified_file_names.items() if key in selected}
         kinematic_exclusions = self._kinematic_curves.get_excluded_cycles()
         kinetic_exclusions = self._kinetic_curves.get_excluded_cycles()
+        grf_exclusions = self._grf_curves.get_excluded_cycles()
         self._update_s_t_data_from_tables()
-        write_normalised_grfs(self._grf_data, selected_trials, self._output_directory)
+        write_normalised_grfs(self._grf_data, selected_trials, grf_exclusions, self._output_directory)
         write_normalised_kinematics(self._kinematic_data, selected_trials, kinematic_exclusions, self._output_directory)
         write_normalised_kinetics(self._kinetic_data, selected_trials, kinetic_exclusions, self._output_directory)
         write_spatiotemporal_data(self._s_t_data, selected_trials, self._output_directory)

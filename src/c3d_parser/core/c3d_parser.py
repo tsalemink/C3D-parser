@@ -1285,13 +1285,12 @@ def normalise_kinetics(kinetic_data, events):
     return normalised_data
 
 
-def write_normalised_grfs(grf_data, selected_trials, output_directory):
+def write_normalised_grfs(grf_data, selected_trials, excluded_cycles, output_directory):
     normalised_directory = os.path.join(output_directory, 'normalised')
     if not os.path.exists(normalised_directory):
         os.makedirs(normalised_directory)
     output_file = os.path.join(normalised_directory, f"combined_grf.csv")
     columns = ['anterior_posterior', 'medial_lateral', 'vertical']
-    excluded_cycles = set()
     write_normalised_data(grf_data, columns, selected_trials, excluded_cycles, output_file)
 
 
