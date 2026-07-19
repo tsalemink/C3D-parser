@@ -1514,7 +1514,7 @@ def calculate_spatiotemporal_data(frame_data, events, static_data):
 
     # Assign event times.
     s_t_data["Initial Foot Contact (t)"] = initial_contact_times
-    s_t_data["Foot Contact (t)"] = toe_off_times
+    s_t_data["Toe Off (t)"] = toe_off_times
     s_t_data["Terminal Foot Contact (t)"] = terminal_contact_times
 
     data_frame = convert_to_data_frame(s_t_data)
