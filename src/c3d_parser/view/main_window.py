@@ -982,6 +982,7 @@ class MainWindow(QMainWindow):
         settings.setValue('is_maximized', self.isMaximized())
         settings.setValue('lab', self._ui.comboBoxLab.currentText())
         settings.setValue('marker_diameter', self._ui.doubleSpinBoxMarkerDiameter.value())
+        settings.setValue('toe_marker_proximal', self._ui.radioButtonProximal.isChecked())
         settings.setValue('left_foot_flat', self._ui.checkBoxLeftFootFlat.isChecked())
         settings.setValue('right_foot_flat', self._ui.checkBoxRightFootFlat.isChecked())
         settings.endGroup()
@@ -1020,6 +1021,10 @@ class MainWindow(QMainWindow):
             self._ui.comboBoxLab.setCurrentText(settings.value('lab'))
         if settings.contains('marker_diameter'):
             self._ui.doubleSpinBoxMarkerDiameter.setValue(float(settings.value('marker_diameter')))
+        if settings.contains('toe_marker_proximal'):
+            proximal = settings.value('toe_marker_proximal') == 'true'
+            self._ui.radioButtonProximal.setChecked(proximal)
+            self._ui.radioButtonMetHead.setChecked(not proximal)
         if settings.contains('left_foot_flat'):
             self._ui.checkBoxLeftFootFlat.setChecked(settings.value('left_foot_flat') == 'true')
         if settings.contains('right_foot_flat'):
