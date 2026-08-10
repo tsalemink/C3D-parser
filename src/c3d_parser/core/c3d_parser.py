@@ -40,8 +40,8 @@ required_markers = [{"LASI", "RASI"}, {"LKNE", "RKNE"}, {"LANK", "RANK"}, {"LMED
 
 
 def parse_session(static_trial, dynamic_trials, input_directory, output_directory, lab, marker_diameter, static_data,
-                  left_foot_flat, right_foot_flat, optimise_knee_axis, filter_trc, filter_grf, ik_task_set,
-                  running_gait, progress_tracker):
+                  left_foot_flat, right_foot_flat, toe_marker_proximal, optimise_knee_axis, filter_trc, filter_grf,
+                  ik_task_set, running_gait, progress_tracker):
 
     clear_directory(output_directory)
 
@@ -86,7 +86,8 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
     logger.info("Fitting shape model.")
     dynamic_trc_path = list(trc_file_paths.values())[0] if trc_file_paths else ""
     osim_model = create_osim_model(static_trc_path, dynamic_trc_path, frame, marker_diameter, static_data,
-                                   output_directory, left_foot_flat, right_foot_flat, optimise_knee_axis, progress_tracker)
+                                   output_directory, left_foot_flat, right_foot_flat, toe_marker_proximal,
+                                   optimise_knee_axis, progress_tracker)
 
     write_c3d_parser_history(input_directory, output_directory, static_trial, deidentified_file_names, static_data)
 
@@ -1635,7 +1636,8 @@ def add_medial_knee_markers(frame_data, left_knee_width, right_knee_width, marke
 
 
 def create_osim_model(static_trc, dynamic_trc, static_marker_data, marker_diameter, static_data,
-                      output_directory, left_foot_flat, right_foot_flat, optimise_knee_axis, progress_tracker):
+                      output_directory, left_foot_flat, right_foot_flat, toe_marker_proximal, optimise_knee_axis,
+                      progress_tracker):
 
     static_marker_data = static_marker_data.drop("Time").to_dict()
     rotation_matrix = np.array([[1, 0, 0], [0, 0, 1], [0, -1, 0]])
@@ -1644,7 +1646,8 @@ def create_osim_model(static_trc, dynamic_trc, static_marker_data, marker_diamet
     marker_radius = marker_diameter / 2
 
     model_path = create_model(static_trc, dynamic_trc, output_directory, static_marker_data, subject_info,
-                              marker_radius, left_foot_flat, right_foot_flat, optimise_knee_axis=optimise_knee_axis,
+                              marker_radius, left_foot_flat, right_foot_flat,
+                              toe_marker_proximal=toe_marker_proximal, optimise_knee_axis=optimise_knee_axis,
                               progress_tracker=progress_tracker)
 
     return model_path

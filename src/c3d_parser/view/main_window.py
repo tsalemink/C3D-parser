@@ -552,6 +552,7 @@ class MainWindow(QMainWindow):
 
         lab = self._ui.comboBoxLab.currentText()
         marker_diameter = self._ui.doubleSpinBoxMarkerDiameter.value()
+        toe_marker_proximal = self._ui.radioButtonProximal.isChecked()
         left_foot_flat = self._ui.checkBoxLeftFootFlat.isChecked()
         right_foot_flat = self._ui.checkBoxRightFootFlat.isChecked()
 
@@ -613,8 +614,9 @@ class MainWindow(QMainWindow):
         ik_task_set = self._ik_task_set_path if self._use_custom_ik_task_set else None
         self._worker = _ExecThread(parse_session, static_trial, dynamic_trials, input_directory,
                                    self._output_directory, lab, marker_diameter, static_data,
-                                   left_foot_flat, right_foot_flat, optimise_knee_axis, self._filter_trc,
-                                   self._filter_grf, ik_task_set, self._running_gait, self._progress_tracker)
+                                   left_foot_flat, right_foot_flat, toe_marker_proximal, optimise_knee_axis,
+                                   self._filter_trc, self._filter_grf, ik_task_set, self._running_gait,
+                                   self._progress_tracker)
         self._worker.finished.connect(self._parse_finished)
         self._worker.cancelled.connect(self._parse_cancelled)
         self._worker.failed.connect(self._parse_failed)
