@@ -20,9 +20,9 @@ from PySide6.QtWidgets import (QAbstractItemView, QApplication, QCheckBox, QComb
     QDoubleSpinBox, QFrame, QGroupBox, QHBoxLayout,
     QHeaderView, QLabel, QLineEdit, QListWidgetItem,
     QMainWindow, QMenu, QMenuBar, QProgressBar,
-    QPushButton, QScrollArea, QSizePolicy, QSpacerItem,
-    QSpinBox, QSplitter, QTabWidget, QTableWidget,
-    QTableWidgetItem, QVBoxLayout, QWidget)
+    QPushButton, QRadioButton, QScrollArea, QSizePolicy,
+    QSpacerItem, QSpinBox, QSplitter, QTabWidget,
+    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget)
 
 from c3d_parser.view.widgets import CustomListWidget
 from . import resources_rc
@@ -31,7 +31,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1500, 800)
+        MainWindow.resize(1500, 805)
         icon = QIcon()
         icon.addFile(u":/c3d_parser/images/app-icon.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         MainWindow.setWindowIcon(icon)
@@ -438,6 +438,25 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_2.addWidget(self.groupBox_4)
 
+        self.groupBox_6 = QGroupBox(self.frameTrial)
+        self.groupBox_6.setObjectName(u"groupBox_6")
+        self.horizontalLayout_20 = QHBoxLayout(self.groupBox_6)
+        self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
+        self.horizontalLayout_20.setContentsMargins(6, 6, 3, 6)
+        self.radioButtonProximal = QRadioButton(self.groupBox_6)
+        self.radioButtonProximal.setObjectName(u"radioButtonProximal")
+
+        self.horizontalLayout_20.addWidget(self.radioButtonProximal)
+
+        self.radioButtonMetHead = QRadioButton(self.groupBox_6)
+        self.radioButtonMetHead.setObjectName(u"radioButtonMetHead")
+        self.radioButtonMetHead.setChecked(True)
+
+        self.horizontalLayout_20.addWidget(self.radioButtonMetHead)
+
+
+        self.verticalLayout_2.addWidget(self.groupBox_6)
+
         self.groupBox_5 = QGroupBox(self.frameTrial)
         self.groupBox_5.setObjectName(u"groupBox_5")
         self.horizontalLayout_19 = QHBoxLayout(self.groupBox_5)
@@ -535,7 +554,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaSpatiotemporal = QWidget()
         self.scrollAreaSpatiotemporal.setObjectName(u"scrollAreaSpatiotemporal")
-        self.scrollAreaSpatiotemporal.setGeometry(QRect(0, 0, 1193, 667))
+        self.scrollAreaSpatiotemporal.setGeometry(QRect(0, 0, 1193, 672))
         self.verticalLayout_5 = QVBoxLayout(self.scrollAreaSpatiotemporal)
         self.verticalLayout_5.setSpacing(40)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
@@ -724,6 +743,9 @@ class Ui_MainWindow(object):
         self.label_14.setText(QCoreApplication.translate("MainWindow", u"Ankle Width (mm):", None))
         self.groupBox_4.setTitle(QCoreApplication.translate("MainWindow", u"Marker", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"Marker Diameter (mm):", None))
+        self.groupBox_6.setTitle(QCoreApplication.translate("MainWindow", u"Toe Markers", None))
+        self.radioButtonProximal.setText(QCoreApplication.translate("MainWindow", u"Proximal", None))
+        self.radioButtonMetHead.setText(QCoreApplication.translate("MainWindow", u"2nd/3rd Met", None))
         self.groupBox_5.setTitle("")
         self.checkBoxLeftFootFlat.setText(QCoreApplication.translate("MainWindow", u"Left Foot Flat", None))
         self.checkBoxRightFootFlat.setText(QCoreApplication.translate("MainWindow", u"Right Foot Flat", None))
