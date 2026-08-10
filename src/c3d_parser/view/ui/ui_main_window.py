@@ -442,7 +442,7 @@ class Ui_MainWindow(object):
         self.groupBox_6.setObjectName(u"groupBox_6")
         self.horizontalLayout_20 = QHBoxLayout(self.groupBox_6)
         self.horizontalLayout_20.setObjectName(u"horizontalLayout_20")
-        self.horizontalLayout_20.setContentsMargins(6, 6, 3, 6)
+        self.horizontalLayout_20.setContentsMargins(6, 1, 3, 6)
         self.radioButtonProximal = QRadioButton(self.groupBox_6)
         self.radioButtonProximal.setObjectName(u"radioButtonProximal")
 
