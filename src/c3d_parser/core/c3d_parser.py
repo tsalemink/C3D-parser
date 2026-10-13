@@ -16,7 +16,6 @@ from decimal import Decimal, ROUND_CEILING, ROUND_FLOOR
 
 from trc import TRCData
 from opensim_model_creator.Create_Model import create_model
-from ll_visualiser.utils import get_fit_metrics, load_landmarks, define_measurements
 
 from c3d_parser.core.c3d_patch import c3d
 from c3d_parser.core.utils import clear_directory
@@ -304,6 +303,8 @@ def write_c3d_parser_history(input_directory, output_directory, static_trial, de
 
 
 def define_metrics_and_measurements(output_directory):
+    from ll_visualiser.utils import get_fit_metrics, load_landmarks, define_measurements
+
     model_directory = os.path.join(output_directory, "Models", "Meshes")
     left_predicted_landmark_file = os.path.join(model_directory, 'predicted_lms_left.txt')
     right_predicted_landmark_file = os.path.join(model_directory, 'predicted_lms_right.txt')
