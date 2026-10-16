@@ -988,6 +988,7 @@ class MainWindow(QMainWindow):
         dlg.exec()
         self._reset_lab_combo_box()
 
+    @handle_runtime_error
     def _handle_error(self, e):
         raise e
 
