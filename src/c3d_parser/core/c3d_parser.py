@@ -92,7 +92,8 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
                                    output_directory, left_foot_flat, right_foot_flat, toe_marker_proximal,
                                    optimise_knee_axis, progress_tracker)
 
-    write_c3d_parser_history(input_directory, output_directory, static_trial, deidentified_file_names, static_data)
+    write_c3d_parser_history(input_directory, output_directory, static_trial, deidentified_file_names, static_data,
+                             left_foot_flat, right_foot_flat, toe_marker_proximal)
 
     if not trc_file_paths:
         raise CancelException("No dynamic trials found.")
@@ -251,14 +252,16 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     return analog_data, events, s_t_data, trc_file_path, grf_file_path
 
 
-def write_c3d_parser_history(input_directory, output_directory, static_trial, deidentified_file_names, static_data):
+def write_c3d_parser_history(input_directory, output_directory, static_trial, deidentified_file_names, static_data,
+                             left_foot_flat, right_foot_flat, toe_marker_proximal):
     log_path = os.path.join(input_directory, "c3d_parser_history.log")
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     try:
         with open(log_path, "w", encoding="utf-8") as f:
             f.write("C3D-Parser History\n")
-            f.write(f"Last Run: {timestamp}\n\n")
+            f.write(f"Last Run: {timestamp}\n")
+            f.write(f"C3D-Parser Version: {VERSION}\n\n")
 
             f.write(f"Static trial: {static_trial}\n\n")
 
@@ -285,6 +288,12 @@ def write_c3d_parser_history(input_directory, output_directory, static_trial, de
                     label = "Body Mass" if key == "Weight" else key
                     unit = f" {units[key]}" if key in units else ""
                     f.write(f"{label}: {value}{unit}\n")
+
+            f.write("\n")
+            f.write("Foot Settings:\n")
+            f.write(f"Toe Marker: {'Proximal' if toe_marker_proximal else '2nd/3rd Met'}\n")
+            f.write(f"Left Foot Flat: {left_foot_flat}\n")
+            f.write(f"Right Foot Flat: {right_foot_flat}\n")
 
             metrics, measurements = define_metrics_and_measurements(output_directory)
             if metrics:
