@@ -92,7 +92,7 @@ def parse_session(static_trial, dynamic_trials, input_directory, output_director
                                    output_directory, left_foot_flat, right_foot_flat, toe_marker_proximal,
                                    optimise_knee_axis, progress_tracker)
 
-    write_c3d_parser_history(input_directory, output_directory, static_trial, deidentified_file_names, static_data,
+    write_c3d_parser_history(input_directory, output_directory, lab, static_trial, deidentified_file_names, static_data,
                              left_foot_flat, right_foot_flat, toe_marker_proximal)
 
     if not trc_file_paths:
@@ -252,7 +252,7 @@ def parse_dynamic_trial(c3d_file, lab, output_directory, trial_index, marker_dat
     return analog_data, events, s_t_data, trc_file_path, grf_file_path
 
 
-def write_c3d_parser_history(input_directory, output_directory, static_trial, deidentified_file_names, static_data,
+def write_c3d_parser_history(input_directory, output_directory, lab, static_trial, deidentified_file_names, static_data,
                              left_foot_flat, right_foot_flat, toe_marker_proximal):
     log_path = os.path.join(input_directory, "c3d_parser_history.log")
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -263,6 +263,7 @@ def write_c3d_parser_history(input_directory, output_directory, static_trial, de
             f.write(f"Last Run: {timestamp}\n")
             f.write(f"C3D-Parser Version: {VERSION}\n\n")
 
+            f.write(f"Lab: {lab}\n")
             f.write(f"Static trial: {static_trial}\n\n")
 
             if deidentified_file_names:
